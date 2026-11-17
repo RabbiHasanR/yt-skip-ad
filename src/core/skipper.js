@@ -9,10 +9,14 @@ import { findSkipButton, isAdShowing } from './ad-detection.js';
  *   clicks the Skip button when it should be clicked.
  */
 export function createSkipper() {
+  let armed = true;
   return {
     check(player) {
-      if (!isAdShowing(player)) return;
-      findSkipButton(player)?.click();
+      if (!armed || !isAdShowing(player)) return;
+      const button = findSkipButton(player);
+      if (!button) return;
+      button.click();
+      armed = false;
     },
   };
 }

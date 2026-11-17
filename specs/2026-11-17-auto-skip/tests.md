@@ -28,7 +28,7 @@ Behaviours: B1–B4, B6, B11 · Branch: phase-1-auto-skip
 | T5  | B1        | unit        | tests/unit/ad-detection.test.js             | finds the player by $how                                           | ✅     |
 | T6  | B3        | unit        | tests/unit/skipper.test.js                  | clicks the Skip button once it becomes visible after the countdown | ✅     |
 | T7  | B2        | unit        | tests/unit/skipper.test.js                  | does not click a visible Skip button when no ad is showing         | ✅     |
-| T8  | B4        | unit        | tests/unit/skipper.test.js                  | clicks only once while the same Skip button stays visible          | ⬜     |
+| T8  | B4        | unit        | tests/unit/skipper.test.js                  | clicks only once while the same Skip button stays visible          | ✅     |
 | T9  | B4        | unit        | tests/unit/skipper.test.js                  | clicks again for the next ad in a pod after its countdown          | ⬜     |
 | T10 | B6        | unit        | tests/unit/skipper.test.js                  | does nothing during an ad without a Skip button                    | ⬜     |
 | T11 | B11       | integration | tests/integration/content-auto-skip.test.js | loads without errors on a page without a player                    | ⬜     |

@@ -26,4 +26,18 @@ describe('skipper', () => {
     // THEN nothing is clicked
     expect(clicks).not.toHaveBeenCalled();
   });
+
+  it('clicks only once while the same Skip button stays visible', () => {
+    // GIVEN an ad is showing and its Skip button is visible
+    const { player, clicks, startAd, showSkipButton } = loadPlayer();
+    startAd();
+    showSkipButton();
+    const skipper = createSkipper();
+    // WHEN the player is checked several times before the button goes away
+    skipper.check(player);
+    skipper.check(player);
+    skipper.check(player);
+    // THEN the Skip button is clicked once
+    expect(clicks).toHaveBeenCalledOnce();
+  });
 });
