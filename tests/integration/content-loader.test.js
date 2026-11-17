@@ -20,7 +20,7 @@ describe('content script loader', () => {
     vi.restoreAllMocks();
   });
 
-  it.fails('loader imports the content entry, which logs once', async () => {
+  it('loader imports the content entry, which logs once', async () => {
     // GIVEN the extension files are reachable, as on a YouTube page
     resolveExtensionFilesFromRepo();
     const log = vi.spyOn(console, 'log').mockImplementation(() => {});

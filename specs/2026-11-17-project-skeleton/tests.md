@@ -22,7 +22,7 @@ Behaviours: B1–B8 · Branch: phase-0-project-skeleton
 
 | #   | Behaviour | Level       | File                                        | Test name                                                     | Status |
 | --- | --------- | ----------- | ------------------------------------------- | ------------------------------------------------------------- | ------ |
-| T1  | B3        | acceptance  | tests/integration/content-loader.test.js    | loader imports the content entry, which logs once             | 🔴     |
+| T1  | B3        | acceptance  | tests/integration/content-loader.test.js    | loader imports the content entry, which logs once             | ✅     |
 | T2  | B1        | integration | tests/integration/manifest.test.js          | asks only for storage and YouTube host access                 | ✅     |
 | T3  | B2        | integration | tests/integration/manifest.test.js          | every file the manifest references exists                     | ✅     |
 | T4  | B2        | integration | tests/integration/manifest.test.js          | icons are PNGs of their declared size                         | ✅     |
