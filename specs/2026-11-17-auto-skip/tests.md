@@ -23,7 +23,7 @@ Behaviours: B1–B4, B6, B11 · Branch: phase-1-auto-skip
 | --- | --------- | ----------- | ------------------------------------------- | ------------------------------------------------------------------ | ------ |
 | T1  | B1        | acceptance  | tests/integration/content-auto-skip.test.js | clicks a visible Skip button while an ad is showing                | 🔴     |
 | T2  | B1        | unit        | tests/unit/ad-detection.test.js             | finds a visible Skip button by its $selector class                 | ✅     |
-| T3  | B3        | unit        | tests/unit/ad-detection.test.js             | ignores a Skip button hidden by $how                               | ⬜     |
+| T3  | B3        | unit        | tests/unit/ad-detection.test.js             | ignores a Skip button hidden by $how                               | ✅     |
 | T4  | B1        | unit        | tests/unit/ad-detection.test.js             | ignores a Skip button outside the player                           | ⬜     |
 | T5  | B1        | unit        | tests/unit/ad-detection.test.js             | finds the player by $how                                           | ⬜     |
 | T6  | B3        | unit        | tests/unit/skipper.test.js                  | clicks the Skip button once it becomes visible after the countdown | ⬜     |

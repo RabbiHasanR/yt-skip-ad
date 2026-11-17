@@ -3,17 +3,41 @@
 import { SKIP_BUTTON_SELECTORS } from './selectors.js';
 
 /**
- * Finds the Skip button inside the player.
+ * Finds a visible Skip button inside the player.
  *
  * @param {Element} player The video player element.
- * @returns {HTMLElement | null} The Skip button, or null if there is none.
+ * @returns {HTMLElement | null} The first visible Skip button, or null.
  */
 export function findSkipButton(player) {
   for (const selector of SKIP_BUTTON_SELECTORS) {
-    const button = /** @type {HTMLElement | null} */ (
-      player.querySelector(selector)
-    );
-    if (button) return button;
+    for (const button of player.querySelectorAll(selector)) {
+      if (isVisible(button, player)) return /** @type {HTMLElement} */ (button);
+    }
   }
   return null;
+}
+
+/**
+ * Tells whether an element inside the player is shown: neither it nor an
+ * ancestor up to the player is `display: none` (which covers `hidden`), and
+ * it is not `visibility: hidden`. Uses computed style, so it works in jsdom,
+ * which has no layout (`offsetParent` is always null there).
+ *
+ * @param {Element} element An element inside the player.
+ * @param {Element} player The video player element.
+ * @returns {boolean} True when the element is shown.
+ */
+function isVisible(element, player) {
+  const view = element.ownerDocument.defaultView;
+  if (!view || view.getComputedStyle(element).visibility === 'hidden') {
+    return false;
+  }
+  /** @type {Element | null} */
+  let node = element;
+  while (node) {
+    if (view.getComputedStyle(node).display === 'none') return false;
+    if (node === player) break;
+    node = node.parentElement;
+  }
+  return true;
 }

@@ -17,4 +17,45 @@ describe('findSkipButton', () => {
     // THEN that button is found
     expect(found).toBe(button);
   });
+
+  it.each([
+    {
+      how: 'display none on its container',
+      hide: (/** @type {HTMLElement} */ button) => {
+        /** @type {HTMLElement} */ (button.parentElement).style.display =
+          'none';
+      },
+    },
+    {
+      how: 'the hidden attribute on its container',
+      hide: (/** @type {HTMLElement} */ button) => {
+        /** @type {HTMLElement} */ (button.parentElement).hidden = true;
+      },
+    },
+    {
+      how: 'visibility hidden on its container',
+      hide: (/** @type {HTMLElement} */ button) => {
+        /** @type {HTMLElement} */ (button.parentElement).style.visibility =
+          'hidden';
+      },
+    },
+    {
+      how: 'a stylesheet rule',
+      hide: (/** @type {HTMLElement} */ button) => {
+        const style = document.createElement('style');
+        style.textContent = '.countdown { display: none; }';
+        document.body.append(style);
+        button.classList.add('countdown');
+      },
+    },
+  ])('ignores a Skip button hidden by $how', ({ hide }) => {
+    // GIVEN a Skip button in the player, hidden as during the countdown
+    const { player, button, showSkipButton } = loadPlayer();
+    showSkipButton();
+    hide(button);
+    // WHEN looking for the Skip button in the player
+    const found = findSkipButton(player);
+    // THEN no button is found
+    expect(found).toBeNull();
+  });
 });
