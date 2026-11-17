@@ -36,3 +36,29 @@ Behaviours: B1–B4, B6, B11 · Branch: phase-1-auto-skip
 B5 moved to group 3 and B11 moved here at Gate 2 (see `plan.md`). T4 and T10
 are guards expected to pass on arrival: the minimal code already searches only
 inside the player, and an ad with no Skip button has no path to fail on.
+
+## 3. Follow the player
+
+Behaviours: B5, B7–B10, B12 · Branch: phase-1-auto-skip
+
+| #   | Behaviour | Level       | File                                            | Test name                                                          | Status |
+| --- | --------- | ----------- | ----------------------------------------------- | ------------------------------------------------------------------ | ------ |
+| T1  | B7, B10   | acceptance  | tests/integration/content-follow-player.test.js | skips an ad that starts after the page has loaded                  | ⬜     |
+| T2  | B10       | unit        | tests/unit/throttle.test.js                     | runs once, after the wait, for a burst of calls                    | ⬜     |
+| T3  | B10       | unit        | tests/unit/throttle.test.js                     | runs again for calls made after the previous run                   | ⬜     |
+| T4  | B8        | integration | tests/integration/content-follow-player.test.js | follows a player that appears after the content script loads       | ⬜     |
+| T5  | B9        | integration | tests/integration/content-follow-player.test.js | keeps skipping after navigation replaces the player                | ⬜     |
+| T6  | B5        | integration | tests/integration/content-follow-player.test.js | does not click when the ad ends before the throttled check runs    | ⬜     |
+| T7  | B12       | —           | —                                               | —                                                                  | ➖     |
+| T8  | B1        | e2e         | tests/e2e/auto-skip.spec.js                     | the loaded extension clicks the Skip button on a YouTube-like page | ⬜     |
+
+- T1 also pins B10's latency: the click happens after exactly
+  `CHECK_THROTTLE_MS` of fake time.
+- T6 is a guard expected to pass on arrival (each check reads the DOM fresh);
+  it is mutation-checked instead.
+- T7 (B12, background tabs): jsdom has no real background tab, and a test of
+  "uses `setTimeout`, not `requestAnimationFrame`" would test implementation.
+  Covered by manual check 8 and the Gate 0 throttle decision.
+- `src/content/follow-player.js` exports `followPlayer(doc)` returning
+  `stop()`, so integration tests can tear down their observers and
+  `yt-navigate-finish` listener; `main.js` only calls it (agreed at Gate 2).
