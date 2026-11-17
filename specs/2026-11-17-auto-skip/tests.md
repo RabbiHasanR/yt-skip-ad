@@ -6,7 +6,7 @@ Behaviours: none (tooling) · Branch: phase-1-auto-skip
 
 | #   | Behaviour | Level | File                              | Test name                                                       | Status |
 | --- | --------- | ----- | --------------------------------- | --------------------------------------------------------------- | ------ |
-| T1  | setup     | unit  | tests/unit/sanity.test.js         | loads the player fixture with a Skip button inside the player   | ⬜     |
+| T1  | setup     | unit  | tests/unit/sanity.test.js         | loads the player fixture with a Skip button inside the player   | ✅     |
 | T2  | setup     | e2e   | tests/e2e/extension-loads.spec.js | the unpacked extension runs its content script on a YouTube URL | ⬜     |
 
 No acceptance test: this group has no user-facing behaviour (`plan.md` names

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Player fixture</title>
+  </head>
+  <body>
+    <!--
+      Mimics the parts of YouTube's player the extension relies on (see
+      src/core/selectors.js). Tests start an ad by adding `ad-showing` to the
+      player and reveal the Skip button by clearing the slot's inline style.
+    -->
+    <div id="movie_player" class="html5-video-player">
+      <div class="video-ads ytp-ad-module">
+        <div class="ytp-skip-ad" style="display: none">
+          <button class="ytp-skip-ad-button" type="button">Skip</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

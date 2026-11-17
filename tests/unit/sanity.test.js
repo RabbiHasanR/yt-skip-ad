@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { loadFixture } from '../fixtures/load-fixture.js';
 
 describe('test setup', () => {
   it('runs in a jsdom environment with a document', () => {
@@ -15,6 +16,18 @@ describe('test setup', () => {
     const url = chrome.runtime.getURL('src/content/main.js');
     // THEN it gets an extension URL for that path
     expect(url).toBe('chrome-extension://test-id/src/content/main.js');
+  });
+
+  it('loads the player fixture with a Skip button inside the player', () => {
+    // GIVEN the YouTube-like player fixture
+    // WHEN a test loads it into the document
+    loadFixture('player.html');
+    // THEN the player holds a Skip button, hidden as in the countdown
+    const player = document.querySelector('#movie_player');
+    expect(player?.classList.contains('html5-video-player')).toBe(true);
+    const button = player?.querySelector('.ytp-skip-ad-button');
+    expect(button).toBeInstanceOf(HTMLButtonElement);
+    expect(button?.closest('[style*="display: none"]')).not.toBeNull();
   });
 
   // Runs in file order: the first test leaves a call, the second checks it's gone.
