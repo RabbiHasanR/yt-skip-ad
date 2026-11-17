@@ -66,14 +66,42 @@ Rules:
 
 ## Decided in Phase 0
 
-_Filled in as Phase 0 is built. Record each decision as:_
+See [the Phase 0 spec](2026-11-17-project-skeleton/requirements.md#decisions).
 
-- **<Topic>:** <decision> — <why>.
+- **Content-script module loading:** a classic `src/content/loader.js` runs
+  `import(chrome.runtime.getURL('src/content/main.js'))`; everything else is
+  ES modules — real `import`s, the same files Vitest tests, no build step.
+- **`web_accessible_resources`:** `src/**/*.js`, matched to
+  `*://*.youtube.com/*` only — one glob means a new module never needs a
+  manifest edit; the cost is listed under [Known limitations](#known-limitations).
+- **Loader failure:** logged once as `[yt-skip-ad] failed to load content
+script` and never thrown at the page.
+- **Log prefix:** `[yt-skip-ad]`. The loader can't import, so it repeats the
+  prefix; `main.js` imports it from `src/shared/constants.js` once that
+  exists.
+- **`chrome` mock:** hand-written in `tests/setup/chrome.js`, rebuilt before
+  every test so no calls or state leak — `sinon-chrome` is poorly maintained
+  and we need only a few APIs.
+- **Tooling modules:** `"type": "module"` in `package.json`; `jsconfig.json`
+  drives `tsc` (`checkJs`, `strict`, `maxNodeModuleJsDepth: 0` so it never
+  type-checks JavaScript inside `node_modules`).
+- **TypeScript 6.0** for `tsc`, not 7.0 — 6.0's JSDoc checking is mature; 7.0
+  (the native port) reworked it.
+- **Extra dev dependencies:** `@eslint/js` and `globals` (ESLint flat config),
+  `@types/chrome` (types for `chrome.*`), `@types/node` (tests read files
+  with `node:fs`).
+- **Imports, not globals:** tests import `describe`/`it`/`expect` from
+  `vitest` explicitly.
+- **No network (B8):** enforced by ESLint (`no-restricted-globals` for
+  `fetch`, `XMLHttpRequest`, `WebSocket`, `EventSource`;
+  `no-restricted-properties` for `navigator.sendBeacon`) in `src/` and
+  `popup/`.
+- **Version:** `0.1.0`; `1.0.0` is reserved for the feature-complete v1.
 
 ## Project conventions
 
 Every phase follows this layout. Update this section when a convention
-changes. _Proposal — awaiting approval._
+changes. Approved in Phase 0.
 
 | Directory            | Holds                                                                |
 | -------------------- | -------------------------------------------------------------------- |
@@ -210,12 +238,14 @@ Office machines use regular (unmanaged) Chrome, so "Load unpacked" works.
 - **Folder must stay put:** deleting or moving the unpacked folder breaks the
   extension; moving it may also reset settings and the counter, because the
   extension ID comes from the folder path.
+- **Detectable on YouTube:** the modules in `src/` are web-accessible to
+  YouTube pages, so a page could tell the extension is installed by fetching
+  one. Nothing sensitive is exposed.
+- **One log per full page load:** YouTube's in-page navigation doesn't re-run
+  content scripts; Phase 1 handles navigation with `yt-navigate-finish`.
 
 ## Deferred decisions
 
-- **Content-script module loading:** MV3 content scripts can't be ES modules
-  directly. Options: classic scripts sharing globals, or a small loader that
-  `import()`s modules listed in `web_accessible_resources`. Decide in Phase 0.
 - **CI:** GitHub Actions running lint, format check, type check, and tests —
   deferred until the repo has a remote.
 - **Stable extension ID:** whether to add a `key` to `manifest.json` so the

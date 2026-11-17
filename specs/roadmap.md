@@ -11,14 +11,17 @@ every popup change meets the
 Each feature phase starts with one **acceptance test**, marked
 `it.fails(...)`, and ends when it passes with the mark removed.
 
-## Phase 0 — Project skeleton ⏳ Not started
+## Phase 0 — Project skeleton 🔍 In review
+
+Spec: [2026-11-17-project-skeleton](2026-11-17-project-skeleton/requirements.md).
+Automated checks pass; the manual checks in Chrome are pending.
 
 - Add `manifest.json` (MV3, `storage` + YouTube host permission only) and
   placeholder icons.
 - Add dev tooling: `package.json`, Vitest + jsdom, ESLint, Prettier, the
   `chrome` API mock, and one trivial passing test.
 - Decide how the content script loads modules (see
-  [Deferred decisions](tech-stack.md#deferred-decisions)).
+  [Decided in Phase 0](tech-stack.md#decided-in-phase-0)).
 - Confirm the extension loads in `chrome://extensions` with no errors, the
   content script logs once on YouTube, and the popup opens with a placeholder.
 
