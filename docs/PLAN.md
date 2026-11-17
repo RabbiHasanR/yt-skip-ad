@@ -9,15 +9,17 @@
 ## 1. Scope
 
 ### In scope (v1)
-| # | Feature | Notes |
-|---|---------|-------|
-| 1 | Auto-click "Skip Ad" | Core feature |
-| 2 | On/Off toggle | In the popup |
-| 3 | Delay before skipping (0–10 s) | Default `0` (skip immediately) |
-| 4 | Skipped-ads counter | Shown in the popup |
-| 5 | Works across YouTube SPA navigation | No page reload between videos |
+
+| #   | Feature                             | Notes                          |
+| --- | ----------------------------------- | ------------------------------ |
+| 1   | Auto-click "Skip Ad"                | Core feature                   |
+| 2   | On/Off toggle                       | In the popup                   |
+| 3   | Delay before skipping (0–10 s)      | Default `0` (skip immediately) |
+| 4   | Skipped-ads counter                 | Shown in the popup             |
+| 5   | Works across YouTube SPA navigation | No page reload between videos  |
 
 ### Out of scope (later versions)
+
 - "Don't skip this ad" button injected into the player
 - Per-channel rules (allow ads for channels you support)
 - Countdown overlay with cancel
@@ -28,13 +30,13 @@
 
 ## 2. Tech stack
 
-| Layer | Choice | Why |
-|-------|--------|-----|
-| Language | Vanilla JavaScript (ES2020+) | No build step, small size, easy to debug |
-| UI | Plain HTML + CSS | The popup only has 3 controls |
-| Storage | `chrome.storage.sync` | Settings and counter shared between the popup and the content script |
-| Manifest | V3 | Required by the Chrome Web Store |
-| Tooling | None (optional: ESLint + Prettier) | Load the folder with "Load unpacked" |
+| Layer    | Choice                             | Why                                                                  |
+| -------- | ---------------------------------- | -------------------------------------------------------------------- |
+| Language | Vanilla JavaScript (ES2020+)       | No build step, small size, easy to debug                             |
+| UI       | Plain HTML + CSS                   | The popup only has 3 controls                                        |
+| Storage  | `chrome.storage.sync`              | Settings and counter shared between the popup and the content script |
+| Manifest | V3                                 | Required by the Chrome Web Store                                     |
+| Tooling  | None (optional: ESLint + Prettier) | Load the folder with "Load unpacked"                                 |
 
 No background service worker is needed for v1.
 
@@ -127,17 +129,18 @@ Permissions are kept to the minimum: `storage` plus access to YouTube only. That
 
 ## 6. Storage schema
 
-| Key | Type | Default | Written by |
-|-----|------|---------|-----------|
-| `enabled` | boolean | `true` | popup |
-| `delaySec` | number (0–10) | `0` | popup |
-| `skipCount` | number | `0` | content script |
+| Key         | Type          | Default | Written by     |
+| ----------- | ------------- | ------- | -------------- |
+| `enabled`   | boolean       | `true`  | popup          |
+| `delaySec`  | number (0–10) | `0`     | popup          |
+| `skipCount` | number        | `0`     | content script |
 
 ---
 
 ## 7. Content script logic (`content.js`)
 
 ### 7.1 Selectors (`selectors.js`)
+
 YouTube renames these classes from time to time, so keep them in one list:
 
 ```js
@@ -151,6 +154,7 @@ const AD_SHOWING_CLASS = 'ad-showing';
 ```
 
 ### 7.2 Flow
+
 1. **Init:** load `enabled` and `delaySec` from storage.
 2. **Find the player:** wait until `PLAYER_SELECTOR` exists, using a document-level observer or a retry loop.
 3. **Observe:** attach a `MutationObserver` to the player:
@@ -171,6 +175,7 @@ const AD_SHOWING_CLASS = 'ad-showing';
 7. **Settings changes:** `chrome.storage.onChanged` updates the local `enabled` and `delaySec` values.
 
 ### 7.3 Pseudocode
+
 ```js
 let settings = { enabled: true, delaySec: 0 };
 let pending = false;
@@ -206,20 +211,22 @@ function check(player) {
 ```
 
 ### 7.4 Edge cases
-| Case | Handling |
-|------|----------|
-| Two ads back to back | `pending` resets after each click, so the second ad is handled too |
-| Button exists but is hidden (countdown phase) | Visibility check (`offsetParent`) |
-| User turns the extension off during the delay | Check `settings.enabled` again inside the timeout |
-| Player element replaced on navigation | Re-attach the observer on `yt-navigate-finish` |
-| Many mutations per second | Throttle `check()` with `requestAnimationFrame` or a ~200 ms guard |
-| `.click()` ignored (if YouTube ever checks `isTrusted`) | Known risk. Log it and investigate if it happens |
+
+| Case                                                    | Handling                                                           |
+| ------------------------------------------------------- | ------------------------------------------------------------------ |
+| Two ads back to back                                    | `pending` resets after each click, so the second ad is handled too |
+| Button exists but is hidden (countdown phase)           | Visibility check (`offsetParent`)                                  |
+| User turns the extension off during the delay           | Check `settings.enabled` again inside the timeout                  |
+| Player element replaced on navigation                   | Re-attach the observer on `yt-navigate-finish`                     |
+| Many mutations per second                               | Throttle `check()` with `requestAnimationFrame` or a ~200 ms guard |
+| `.click()` ignored (if YouTube ever checks `isTrusted`) | Known risk. Log it and investigate if it happens                   |
 
 ---
 
 ## 8. Popup (`popup/`)
 
 ### UI
+
 ```
 ┌──────────────────────────┐
 │  YT Skip Ad              │
@@ -233,6 +240,7 @@ function check(player) {
 ```
 
 ### Logic (`popup.js`)
+
 1. On load, read `enabled`, `delaySec` and `skipCount` from storage and fill in the controls.
 2. Toggle change → `chrome.storage.sync.set({ enabled })`
 3. Delay change → clamp to 0–10, then `set({ delaySec })`
@@ -243,36 +251,36 @@ function check(player) {
 
 ## 9. Implementation steps
 
-| Step | Task | Done when |
-|------|------|-----------|
-| 1 | Create the folder, `manifest.json` and placeholder icons | Extension loads in `chrome://extensions` with no errors |
-| 2 | `content.js` with a `console.log` on load | Log appears in YouTube's DevTools console |
-| 3 | Player detection + `MutationObserver` | Logs "ad started" and "ad ended" |
-| 4 | Skip-button detection + click (no delay) | Skippable ads are skipped automatically |
-| 5 | `chrome.storage` settings + delay | Delay setting is respected |
-| 6 | Skip counter | Count goes up on each skip |
-| 7 | Popup UI + wiring | Toggle, delay and reset all work live |
-| 8 | SPA navigation handling | Works after clicking through 5+ videos without a reload |
-| 9 | Throttling + cleanup | No noticeable CPU use in Task Manager |
-| 10 | Manual test pass (section 10) | All cases pass |
-| 11 | (Optional) Publish to the Chrome Web Store | Listing live |
+| Step | Task                                                     | Done when                                               |
+| ---- | -------------------------------------------------------- | ------------------------------------------------------- |
+| 1    | Create the folder, `manifest.json` and placeholder icons | Extension loads in `chrome://extensions` with no errors |
+| 2    | `content.js` with a `console.log` on load                | Log appears in YouTube's DevTools console               |
+| 3    | Player detection + `MutationObserver`                    | Logs "ad started" and "ad ended"                        |
+| 4    | Skip-button detection + click (no delay)                 | Skippable ads are skipped automatically                 |
+| 5    | `chrome.storage` settings + delay                        | Delay setting is respected                              |
+| 6    | Skip counter                                             | Count goes up on each skip                              |
+| 7    | Popup UI + wiring                                        | Toggle, delay and reset all work live                   |
+| 8    | SPA navigation handling                                  | Works after clicking through 5+ videos without a reload |
+| 9    | Throttling + cleanup                                     | No noticeable CPU use in Task Manager                   |
+| 10   | Manual test pass (section 10)                            | All cases pass                                          |
+| 11   | (Optional) Publish to the Chrome Web Store               | Listing live                                            |
 
 ---
 
 ## 10. Test plan (manual)
 
-| # | Scenario | Expected |
-|---|----------|----------|
-| 1 | Pre-roll skippable ad | Skipped as soon as the button appears |
-| 2 | Mid-roll skippable ad (long video) | Skipped |
-| 3 | Two-ad pod | Both skipped |
-| 4 | Unskippable ad | Plays normally, no errors |
-| 5 | Extension toggled OFF | Ads not skipped |
-| 6 | Delay = 3 s | Click happens about 3 s after the button appears |
-| 7 | Navigate between videos (no reload) | Still works |
-| 8 | YouTube homepage / Shorts | No errors in the console |
-| 9 | Logged-in and logged-out | Works in both |
-| 10 | Reopen popup | Settings and counter persist |
+| #   | Scenario                            | Expected                                         |
+| --- | ----------------------------------- | ------------------------------------------------ |
+| 1   | Pre-roll skippable ad               | Skipped as soon as the button appears            |
+| 2   | Mid-roll skippable ad (long video)  | Skipped                                          |
+| 3   | Two-ad pod                          | Both skipped                                     |
+| 4   | Unskippable ad                      | Plays normally, no errors                        |
+| 5   | Extension toggled OFF               | Ads not skipped                                  |
+| 6   | Delay = 3 s                         | Click happens about 3 s after the button appears |
+| 7   | Navigate between videos (no reload) | Still works                                      |
+| 8   | YouTube homepage / Shorts           | No errors in the console                         |
+| 9   | Logged-in and logged-out            | Works in both                                    |
+| 10  | Reopen popup                        | Settings and counter persist                     |
 
 **Debugging tip:** open DevTools on the YouTube tab and choose the extension's content-script context in the console dropdown to see its logs.
 
@@ -300,9 +308,9 @@ function check(player) {
 
 ## 13. Roadmap after v1
 
-| Version | Feature |
-|---------|---------|
-| v1.1 | "Don't skip this ad" button injected into the player |
-| v1.2 | Countdown toast with a cancel option |
-| v2.0 | Per-channel rules + options page (the point where a small UI library might be worth it) |
-| v2.1 | Badge counter on the toolbar icon (needs a background service worker) |
+| Version | Feature                                                                                 |
+| ------- | --------------------------------------------------------------------------------------- |
+| v1.1    | "Don't skip this ad" button injected into the player                                    |
+| v1.2    | Countdown toast with a cancel option                                                    |
+| v2.0    | Per-channel rules + options page (the point where a small UI library might be worth it) |
+| v2.1    | Badge counter on the toolbar icon (needs a background service worker)                   |

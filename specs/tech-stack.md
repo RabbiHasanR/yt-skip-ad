@@ -28,17 +28,17 @@ Why no framework:
 
 ## Stack summary
 
-| Layer       | Choice                                             |
-| ----------- | -------------------------------------------------- |
-| Language    | JavaScript (ES2020+), JSDoc types                  |
-| Framework   | None — Chrome Extension Manifest V3                |
-| UI          | Popup: plain HTML + CSS                            |
-| Backend     | None — content script on YouTube pages             |
-| Data access | Thin adapter over `chrome.storage.sync`            |
+| Layer       | Choice                                                     |
+| ----------- | ---------------------------------------------------------- |
+| Language    | JavaScript (ES2020+), JSDoc types                          |
+| Framework   | None — Chrome Extension Manifest V3                        |
+| UI          | Popup: plain HTML + CSS                                    |
+| Backend     | None — content script on YouTube pages                     |
+| Data access | Thin adapter over `chrome.storage.sync`                    |
 | Database    | `chrome.storage.sync` (`enabled`, `delaySec`, `skipCount`) |
-| Lint/format | ESLint (flat config) + Prettier                    |
-| Type checks | `tsc --noEmit` with `checkJs` over JSDoc types     |
-| Tests       | Vitest + jsdom (fast); Playwright + Chromium (e2e) |
+| Lint/format | ESLint (flat config) + Prettier                            |
+| Type checks | `tsc --noEmit` with `checkJs` over JSDoc types             |
+| Tests       | Vitest + jsdom (fast); Playwright + Chromium (e2e)         |
 
 ## Storage schema
 
@@ -47,11 +47,11 @@ in `src/shared/constants.js`; only `src/shared/storage.js` reads or writes
 them. Changes are agreed first (`/feature-spec` Gate 0), and each row says
 which phase built it.
 
-| Key         | Area   | Type    | Default | Valid range    | Written by     | Read by          | Status              |
-| ----------- | ------ | ------- | ------- | -------------- | -------------- | ---------------- | ------------------- |
-| `enabled`   | `sync` | boolean | `true`  | `true`/`false` | popup          | content, popup   | _(Phase 2, planned)_ |
-| `delaySec`  | `sync` | integer | `0`     | 0–10           | popup          | content, popup   | _(Phase 2, planned)_ |
-| `skipCount` | `sync` | integer | `0`     | ≥ 0            | content, popup (reset) | popup    | _(Phase 3, planned)_ |
+| Key         | Area   | Type    | Default | Valid range    | Written by             | Read by        | Status               |
+| ----------- | ------ | ------- | ------- | -------------- | ---------------------- | -------------- | -------------------- |
+| `enabled`   | `sync` | boolean | `true`  | `true`/`false` | popup                  | content, popup | _(Phase 2, planned)_ |
+| `delaySec`  | `sync` | integer | `0`     | 0–10           | popup                  | content, popup | _(Phase 2, planned)_ |
+| `skipCount` | `sync` | integer | `0`     | ≥ 0            | content, popup (reset) | popup          | _(Phase 3, planned)_ |
 
 Rules:
 
@@ -75,21 +75,21 @@ _Filled in as Phase 0 is built. Record each decision as:_
 Every phase follows this layout. Update this section when a convention
 changes. _Proposal — awaiting approval._
 
-| Directory            | Holds                                                |
-| -------------------- | ---------------------------------------------------- |
-| `manifest.json`      | Extension manifest                                   |
+| Directory            | Holds                                                                |
+| -------------------- | -------------------------------------------------------------------- |
+| `manifest.json`      | Extension manifest                                                   |
 | `src/core/`          | Pure logic: selectors, ad detection, skip scheduling, settings rules |
-| `src/shared/`        | Constants (storage keys, defaults) and the storage adapter |
-| `src/content/`       | Content script entry: observer and event wiring only |
-| `popup/`             | Popup HTML, CSS, and thin JS wiring                  |
-| `icons/`             | 16/48/128 px icons                                   |
-| `tests/unit/`        | Unit tests for `src/core/` and `src/shared/`         |
-| `tests/integration/` | Content script and popup against fixtures + `chrome` mock |
-| `tests/e2e/`         | Playwright tests with the real extension (slow)      |
-| `tests/fixtures/`    | HTML fixtures that mimic the YouTube player DOM      |
-| `tests/setup/`       | `chrome` API mock and shared test setup              |
-| `specs/`             | Mission, roadmap, tech stack, and per-phase specs    |
-| `docs/`              | Background docs (original plan)                      |
+| `src/shared/`        | Constants (storage keys, defaults) and the storage adapter           |
+| `src/content/`       | Content script entry: observer and event wiring only                 |
+| `popup/`             | Popup HTML, CSS, and thin JS wiring                                  |
+| `icons/`             | 16/48/128 px icons                                                   |
+| `tests/unit/`        | Unit tests for `src/core/` and `src/shared/`                         |
+| `tests/integration/` | Content script and popup against fixtures + `chrome` mock            |
+| `tests/e2e/`         | Playwright tests with the real extension (slow)                      |
+| `tests/fixtures/`    | HTML fixtures that mimic the YouTube player DOM                      |
+| `tests/setup/`       | `chrome` API mock and shared test setup                              |
+| `specs/`             | Mission, roadmap, tech stack, and per-phase specs                    |
+| `docs/`              | Background docs (original plan)                                      |
 
 Rules:
 
@@ -149,27 +149,27 @@ Rules:
 
 Project settings:
 
-| Setting                      | Value                                          |
-| ---------------------------- | ---------------------------------------------- |
-| System type                  | Browser extension (Chrome MV3)                 |
-| Language and framework       | Vanilla JS (ES2020+), no framework             |
-| Test framework               | Vitest + jsdom; Playwright for e2e             |
-| Fast tests                   | `npm test`                                     |
-| All tests, including e2e     | `npm run test:all`                             |
-| Coverage                     | `npm run coverage` (`@vitest/coverage-v8`)     |
-| Lint and type checks         | `npm run lint && npm run typecheck`            |
-| Fast-test time budget        | Under 10 seconds                               |
-| Where tests live             | `tests/unit/`, `tests/integration/`, `tests/e2e/` |
-| Slow-test marker             | Lives in `tests/e2e/`; excluded from `npm test` |
-| Expected-failure marker      | `it.fails(...)`                                |
-| Test environment             | jsdom + HTML fixtures + `chrome` mock in `tests/setup/` |
-| External services to mock    | `chrome.storage`, `chrome.runtime`, timers (`vi.useFakeTimers`) |
+| Setting                   | Value                                                           |
+| ------------------------- | --------------------------------------------------------------- |
+| System type               | Browser extension (Chrome MV3)                                  |
+| Language and framework    | Vanilla JS (ES2020+), no framework                              |
+| Test framework            | Vitest + jsdom; Playwright for e2e                              |
+| Fast tests                | `npm test`                                                      |
+| All tests, including e2e  | `npm run test:all`                                              |
+| Coverage                  | `npm run coverage` (`@vitest/coverage-v8`)                      |
+| Lint and type checks      | `npm run lint && npm run typecheck`                             |
+| Fast-test time budget     | Under 10 seconds                                                |
+| Where tests live          | `tests/unit/`, `tests/integration/`, `tests/e2e/`               |
+| Slow-test marker          | Lives in `tests/e2e/`; excluded from `npm test`                 |
+| Expected-failure marker   | `it.fails(...)`                                                 |
+| Test environment          | jsdom + HTML fixtures + `chrome` mock in `tests/setup/`         |
+| External services to mock | `chrome.storage`, `chrome.runtime`, timers (`vi.useFakeTimers`) |
 
 Test levels for this project:
 
 | Level       | What it checks                                                  |
 | ----------- | --------------------------------------------------------------- |
-| Unit        | `src/core/` and `src/shared/` logic, no DOM wiring             |
+| Unit        | `src/core/` and `src/shared/` logic, no DOM wiring              |
 | Integration | Content script or popup on a fixture DOM with the `chrome` mock |
 | End-to-end  | Real extension in Chromium on a local fixture page (slow)       |
 
