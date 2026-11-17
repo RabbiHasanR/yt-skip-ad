@@ -1,6 +1,7 @@
 // Content wiring: follows YouTube's player and asks the skipper to check it.
 // The rules live in src/core/; this file only connects them to the page.
 import { findPlayer } from '../core/ad-detection.js';
+import { NAVIGATE_EVENT } from '../core/selectors.js';
 import { createSkipper } from '../core/skipper.js';
 import { createThrottle } from '../core/throttle.js';
 import { CHECK_THROTTLE_MS } from '../shared/constants.js';
@@ -20,13 +21,15 @@ const PLAYER_CHANGES = {
 const PAGE_CHANGES = { subtree: true, childList: true };
 
 /**
- * Starts auto-skip on a page.
+ * Starts auto-skip on a page: follows its player, including across YouTube's
+ * in-page navigation, and checks it after each burst of player changes.
  *
  * @param {Document} doc The page's document.
  * @returns {() => void} Stops following the page.
  */
 export function followPlayer(doc) {
-  const skipper = createSkipper();
+  /** @type {Element | null} */
+  let current = null;
   /** @type {MutationObserver | null} */
   let playerObserver = null;
   // Throttled too: on the home page there is never a player, and YouTube
@@ -35,9 +38,12 @@ export function followPlayer(doc) {
     createThrottle(follow, CHECK_THROTTLE_MS),
   );
 
-  /** Watches the page's player, or waits for one to appear. */
+  /** Watches the page's player if it changed, or waits for one to appear. */
   function follow() {
     const player = findPlayer(doc);
+    if (player && player === current) return;
+    playerObserver?.disconnect();
+    current = player;
     if (!player) {
       waiter.observe(doc.documentElement, PAGE_CHANGES);
       return;
@@ -48,10 +54,12 @@ export function followPlayer(doc) {
 
   /**
    * Checks the player now, and again after each burst of player changes.
+   * Each player gets a fresh skipper, so no state carries over between them.
    *
    * @param {Element} player The video player element.
    */
   function watch(player) {
+    const skipper = createSkipper();
     playerObserver = new MutationObserver(
       createThrottle(() => skipper.check(player), CHECK_THROTTLE_MS),
     );
@@ -59,8 +67,10 @@ export function followPlayer(doc) {
     skipper.check(player);
   }
 
+  doc.addEventListener(NAVIGATE_EVENT, follow);
   follow();
   return () => {
+    doc.removeEventListener(NAVIGATE_EVENT, follow);
     waiter.disconnect();
     playerObserver?.disconnect();
   };

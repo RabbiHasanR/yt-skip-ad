@@ -41,4 +41,18 @@ describe('content script follows the player', () => {
     // THEN its Skip button is clicked
     expect(clicks).toHaveBeenCalledOnce();
   });
+
+  it('keeps skipping after navigation replaces the player', async () => {
+    // GIVEN the content script follows a player
+    loadPlayer();
+    stop = followPlayer(document);
+    // WHEN in-page navigation replaces it, and the new player shows an ad
+    const next = loadPlayer();
+    document.dispatchEvent(new Event('yt-navigate-finish'));
+    next.startAd();
+    next.showSkipButton();
+    await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
+    // THEN the new player's Skip button is clicked
+    expect(next.clicks).toHaveBeenCalledOnce();
+  });
 });
