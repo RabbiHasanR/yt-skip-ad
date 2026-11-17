@@ -69,4 +69,17 @@ describe('content script follows the player', () => {
     // THEN nothing is clicked, though the button is still visible
     expect(clicks).not.toHaveBeenCalled();
   });
+
+  it('does not click again when navigation keeps the same player', async () => {
+    // GIVEN an ad's Skip button was clicked and is still visible
+    const { startAd, showSkipButton, clicks } = loadPlayer();
+    startAd();
+    showSkipButton();
+    stop = followPlayer(document);
+    // WHEN in-page navigation finishes with the same player
+    document.dispatchEvent(new Event('yt-navigate-finish'));
+    await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
+    // THEN the button is not clicked again
+    expect(clicks).toHaveBeenCalledOnce();
+  });
 });

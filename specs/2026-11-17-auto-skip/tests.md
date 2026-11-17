@@ -51,6 +51,7 @@ Behaviours: B5, B7–B10, B12 · Branch: phase-1-auto-skip
 | T6  | B5        | integration | tests/integration/content-follow-player.test.js | does not click when the ad ends before the throttled check runs    | ✅     |
 | T7  | B12       | —           | —                                               | —                                                                  | ➖     |
 | T8  | B1        | e2e         | tests/e2e/auto-skip.spec.js                     | the loaded extension clicks the Skip button on a YouTube-like page | ✅     |
+| T9  | B4        | integration | tests/integration/content-follow-player.test.js | does not click again when navigation keeps the same player         | ✅     |
 
 - T1 also pins B10's latency: the click happens after exactly
   `CHECK_THROTTLE_MS` of fake time.
@@ -62,3 +63,6 @@ Behaviours: B5, B7–B10, B12 · Branch: phase-1-auto-skip
 - `src/content/follow-player.js` exports `followPlayer(doc)` returning
   `stop()`, so integration tests can tear down their observers and
   `yt-navigate-finish` listener; `main.js` only calls it (agreed at Gate 2).
+- T9 was added after Gate 2 with the user's agreement: coverage showed the
+  same-player navigation branch untested; without it a still-visible Skip
+  button gets a second click. A guard, mutation-checked.
