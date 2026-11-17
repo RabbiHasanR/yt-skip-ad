@@ -1,0 +1,28 @@
+{
+  "name": "yt-skip-ad",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Dev tooling for the YT Skip Ad Chrome extension. The extension itself has no build step.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:all": "vitest run",
+    "coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc -p jsconfig.json"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/chrome": "^0.3.7",
+    "@vitest/coverage-v8": "^5.1.0",
+    "eslint": "^10.15.0",
+    "globals": "^17.14.0",
+    "jsdom": "^31.0.1",
+    "prettier": "^3.10.1",
+    "typescript": "^6.0.3",
+    "vitest": "^5.1.0"
+  }
+}
