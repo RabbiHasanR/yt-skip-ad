@@ -50,4 +50,33 @@ describe('manifest.json', () => {
     // THEN no referenced file is missing
     expect(missing).toEqual([]);
   });
+
+  it.each([
+    ['icons', (/** @type {any} */ m) => m.icons],
+    ['action.default_icon', (/** @type {any} */ m) => m.action.default_icon],
+  ])('icons are PNGs of their declared size (%s)', (_, pick) => {
+    // GIVEN the icons the manifest declares, keyed by size
+    const icons = pick(readManifest());
+    // WHEN each file's PNG header is read
+    const actual = Object.values(icons).map((path) => pngSize(String(path)));
+    // THEN each one is a square PNG of its declared size
+    const expected = Object.keys(icons).map((size) => ({
+      width: Number(size),
+      height: Number(size),
+    }));
+    expect(actual).toEqual(expected);
+  });
 });
+
+/**
+ * Reads a PNG's dimensions from its IHDR chunk.
+ *
+ * @param {string} path Repo-relative path to the image.
+ * @returns {{ width: number, height: number } | null} Null if not a PNG.
+ */
+function pngSize(path) {
+  const bytes = readFileSync(path);
+  const isPng = bytes.subarray(1, 4).toString('ascii') === 'PNG';
+  if (!isPng) return null;
+  return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20) };
+}
