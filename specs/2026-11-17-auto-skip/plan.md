@@ -33,7 +33,8 @@ Co-Authored-By or AI attribution lines.
 
 ## 2. Detect and click (slice 1)
 
-- **Behaviours:** B1–B6.
+- **Behaviours:** B1–B4, B6, B11 (B11 moved here at Gate 2: `main.js` looks
+  up the player at load, so a page without one must not throw).
 - **Acceptance:** `tests/integration/content-auto-skip.test.js` → "clicks a
   visible Skip button while an ad is showing".
 - **Storage/selectors:** `AD_SHOWING_CLASS`, `SKIP_BUTTON_SELECTORS`,
@@ -52,7 +53,8 @@ Tasks, in build order:
 
 ## 3. Follow the player (slice 2)
 
-- **Behaviours:** B7–B12.
+- **Behaviours:** B5, B7–B10, B12 (B5 moved here at Gate 2: the ad can only
+  end "before the check" once the throttle puts time between them).
 - **Acceptance:** `tests/integration/content-follow-player.test.js` → "skips
   an ad that starts after the page has loaded".
 - **Storage/selectors:** `NAVIGATE_EVENT`.
