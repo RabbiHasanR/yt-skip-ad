@@ -77,8 +77,8 @@ See [the Phase 0 spec](2026-11-17-project-skeleton/requirements.md#decisions).
 - **Loader failure:** logged once as `[yt-skip-ad] failed to load content
 script` and never thrown at the page.
 - **Log prefix:** `[yt-skip-ad]`. The loader can't import, so it repeats the
-  prefix; `main.js` imports it from `src/shared/constants.js` once that
-  exists.
+  prefix; `main.js` imports `LOG_PREFIX` from `src/shared/constants.js`
+  (since Phase 1).
 - **`chrome` mock:** hand-written in `tests/setup/chrome.js`, rebuilt before
   every test so no calls or state leak — `sinon-chrome` is poorly maintained
   and we need only a few APIs.
@@ -97,6 +97,48 @@ script` and never thrown at the page.
   `no-restricted-properties` for `navigator.sendBeacon`) in `src/` and
   `popup/`.
 - **Version:** `0.1.0`; `1.0.0` is reserved for the feature-complete v1.
+
+## Decided in Phase 1
+
+See [the Phase 1 spec](2026-11-17-auto-skip/requirements.md#decisions).
+
+- **YouTube DOM contract** (`src/core/selectors.js`): player
+  `#movie_player`, then `.html5-video-player`; ad signal `ad-showing` on the
+  player; Skip button `.ytp-skip-ad-button`, `.ytp-ad-skip-button-modern`,
+  `.ytp-ad-skip-button`, searched inside the player only; navigation event
+  `yt-navigate-finish` on `document`.
+- **Visibility:** computed style — neither the button nor an ancestor up to
+  the player is `display: none`, and the button is not `visibility: hidden`.
+  Works in jsdom, where `offsetParent` is always `null` and
+  `checkVisibility()` doesn't exist.
+- **Click once per appearance:** the skipper disarms after a click and
+  re-arms on any check that sees no visible Skip button, so a two-ad pod gets
+  two clicks. Each followed player gets a fresh skipper.
+- **Throttle:** `CHECK_THROTTLE_MS = 100` in `src/shared/constants.js`; the
+  first change of a burst schedules one check, and the pending flag clears
+  before the run so changes caused by the click get their own check. Timers,
+  not `requestAnimationFrame` (stops in background tabs) or debounce (starves
+  while an ad's progress bar keeps changing).
+- **Observing:** the player with `subtree`, `childList`, and
+  `class`/`style`/`hidden` attributes; while there is no player, a throttled
+  document-wide observer waits for one. On `yt-navigate-finish` the player is
+  looked up again and re-watched only if the element changed.
+- **Content wiring:** `src/content/follow-player.js` exports
+  `followPlayer(doc)`, returning `stop()` so integration tests can tear down
+  observers and listeners; `main.js` only calls it.
+- **End-to-end tests:** `@playwright/test` 1.64.x with its Chromium
+  (`npx playwright install chromium`, kept in `~/.cache/ms-playwright`). The
+  extension loads into a persistent context (`channel: 'chromium'`, headless).
+  Only `http(s)` requests are routed: `https://www.youtube.com/watch?v=fixture`
+  serves `tests/fixtures/player.html`, everything else is aborted, and
+  `chrome-extension://` loads are left alone (routing them breaks the
+  loader's `import()`). Playwright sees content-script `console` output.
+- **Scripts:** `npm run test:e2e` is `playwright test`; `npm run test:all` is
+  `vitest run && playwright test`.
+- **Test helpers:** `tests/fixtures/player.js` drives the fixture with
+  YouTube's literal class names, not `selectors.js`, so a typo in a selector
+  fails a test instead of agreeing with itself.
+- **Version:** `0.2.0`.
 
 ## Project conventions
 
@@ -242,12 +284,24 @@ Office machines use regular (unmanaged) Chrome, so "Load unpacked" works.
   YouTube pages, so a page could tell the extension is installed by fetching
   one. Nothing sensitive is exposed.
 - **One log per full page load:** YouTube's in-page navigation doesn't re-run
-  content scripts; Phase 1 handles navigation with `yt-navigate-finish`.
+  content scripts, so the load log appears once; auto-skip itself follows
+  navigation through `yt-navigate-finish`.
+- **Synthetic click:** the Skip button is clicked with `.click()`. If YouTube
+  ever ignores untrusted clicks (`isTrusted`), skipping stops working.
+- **Opacity-hidden buttons:** the visibility rule doesn't see `opacity: 0`.
+  If YouTube hides the countdown button that way, the click comes early and
+  may be ignored (manual check 10 watches for this).
+- **Not covered:** players embedded on other sites (`all_frames` is off),
+  `youtube-nocookie.com`; YouTube Music and `m.youtube.com` match the host
+  permission but are untested.
+- **Selectors break:** YouTube renames classes from time to time; fixes go in
+  `src/core/selectors.js`.
 
 ## Deferred decisions
 
-- **CI:** GitHub Actions running lint, format check, type check, and tests —
-  deferred until the repo has a remote.
+- **CI:** lint, format check, type check, and tests on every push. The repo
+  now has a remote, but it is a self-hosted git server, not GitHub, so
+  GitHub Actions needs a compatible runner there; still to decide.
 - **Stable extension ID:** whether to add a `key` to `manifest.json` so the
   ID (and stored settings) survive moving the folder.
 - **Public Web Store release:** not planned for v1.
