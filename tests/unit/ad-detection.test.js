@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { findSkipButton } from '../../src/core/ad-detection.js';
+import { findPlayer, findSkipButton } from '../../src/core/ad-detection.js';
 import { loadPlayer } from '../fixtures/player.js';
 
 describe('findSkipButton', () => {
@@ -69,5 +69,31 @@ describe('findSkipButton', () => {
     const found = findSkipButton(player);
     // THEN no button is found
     expect(found).toBeNull();
+  });
+});
+
+describe('findPlayer', () => {
+  it.each([
+    {
+      how: 'its id, ahead of an earlier preview player',
+      arrange: () => {
+        const preview = document.createElement('div');
+        preview.className = 'html5-video-player';
+        document.body.prepend(preview);
+      },
+    },
+    {
+      how: 'its class when the id is missing',
+      arrange: () =>
+        document.querySelector('#movie_player')?.removeAttribute('id'),
+    },
+  ])('finds the player by $how', ({ arrange }) => {
+    // GIVEN a page with the main player
+    const { player } = loadPlayer();
+    arrange();
+    // WHEN looking for the player
+    const found = findPlayer(document);
+    // THEN the main player is found
+    expect(found).toBe(player);
   });
 });

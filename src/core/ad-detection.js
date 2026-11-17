@@ -1,6 +1,16 @@
 // Reads YouTube's player DOM: is an ad showing, and is its Skip button
 // clickable? Pure lookups on the elements it is given; no clicking, no state.
-import { SKIP_BUTTON_SELECTORS } from './selectors.js';
+import { PLAYER_SELECTORS, SKIP_BUTTON_SELECTORS } from './selectors.js';
+
+/**
+ * Finds the main video player, trying each player selector in order.
+ *
+ * @param {ParentNode} root Where to look, usually the page's document.
+ * @returns {Element | null} The player, or null on pages without one.
+ */
+export function findPlayer(root) {
+  return findFirst(root, PLAYER_SELECTORS, () => true);
+}
 
 /**
  * Finds a visible Skip button inside the player.
@@ -9,9 +19,26 @@ import { SKIP_BUTTON_SELECTORS } from './selectors.js';
  * @returns {HTMLElement | null} The first visible Skip button, or null.
  */
 export function findSkipButton(player) {
-  for (const selector of SKIP_BUTTON_SELECTORS) {
-    for (const button of player.querySelectorAll(selector)) {
-      if (isVisible(button, player)) return /** @type {HTMLElement} */ (button);
+  return /** @type {HTMLElement | null} */ (
+    findFirst(player, SKIP_BUTTON_SELECTORS, (button) =>
+      isVisible(button, player),
+    )
+  );
+}
+
+/**
+ * Finds the first element that matches a selector and is accepted, trying
+ * the selectors in priority order.
+ *
+ * @param {ParentNode} root Where to look.
+ * @param {string[]} selectors CSS selectors, most preferred first.
+ * @param {(element: Element) => boolean} accept Extra condition to meet.
+ * @returns {Element | null} The first accepted match, or null.
+ */
+function findFirst(root, selectors, accept) {
+  for (const selector of selectors) {
+    for (const element of root.querySelectorAll(selector)) {
+      if (accept(element)) return element;
     }
   }
   return null;
