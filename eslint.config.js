@@ -10,6 +10,23 @@ export default defineConfig([
     languageOptions: {
       globals: { ...globals.browser, ...globals.webextensions },
     },
+    // Nothing leaves the device (B8): ban the browser's network APIs.
+    rules: {
+      'no-restricted-globals': [
+        'error',
+        ...['fetch', 'XMLHttpRequest', 'WebSocket', 'EventSource'].map(
+          (name) => ({ name, message: 'No network requests (B8).' }),
+        ),
+      ],
+      'no-restricted-properties': [
+        'error',
+        {
+          object: 'navigator',
+          property: 'sendBeacon',
+          message: 'No network requests (B8).',
+        },
+      ],
+    },
   },
   {
     files: ['tests/**/*.js', '*.config.js'],

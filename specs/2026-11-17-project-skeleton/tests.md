@@ -30,7 +30,7 @@ Behaviours: B1–B8 · Branch: phase-0-project-skeleton
 | T6  | B5        | integration | tests/integration/content-loader.test.js    | logs one prefixed error when the entry fails to load          | ✅     |
 | T7  | B7        | integration | tests/integration/popup-placeholder.test.js | popup shows the extension name and a placeholder line         | ✅     |
 | T8  | B4        | —           | —                                           | —                                                             | ➖     |
-| T9  | B8        | lint        | eslint.config.js                            | `no-restricted-globals` bans network APIs in `src/`, `popup/` | ⬜     |
+| T9  | B8        | lint        | eslint.config.js                            | `no-restricted-globals` bans network APIs in `src/`, `popup/` | ✅     |
 
 - T8 (B4, no re-log on in-page navigation): no code in this phase listens to
   `yt-navigate-finish`, so a test could never be red. Covered by manual check
