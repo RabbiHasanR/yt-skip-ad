@@ -16,4 +16,22 @@ describe('test setup', () => {
     // THEN it gets an extension URL for that path
     expect(url).toBe('chrome-extension://test-id/src/content/main.js');
   });
+
+  // Runs in file order: the first test leaves a call, the second checks it's gone.
+  describe('chrome mock calls are reset between tests', () => {
+    it('records a call', () => {
+      // GIVEN a fresh chrome mock
+      // WHEN a test calls it
+      chrome.runtime.getURL('a.js');
+      // THEN the call is recorded
+      expect(chrome.runtime.getURL).toHaveBeenCalledTimes(1);
+    });
+
+    it('starts the next test with no recorded calls', () => {
+      // GIVEN the previous test called the mock
+      // WHEN this test starts
+      // THEN no calls are recorded
+      expect(chrome.runtime.getURL).not.toHaveBeenCalled();
+    });
+  });
 });

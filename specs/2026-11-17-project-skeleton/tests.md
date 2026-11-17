@@ -8,7 +8,7 @@ Behaviours: none (tooling) · Branch: phase-0-project-skeleton
 | --- | --------- | ----- | ------------------------- | ---------------------------------------------- | ------ |
 | T1  | setup     | unit  | tests/unit/sanity.test.js | runs in a jsdom environment with a document    | ✅     |
 | T2  | setup     | unit  | tests/unit/sanity.test.js | chrome.runtime.getURL returns an extension URL | ✅     |
-| T3  | setup     | unit  | tests/unit/sanity.test.js | chrome mock calls are reset between tests      | ⬜     |
+| T3  | setup     | unit  | tests/unit/sanity.test.js | chrome mock calls are reset between tests      | ✅     |
 
 No acceptance test: this group has no user-facing behaviour (`plan.md` names
 none). Lint, typecheck and format:check are proven by running them green on
