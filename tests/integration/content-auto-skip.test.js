@@ -10,7 +10,7 @@ describe('content script auto-skip', () => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
   });
 
-  it.fails('clicks a visible Skip button while an ad is showing', async () => {
+  it('clicks a visible Skip button while an ad is showing', async () => {
     // GIVEN an ad is showing and its Skip button is visible
     const { startAd, showSkipButton, clicks } = loadPlayer();
     startAd();
