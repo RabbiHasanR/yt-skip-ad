@@ -58,4 +58,16 @@ describe('findSkipButton', () => {
     // THEN no button is found
     expect(found).toBeNull();
   });
+
+  it('ignores a Skip button outside the player', () => {
+    // GIVEN a visible Skip button elsewhere on the page, and none in the player
+    const { player } = loadPlayer();
+    const outside = document.createElement('button');
+    outside.className = 'ytp-skip-ad-button';
+    document.body.append(outside);
+    // WHEN looking for the Skip button in the player
+    const found = findSkipButton(player);
+    // THEN no button is found
+    expect(found).toBeNull();
+  });
 });
