@@ -4,12 +4,13 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "types": ["chrome"],
+    "types": ["chrome", "node"],
     "checkJs": true,
     "allowJs": true,
     "strict": true,
     "noEmit": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "maxNodeModuleJsDepth": 0
   },
   "include": ["src/**/*.js", "popup/**/*.js", "tests/**/*.js"]
 }

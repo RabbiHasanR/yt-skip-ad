@@ -1,0 +1,8 @@
+{
+  "manifest_version": 3,
+  "name": "YT Skip Ad",
+  "version": "0.1.0",
+  "description": "Automatically clicks YouTube's Skip Ad button when it appears.",
+  "permissions": ["storage"],
+  "host_permissions": ["*://*.youtube.com/*"]
+}
