@@ -20,4 +20,13 @@ describe('content script auto-skip', () => {
     // THEN it clicks the Skip button once
     expect(clicks).toHaveBeenCalledOnce();
   });
+
+  it('loads without errors on a page without a player', async () => {
+    // GIVEN a page without a player, like the home page
+    document.body.replaceChildren();
+    // WHEN the content script loads on the page
+    const load = import(MAIN);
+    // THEN it loads without throwing
+    await expect(load).resolves.toBeDefined();
+  });
 });
