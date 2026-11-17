@@ -1,5 +1,10 @@
 // Decides when to click the Skip button. Each check looks at the player as it
 // is right now; the content script decides when to check.
+//
+// Click once per appearance: the skipper starts armed, a click disarms it,
+// and any check that sees no visible Skip button re-arms it. In a two-ad pod
+// the second ad's countdown hides the button, so that ad gets its own click,
+// whether YouTube reuses the button element or makes a new one.
 import { findSkipButton, isAdShowing } from './ad-detection.js';
 
 /**
@@ -12,9 +17,12 @@ export function createSkipper() {
   let armed = true;
   return {
     check(player) {
-      if (!armed || !isAdShowing(player)) return;
       const button = findSkipButton(player);
-      if (!button) return;
+      if (!button) {
+        armed = true;
+        return;
+      }
+      if (!armed || !isAdShowing(player)) return;
       button.click();
       armed = false;
     },

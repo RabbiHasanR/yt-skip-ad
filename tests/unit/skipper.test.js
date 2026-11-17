@@ -40,4 +40,21 @@ describe('skipper', () => {
     // THEN the Skip button is clicked once
     expect(clicks).toHaveBeenCalledOnce();
   });
+
+  it('clicks again for the next ad in a pod after its countdown', () => {
+    // GIVEN the first ad of a pod was skipped; the ad stays marked as showing
+    const { player, clicks, startAd, showSkipButton, hideSkipButton } =
+      loadPlayer();
+    startAd();
+    showSkipButton();
+    const skipper = createSkipper();
+    skipper.check(player);
+    // WHEN the second ad counts down, then shows its Skip button
+    hideSkipButton();
+    skipper.check(player);
+    showSkipButton();
+    skipper.check(player);
+    // THEN each ad got one click
+    expect(clicks).toHaveBeenCalledTimes(2);
+  });
 });
