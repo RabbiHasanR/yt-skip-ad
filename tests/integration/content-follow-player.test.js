@@ -16,7 +16,7 @@ describe('content script follows the player', () => {
     vi.useRealTimers();
   });
 
-  it.fails('skips an ad that starts after the page has loaded', async () => {
+  it('skips an ad that starts after the page has loaded', async () => {
     // GIVEN the content script follows a player with no ad yet
     const { startAd, showSkipButton, clicks } = loadPlayer();
     stop = followPlayer(document);
