@@ -1,6 +1,10 @@
 // Reads YouTube's player DOM: is an ad showing, and is its Skip button
 // clickable? Pure lookups on the elements it is given; no clicking, no state.
-import { PLAYER_SELECTORS, SKIP_BUTTON_SELECTORS } from './selectors.js';
+import {
+  AD_SHOWING_CLASS,
+  PLAYER_SELECTORS,
+  SKIP_BUTTON_SELECTORS,
+} from './selectors.js';
 
 /**
  * Finds the main video player, trying each player selector in order.
@@ -10,6 +14,16 @@ import { PLAYER_SELECTORS, SKIP_BUTTON_SELECTORS } from './selectors.js';
  */
 export function findPlayer(root) {
   return findFirst(root, PLAYER_SELECTORS, () => true);
+}
+
+/**
+ * Tells whether an ad is playing in the player.
+ *
+ * @param {Element} player The video player element.
+ * @returns {boolean} True while YouTube marks the player as showing an ad.
+ */
+export function isAdShowing(player) {
+  return player.classList.contains(AD_SHOWING_CLASS);
 }
 
 /**

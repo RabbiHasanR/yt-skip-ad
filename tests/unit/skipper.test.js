@@ -16,4 +16,14 @@ describe('skipper', () => {
     // THEN the Skip button is clicked
     expect(clicks).toHaveBeenCalledOnce();
   });
+
+  it('does not click a visible Skip button when no ad is showing', () => {
+    // GIVEN a visible Skip button, but no ad is showing
+    const { player, clicks, showSkipButton } = loadPlayer();
+    showSkipButton();
+    // WHEN the player is checked
+    createSkipper().check(player);
+    // THEN nothing is clicked
+    expect(clicks).not.toHaveBeenCalled();
+  });
 });

@@ -1,6 +1,6 @@
 // Decides when to click the Skip button. Each check looks at the player as it
 // is right now; the content script decides when to check.
-import { findSkipButton } from './ad-detection.js';
+import { findSkipButton, isAdShowing } from './ad-detection.js';
 
 /**
  * Creates a skipper for one page.
@@ -11,6 +11,7 @@ import { findSkipButton } from './ad-detection.js';
 export function createSkipper() {
   return {
     check(player) {
+      if (!isAdShowing(player)) return;
       findSkipButton(player)?.click();
     },
   };
