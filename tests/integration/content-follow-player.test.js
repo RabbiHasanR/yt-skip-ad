@@ -27,4 +27,18 @@ describe('content script follows the player', () => {
     // THEN the Skip button is clicked within the throttle wait
     expect(clicks).toHaveBeenCalledOnce();
   });
+
+  it('follows a player that appears after the content script loads', async () => {
+    // GIVEN the content script starts on a page with no player yet
+    document.body.replaceChildren();
+    stop = followPlayer(document);
+    // WHEN the player appears, then an ad with a visible Skip button
+    const { startAd, showSkipButton, clicks } = loadPlayer();
+    await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
+    startAd();
+    showSkipButton();
+    await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
+    // THEN its Skip button is clicked
+    expect(clicks).toHaveBeenCalledOnce();
+  });
 });
