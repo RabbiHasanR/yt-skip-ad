@@ -15,6 +15,10 @@ export function createThrottle(run, waitMs) {
   return () => {
     if (pending) return;
     pending = true;
-    setTimeout(run, waitMs);
+    setTimeout(() => {
+      // Cleared first, so changes caused by `run` schedule a follow-up run.
+      pending = false;
+      run();
+    }, waitMs);
   };
 }

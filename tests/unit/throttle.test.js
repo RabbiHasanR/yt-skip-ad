@@ -29,4 +29,17 @@ describe('createThrottle', () => {
     vi.advanceTimersByTime(WAIT_MS * 2);
     expect(run).toHaveBeenCalledOnce();
   });
+
+  it('runs again for calls made after the previous run', () => {
+    // GIVEN a throttled function that has already run once
+    const run = vi.fn();
+    const schedule = createThrottle(run, WAIT_MS);
+    schedule();
+    vi.advanceTimersByTime(WAIT_MS);
+    // WHEN it is called again
+    schedule();
+    vi.advanceTimersByTime(WAIT_MS);
+    // THEN it runs again
+    expect(run).toHaveBeenCalledTimes(2);
+  });
 });
