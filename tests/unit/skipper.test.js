@@ -57,4 +57,16 @@ describe('skipper', () => {
     // THEN each ad got one click
     expect(clicks).toHaveBeenCalledTimes(2);
   });
+
+  it('does nothing during an ad without a Skip button', () => {
+    // GIVEN an unskippable ad: the ad is showing and there is no Skip button
+    const { player, button, clicks, startAd } = loadPlayer();
+    startAd();
+    button.remove();
+    // WHEN the player is checked
+    const check = () => createSkipper().check(player);
+    // THEN nothing is clicked and nothing is thrown
+    expect(check).not.toThrow();
+    expect(clicks).not.toHaveBeenCalled();
+  });
 });

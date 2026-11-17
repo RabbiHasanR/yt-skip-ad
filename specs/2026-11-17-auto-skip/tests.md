@@ -30,7 +30,7 @@ Behaviours: B1–B4, B6, B11 · Branch: phase-1-auto-skip
 | T7  | B2        | unit        | tests/unit/skipper.test.js                  | does not click a visible Skip button when no ad is showing         | ✅     |
 | T8  | B4        | unit        | tests/unit/skipper.test.js                  | clicks only once while the same Skip button stays visible          | ✅     |
 | T9  | B4        | unit        | tests/unit/skipper.test.js                  | clicks again for the next ad in a pod after its countdown          | ✅     |
-| T10 | B6        | unit        | tests/unit/skipper.test.js                  | does nothing during an ad without a Skip button                    | ⬜     |
+| T10 | B6        | unit        | tests/unit/skipper.test.js                  | does nothing during an ad without a Skip button                    | ✅     |
 | T11 | B11       | integration | tests/integration/content-auto-skip.test.js | loads without errors on a page without a player                    | ⬜     |
 
 B5 moved to group 3 and B11 moved here at Gate 2 (see `plan.md`). T4 and T10
