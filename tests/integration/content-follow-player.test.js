@@ -55,4 +55,18 @@ describe('content script follows the player', () => {
     // THEN the new player's Skip button is clicked
     expect(next.clicks).toHaveBeenCalledOnce();
   });
+
+  it('does not click when the ad ends before the throttled check runs', async () => {
+    // GIVEN the content script follows a player
+    const { startAd, endAd, showSkipButton, clicks } = loadPlayer();
+    stop = followPlayer(document);
+    // WHEN an ad shows its Skip button, but ends before the check runs
+    startAd();
+    showSkipButton();
+    await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS / 2);
+    endAd();
+    await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
+    // THEN nothing is clicked, though the button is still visible
+    expect(clicks).not.toHaveBeenCalled();
+  });
 });

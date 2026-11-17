@@ -48,7 +48,7 @@ Behaviours: B5, B7–B10, B12 · Branch: phase-1-auto-skip
 | T3  | B10       | unit        | tests/unit/throttle.test.js                     | runs again for calls made after the previous run                   | ✅     |
 | T4  | B8        | integration | tests/integration/content-follow-player.test.js | follows a player that appears after the content script loads       | ✅     |
 | T5  | B9        | integration | tests/integration/content-follow-player.test.js | keeps skipping after navigation replaces the player                | ✅     |
-| T6  | B5        | integration | tests/integration/content-follow-player.test.js | does not click when the ad ends before the throttled check runs    | ⬜     |
+| T6  | B5        | integration | tests/integration/content-follow-player.test.js | does not click when the ad ends before the throttled check runs    | ✅     |
 | T7  | B12       | —           | —                                               | —                                                                  | ➖     |
 | T8  | B1        | e2e         | tests/e2e/auto-skip.spec.js                     | the loaded extension clicks the Skip button on a YouTube-like page | ⬜     |
 
