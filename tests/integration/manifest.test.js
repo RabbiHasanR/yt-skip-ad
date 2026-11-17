@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 const ICON_SIZES = ['16', '48', '128'];
+const YOUTUBE = '*://*.youtube.com/*';
 
 /** @returns {any} The parsed manifest.json from the repo root. */
 function readManifest() {
@@ -31,7 +32,7 @@ describe('manifest.json', () => {
     // THEN only storage and YouTube are requested
     expect(manifest.manifest_version).toBe(3);
     expect(manifest.permissions).toEqual(['storage']);
-    expect(manifest.host_permissions).toEqual(['*://*.youtube.com/*']);
+    expect(manifest.host_permissions).toEqual([YOUTUBE]);
     expect(manifest.optional_permissions).toBeUndefined();
     expect(manifest.optional_host_permissions).toBeUndefined();
   });
@@ -65,6 +66,21 @@ describe('manifest.json', () => {
       height: Number(size),
     }));
     expect(actual).toEqual(expected);
+  });
+
+  it('content script and web-accessible modules are YouTube-only', () => {
+    // GIVEN the manifest
+    const manifest = readManifest();
+    // WHEN Chrome decides where to inject and what pages may fetch
+    const scriptMatches = manifest.content_scripts.map(
+      (/** @type {any} */ cs) => cs.matches,
+    );
+    const resources = manifest.web_accessible_resources;
+    // THEN everything is limited to YouTube, and only our modules are exposed
+    expect(scriptMatches).toEqual([[YOUTUBE]]);
+    expect(resources).toEqual([
+      { resources: ['src/**/*.js'], matches: [YOUTUBE] },
+    ]);
   });
 });
 
