@@ -11,10 +11,10 @@ every popup change meets the
 Each feature phase starts with one **acceptance test**, marked
 `it.fails(...)`, and ends when it passes with the mark removed.
 
-## Phase 0 — Project skeleton 🔍 In review
+## Phase 0 — Project skeleton ✅ Complete
 
 Spec: [2026-11-17-project-skeleton](2026-11-17-project-skeleton/requirements.md).
-Automated checks pass; the manual checks in Chrome are pending.
+Automated and manual checks pass (2026-11-17).
 
 - Add `manifest.json` (MV3, `storage` + YouTube host permission only) and
   placeholder icons.
