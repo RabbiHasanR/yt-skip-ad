@@ -32,4 +32,20 @@ describe('content script loader', () => {
       '[yt-skip-ad] content script loaded',
     );
   });
+
+  it('logs one prefixed error when the entry fails to load', async () => {
+    // GIVEN the content entry can't be fetched
+    vi.mocked(chrome.runtime.getURL).mockReturnValue(
+      pathToFileURL(resolve('src/content/missing.js')).href,
+    );
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    // WHEN Chrome runs the classic loader script
+    await import(LOADER);
+    // THEN one prefixed error is logged, and nothing is thrown at the page
+    await vi.waitFor(() => expect(error).toHaveBeenCalled());
+    expect(error).toHaveBeenCalledExactlyOnceWith(
+      '[yt-skip-ad] failed to load content script',
+      expect.any(Error),
+    );
+  });
 });

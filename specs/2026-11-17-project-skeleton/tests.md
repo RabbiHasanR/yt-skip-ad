@@ -27,7 +27,7 @@ Behaviours: B1–B8 · Branch: phase-0-project-skeleton
 | T3  | B2        | integration | tests/integration/manifest.test.js          | every file the manifest references exists                     | ✅     |
 | T4  | B2        | integration | tests/integration/manifest.test.js          | icons are PNGs of their declared size                         | ✅     |
 | T5  | B6        | integration | tests/integration/manifest.test.js          | content script and web-accessible modules are YouTube-only    | ✅     |
-| T6  | B5        | integration | tests/integration/content-loader.test.js    | logs one prefixed error when the entry fails to load          | ⬜     |
+| T6  | B5        | integration | tests/integration/content-loader.test.js    | logs one prefixed error when the entry fails to load          | ✅     |
 | T7  | B7        | integration | tests/integration/popup-placeholder.test.js | popup shows the extension name and a placeholder line         | ⬜     |
 | T8  | B4        | —           | —                                           | —                                                             | ➖     |
 | T9  | B8        | lint        | eslint.config.js                            | `no-restricted-globals` bans network APIs in `src/`, `popup/` | ⬜     |
