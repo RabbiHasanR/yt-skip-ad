@@ -81,7 +81,7 @@ Behaviours: B15–B21 · Branch: phase-2-settings
 | T6  | B17            | integration | tests/integration/popup-settings.test.js | saves a new delay when the field changes                                       | ✅     |
 | T7  | B18            | integration | tests/integration/popup-settings.test.js | saves and shows a typed delay of 25 as 10                                      | ✅     |
 | T8  | B18            | integration | tests/integration/popup-settings.test.js | puts the stored delay back when the field is emptied, saving nothing           | ✅     |
-| T9  | B16, B2        | e2e         | tests/e2e/settings.spec.js               | turning auto-skip off in the popup stops the Skip click on a YouTube-like page | ⬜     |
+| T9  | B16, B2        | e2e         | tests/e2e/settings.spec.js               | turning auto-skip off in the popup stops the Skip click on a YouTube-like page | ✅     |
 | T10 | B19 (keyboard) | manual      | —                                        | Tab, Space, Enter, and arrow keys on the native controls                       | ➖     |
 | T11 | B20            | manual      | —                                        | about 280px wide, readable in light and dark mode                              | ➖     |
 | T12 | B21            | manual      | —                                        | settings survive reopening the popup and restarting Chrome                     | ➖     |
