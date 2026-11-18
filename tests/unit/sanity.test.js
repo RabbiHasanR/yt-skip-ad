@@ -106,6 +106,20 @@ describe('test setup', () => {
       // THEN the saved value wins and the missing key gets its default
       expect(stored).toEqual({ skipCount: 4, other: 'fallback' });
     });
+
+    it("the storage mock tells listeners what changed, with the 'local' area", async () => {
+      // GIVEN a stored counter and a listener for storage changes
+      await seedStorage({ skipCount: 4 }, 'local');
+      const listener = vi.fn();
+      chrome.storage.onChanged.addListener(listener);
+      // WHEN the counter goes up
+      await chrome.storage.local.set({ skipCount: 5 });
+      // THEN the listener hears the change once, with the 'local' area
+      expect(listener).toHaveBeenCalledExactlyOnceWith(
+        { skipCount: { oldValue: 4, newValue: 5 } },
+        'local',
+      );
+    });
   });
 
   // Runs in file order: the first test leaves a call, the second checks it's gone.
