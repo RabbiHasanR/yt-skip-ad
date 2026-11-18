@@ -17,13 +17,17 @@ import { findSkipButton, isAdShowing } from './ad-detection.js';
  * @param {object} options How the skipper reads the user's settings.
  * @param {() => import('../shared/constants.js').Settings} options.getSettings
  *   Returns the settings as they are now.
- * @returns {{ check: (player: Element) => void }} Checks the player and
- *   clicks the Skip button when it should be clicked.
+ * @returns {{ check: (player: Element) => void, stop: () => void }} `check`
+ *   checks the player and clicks the Skip button when it should be clicked;
+ *   `stop` calls off a pending wait, for a player that is no longer followed.
  */
 export function createSkipper({ getSettings }) {
   let armed = true;
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let wait;
+
+  /** Calls off the pending wait, if any. */
+  const callOffWait = () => clearTimeout(wait);
 
   /**
    * Clicks the Skip button if the player still shows an ad with a visible
@@ -47,7 +51,7 @@ export function createSkipper({ getSettings }) {
       const button = findSkipButton(player);
       if (!button) {
         // A wait belongs to one appearance of the button.
-        clearTimeout(wait);
+        callOffWait();
         armed = true;
         return;
       }
@@ -61,5 +65,6 @@ export function createSkipper({ getSettings }) {
       }
       wait = setTimeout(() => clickIfStillWanted(player), delaySec * 1000);
     },
+    stop: callOffWait,
   };
 }

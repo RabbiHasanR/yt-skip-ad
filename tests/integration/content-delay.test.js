@@ -33,4 +33,26 @@ describe('content script waits the delay', () => {
     await vi.advanceTimersByTimeAsync(1);
     expect(clicks).toHaveBeenCalledOnce();
   });
+
+  it("calls off the old player's wait when navigation replaces the player", async () => {
+    // GIVEN a 3-second delay, and a wait running for the first player's ad
+    await seedStorage({ delaySec: 3 });
+    const first = loadPlayer();
+    stop = followPlayer(document, await watchSettings());
+    first.startAd();
+    first.showSkipButton();
+    await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
+    // WHEN in-page navigation replaces the player before the wait ends
+    const next = loadPlayer();
+    document.dispatchEvent(new Event('yt-navigate-finish'));
+    await vi.advanceTimersByTimeAsync(3000);
+    // THEN the old player's Skip button is never clicked
+    expect(first.clicks).not.toHaveBeenCalled();
+    // WHEN the new player shows an ad with a Skip button
+    next.startAd();
+    next.showSkipButton();
+    await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS + 3000);
+    // THEN it is skipped after its own delay
+    expect(next.clicks).toHaveBeenCalledOnce();
+  });
 });

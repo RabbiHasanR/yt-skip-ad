@@ -32,8 +32,8 @@ const PAGE_CHANGES = { subtree: true, childList: true };
 export function followPlayer(doc, settings) {
   /** @type {Element | null} */
   let current = null;
-  /** @type {MutationObserver | null} */
-  let playerObserver = null;
+  /** Stops watching the followed player; a no-op until there is one. */
+  let unwatch = () => {};
   /** Checks the followed player soon; a no-op until there is one. */
   let scheduleCheck = () => {};
   // Throttled too: on the home page there is never a player, and YouTube
@@ -46,7 +46,7 @@ export function followPlayer(doc, settings) {
   function follow() {
     const player = findPlayer(doc);
     if (player && player === current) return;
-    playerObserver?.disconnect();
+    unwatch();
     current = player;
     if (!player) {
       waiter.observe(doc.documentElement, PAGE_CHANGES);
@@ -58,7 +58,8 @@ export function followPlayer(doc, settings) {
 
   /**
    * Checks the player now, and again after each burst of player changes.
-   * Each player gets a fresh skipper, so no state carries over between them.
+   * Each player gets a fresh skipper, so no state carries over between them,
+   * and unwatching calls off the old skipper's pending wait.
    *
    * @param {Element} player The video player element.
    */
@@ -68,8 +69,12 @@ export function followPlayer(doc, settings) {
       () => skipper.check(player),
       CHECK_THROTTLE_MS,
     );
-    playerObserver = new MutationObserver(scheduleCheck);
-    playerObserver.observe(player, PLAYER_CHANGES);
+    const observer = new MutationObserver(scheduleCheck);
+    observer.observe(player, PLAYER_CHANGES);
+    unwatch = () => {
+      observer.disconnect();
+      skipper.stop();
+    };
     skipper.check(player);
   }
 
@@ -80,6 +85,6 @@ export function followPlayer(doc, settings) {
   return () => {
     doc.removeEventListener(NAVIGATE_EVENT, follow);
     waiter.disconnect();
-    playerObserver?.disconnect();
+    unwatch();
   };
 }
