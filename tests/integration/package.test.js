@@ -110,4 +110,26 @@ describe('npm run package', () => {
     expect(zipPath).toBe(join(outDir, 'yt-skip-ad-9.9.9.zip'));
     expect(zipEntries(zipPath)).toContain('manifest.json');
   });
+
+  it('leaves out dotfiles and private keys, even inside included folders', () => {
+    // GIVEN a project with stray dotfiles and a key beside the extension files
+    const rootDir = makeProject('1.0.0', {
+      '.env': '',
+      'src/.DS_Store': '',
+      'popup/.hidden/note.js': '',
+      'src/key.pem': '',
+      'icons/key.pem': '',
+    });
+    const outDir = makeTempDir();
+    // WHEN it is packaged
+    const entries = zipEntries(packageExtension({ rootDir, outDir }));
+    // THEN only the extension files are in the zip
+    expect(entries.sort()).toEqual([
+      'README.md',
+      'icons/icon16.png',
+      'manifest.json',
+      'popup/popup.html',
+      'src/content/main.js',
+    ]);
+  });
 });

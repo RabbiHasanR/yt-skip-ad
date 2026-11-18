@@ -19,6 +19,13 @@ export const PACKAGE_FILES = Object.freeze([
 ]);
 
 /**
+ * `zip -x` patterns kept out even inside `PACKAGE_FILES`: dotfiles and
+ * folders (`.DS_Store`, editor folders) and private keys. In `zip`, `*` also
+ * matches `/`, so these apply at any depth.
+ */
+const EXCLUDED_PATTERNS = Object.freeze(['*/.*', '*.pem']);
+
+/**
  * Zips the extension files of `rootDir` into
  * `<outDir>/yt-skip-ad-<version>.zip`, with paths relative to `rootDir`, so
  * the unzipped folder loads in Chrome as it is.
@@ -32,8 +39,10 @@ export function packageExtension({ rootDir, outDir }) {
   );
   const zipPath = join(outDir, `yt-skip-ad-${version}.zip`);
   mkdirSync(outDir, { recursive: true });
-  execFileSync('zip', ['-r', '-X', '-q', zipPath, ...PACKAGE_FILES], {
-    cwd: rootDir,
-  });
+  execFileSync(
+    'zip',
+    ['-r', '-X', '-q', zipPath, ...PACKAGE_FILES, '-x', ...EXCLUDED_PATTERNS],
+    { cwd: rootDir },
+  );
   return zipPath;
 }
