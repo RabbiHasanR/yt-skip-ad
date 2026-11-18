@@ -207,5 +207,31 @@ describe('skipper', () => {
       vi.advanceTimersByTime(1);
       expect(clicks).toHaveBeenCalledOnce();
     });
+
+    it("keeps a running wait's length when the delay changes, and uses the new one next", () => {
+      // GIVEN a skipper is waiting 3 s to click a visible Skip button
+      const { player, clicks, startAd, showSkipButton, hideSkipButton } =
+        loadPlayer();
+      startAd();
+      showSkipButton();
+      const settings = { enabled: true, delaySec: 3 };
+      const skipper = createSkipper({ getSettings: () => settings });
+      skipper.check(player);
+      // WHEN the delay changes to 8 s during the wait
+      settings.delaySec = 8;
+      vi.advanceTimersByTime(3000);
+      // THEN the running wait still clicks after 3 s
+      expect(clicks).toHaveBeenCalledOnce();
+      // WHEN the next ad shows its Skip button
+      hideSkipButton();
+      skipper.check(player);
+      showSkipButton();
+      skipper.check(player);
+      // THEN it waits the new 8 s
+      vi.advanceTimersByTime(7999);
+      expect(clicks).toHaveBeenCalledOnce();
+      vi.advanceTimersByTime(1);
+      expect(clicks).toHaveBeenCalledTimes(2);
+    });
   });
 });
