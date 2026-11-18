@@ -25,7 +25,7 @@ Behaviours: B1–B8 · Branch: phase-3-skip-counter
 
 | #   | Behaviour | Level       | File                                           | Test name                                                                        | Status |
 | --- | --------- | ----------- | ---------------------------------------------- | -------------------------------------------------------------------------------- | ------ |
-| T1  | B1        | acceptance  | tests/integration/content-skip-counter.test.js | adds 1 to the skip counter when the content script clicks Skip                   | 🔴     |
+| T1  | B1        | acceptance  | tests/integration/content-skip-counter.test.js | adds 1 to the skip counter when the content script clicks Skip                   | ✅     |
 | T2  | B5        | unit        | tests/unit/skip-count.test.js                  | reads a stored count of $stored as $expected                                     | ✅     |
 | T3  | B1        | unit        | tests/unit/storage.test.js                     | adds 1 to a stored count of $stored, saving $expected                            | ✅     |
 | T4  | B8        | unit        | tests/unit/storage.test.js                     | keeps the skip counter in local storage, never in sync                           | ✅     |
@@ -34,11 +34,14 @@ Behaviours: B1–B8 · Branch: phase-3-skip-counter
 | T7  | B2        | unit        | tests/unit/skipper.test.js                     | calls onSkip once for each ad of a pod                                           | ✅     |
 | T8  | B3, B4    | unit        | tests/unit/skipper.test.js                     | does not call onSkip when $what                                                  | ✅     |
 | T9  | B4        | integration | tests/integration/content-skip-counter.test.js | does not count a wait called off when navigation replaces the player             | ⬜     |
-| T10 | B6        | integration | tests/integration/content-skip-counter.test.js | keeps skipping when saving the skip counter fails, logging one error             | ⬜     |
+| T10 | B6        | integration | tests/integration/content-skip-counter.test.js | keeps skipping when saving the skip counter fails, logging one error             | ✅     |
 | T11 | B7        | integration | tests/integration/content-skip-counter.test.js | never changes the skip counter on a page without a player                        | ⬜     |
 
 Agreed at Gate 2: `onSkip` is optional in `createSkipper`, so existing
 skipper and follow-player tests are unchanged; a failed save logs one
 `console.error('[yt-skip-ad] failed to save the skip counter', error)` per
 failure and is never thrown at the page. T7, T8, T9, and T11 are guards
-expected to pass on arrival and are mutation-checked.
+expected to pass on arrival and are mutation-checked. T10 was built before T9: it drives the
+`follow-player.js` wiring, without which T9 would pass for the wrong reason
+(nothing counted at all). T1 went green with that same wiring. T6's name
+gained `($delaySec s)` so its two cases have distinct titles.
