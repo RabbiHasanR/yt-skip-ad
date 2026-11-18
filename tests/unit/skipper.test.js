@@ -120,5 +120,21 @@ describe('skipper', () => {
         expect(clicks).toHaveBeenCalledOnce();
       },
     );
+
+    it.each([
+      { what: 'the ad ends', change: 'endAd' },
+      { what: 'the Skip button is hidden', change: 'hideSkipButton' },
+    ])('does not click when $what during the delay', ({ change }) => {
+      // GIVEN a skipper is waiting 3 s to click a visible Skip button
+      const fixture = loadPlayer();
+      fixture.startAd();
+      fixture.showSkipButton();
+      createSkipper(delayOf(3)).check(fixture.player);
+      // WHEN the player changes during the wait
+      fixture[/** @type {'endAd' | 'hideSkipButton'} */ (change)]();
+      vi.advanceTimersByTime(3000);
+      // THEN nothing is clicked
+      expect(fixture.clicks).not.toHaveBeenCalled();
+    });
   });
 });

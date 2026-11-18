@@ -33,7 +33,18 @@ export function createSkipper({ getSettings }) {
         button.click();
         return;
       }
-      setTimeout(() => button.click(), delaySec * 1000);
+      setTimeout(() => clickIfStillShown(player), delaySec * 1000);
     },
   };
+}
+
+/**
+ * Clicks the Skip button if the player still shows an ad with a visible Skip
+ * button; the page may have changed during the delay.
+ *
+ * @param {Element} player The video player element.
+ */
+function clickIfStillShown(player) {
+  const button = findSkipButton(player);
+  if (button && isAdShowing(player)) button.click();
 }
