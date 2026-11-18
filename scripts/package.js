@@ -2,7 +2,7 @@
 // extension itself has no build step, so the zip holds the source files as
 // they are.
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 
 /**
@@ -39,6 +39,8 @@ export function packageExtension({ rootDir, outDir }) {
   );
   const zipPath = join(outDir, `yt-skip-ad-${version}.zip`);
   mkdirSync(outDir, { recursive: true });
+  // zip adds to an existing archive; start fresh so deleted files go too.
+  rmSync(zipPath, { force: true });
   execFileSync(
     'zip',
     ['-r', '-X', '-q', zipPath, ...PACKAGE_FILES, '-x', ...EXCLUDED_PATTERNS],

@@ -132,4 +132,17 @@ describe('npm run package', () => {
       'src/content/main.js',
     ]);
   });
+
+  it("a second run replaces the zip, so deleted files don't linger in it", () => {
+    // GIVEN a project packaged once while it had src/old.js
+    const rootDir = makeProject('1.0.0', { 'src/old.js': '' });
+    const outDir = makeTempDir();
+    packageExtension({ rootDir, outDir });
+    // WHEN src/old.js is deleted and the same version is packaged again
+    rmSync(join(rootDir, 'src/old.js'));
+    const entries = zipEntries(packageExtension({ rootDir, outDir }));
+    // THEN the new zip no longer holds it
+    expect(entries).not.toContain('src/old.js');
+    expect(entries).toContain('src/content/main.js');
+  });
 });
