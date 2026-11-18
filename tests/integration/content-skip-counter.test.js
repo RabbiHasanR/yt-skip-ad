@@ -3,6 +3,7 @@ import { followPlayer } from '../../src/content/follow-player.js';
 import { CHECK_THROTTLE_MS } from '../../src/shared/constants.js';
 import { watchSettings } from '../../src/shared/storage.js';
 import { loadPlayer } from '../fixtures/player.js';
+import { seedStorage } from '../setup/storage.js';
 
 /**
  * Reads the skip counter straight from the mock's local storage area.
@@ -56,5 +57,21 @@ describe('content script counts skips', () => {
       '[yt-skip-ad] failed to save the skip counter',
       failure,
     );
+  });
+
+  it('does not count a wait called off when navigation replaces the player', async () => {
+    // GIVEN a 3-second delay, and a wait running for the first player's ad
+    await seedStorage({ delaySec: 3 });
+    const first = loadPlayer();
+    stop = followPlayer(document, await watchSettings());
+    first.startAd();
+    first.showSkipButton();
+    await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
+    // WHEN in-page navigation replaces the player before the wait ends
+    loadPlayer();
+    document.dispatchEvent(new Event('yt-navigate-finish'));
+    await vi.advanceTimersByTimeAsync(3000);
+    // THEN nothing is counted
+    expect(await storedCount()).toBeUndefined();
   });
 });
