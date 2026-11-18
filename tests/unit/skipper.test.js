@@ -159,5 +159,32 @@ describe('skipper', () => {
       vi.advanceTimersByTime(1);
       expect(clicks).toHaveBeenCalledOnce();
     });
+
+    it('clicks each ad of a pod once, each after its own delay', () => {
+      // GIVEN a 2-second delay, and the first ad of a pod shows Skip
+      const { player, clicks, startAd, showSkipButton, hideSkipButton } =
+        loadPlayer();
+      startAd();
+      showSkipButton();
+      const skipper = createSkipper(delayOf(2));
+      // WHEN the player is checked several times during the first wait
+      skipper.check(player);
+      skipper.check(player);
+      vi.advanceTimersByTime(1000);
+      skipper.check(player);
+      vi.advanceTimersByTime(1000);
+      // THEN the first ad gets one click
+      expect(clicks).toHaveBeenCalledOnce();
+      // WHEN the second ad counts down, then shows Skip
+      hideSkipButton();
+      skipper.check(player);
+      showSkipButton();
+      skipper.check(player);
+      // THEN it gets its own full wait and one click
+      vi.advanceTimersByTime(1999);
+      expect(clicks).toHaveBeenCalledOnce();
+      vi.advanceTimersByTime(1);
+      expect(clicks).toHaveBeenCalledTimes(2);
+    });
   });
 });
