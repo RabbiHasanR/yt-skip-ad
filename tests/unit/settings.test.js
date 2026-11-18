@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeSettings } from '../../src/core/settings.js';
+import { normalizeSettings, parseDelayField } from '../../src/core/settings.js';
 
 describe('settings rules', () => {
   it.each([
@@ -43,4 +43,17 @@ describe('settings rules', () => {
       );
     },
   );
+
+  it.each([
+    { typed: '', expected: null },
+    { typed: '4', expected: 4 },
+    { typed: '25', expected: 10 },
+    { typed: '2.6', expected: 3 },
+  ])('reads a delay field of "$typed" as $expected', ({ typed, expected }) => {
+    // GIVEN what a colleague left in the popup's delay field
+    // WHEN the field is read
+    const delaySec = parseDelayField(typed);
+    // THEN it is a valid delay, or null when there is nothing to save
+    expect(delaySec).toBe(expected);
+  });
 });

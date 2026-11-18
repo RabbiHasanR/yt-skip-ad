@@ -33,3 +33,15 @@ function normalizeDelay(value) {
   }
   return Math.min(DELAY_SEC_MAX, Math.max(DELAY_SEC_MIN, Math.round(value)));
 }
+
+/**
+ * Reads the popup's delay field. An empty or non-numeric field means there
+ * is nothing to save (`Number('')` would otherwise read as 0).
+ *
+ * @param {string} value The field's text.
+ * @returns {number | null} A valid delay, or null to keep the stored one.
+ */
+export function parseDelayField(value) {
+  const number = value.trim() === '' ? NaN : Number(value);
+  return Number.isFinite(number) ? normalizeDelay(number) : null;
+}
