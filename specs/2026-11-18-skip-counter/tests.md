@@ -29,7 +29,7 @@ Behaviours: B1–B8 · Branch: phase-3-skip-counter
 | T2  | B5        | unit        | tests/unit/skip-count.test.js                  | reads a stored count of $stored as $expected                         | ✅     |
 | T3  | B1        | unit        | tests/unit/storage.test.js                     | adds 1 to a stored count of $stored, saving $expected                | ✅     |
 | T4  | B8        | unit        | tests/unit/storage.test.js                     | keeps the skip counter in local storage, never in sync               | ✅     |
-| T5  | B6        | unit        | tests/unit/storage.test.js                     | does not tell settings listeners about a skip counter change         | ⬜     |
+| T5  | B6        | unit        | tests/unit/storage.test.js                     | does not tell settings listeners about a skip counter change         | ✅     |
 | T6  | B1        | unit        | tests/unit/skipper.test.js                     | calls onSkip once for each click it makes, with or without a delay   | ⬜     |
 | T7  | B2        | unit        | tests/unit/skipper.test.js                     | calls onSkip once for each ad of a pod                               | ⬜     |
 | T8  | B3, B4    | unit        | tests/unit/skipper.test.js                     | does not call onSkip when $what                                      | ⬜     |

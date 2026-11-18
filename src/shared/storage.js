@@ -58,7 +58,9 @@ export async function watchSettings() {
   let current = await getSettings();
   /** @type {Set<(settings: import('./constants.js').Settings) => void>} */
   const listeners = new Set();
-  chrome.storage.onChanged.addListener((changes) => {
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    // The settings live in `sync`; a counted skip in `local` is not a change.
+    if (areaName !== 'sync') return;
     current = normalizeSettings({ ...current, ...newValues(changes) });
     listeners.forEach((listener) => listener(current));
   });

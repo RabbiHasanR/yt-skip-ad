@@ -38,6 +38,17 @@ describe('settings storage', () => {
     // THEN the delay goes back to its default
     expect(settings.current().delaySec).toBe(0);
   });
+
+  it('does not tell settings listeners about a skip counter change', async () => {
+    // GIVEN the settings are being watched, with a listener
+    const settings = await watchSettings();
+    const listener = vi.fn();
+    settings.onChange(listener);
+    // WHEN a skip is counted
+    await incrementSkipCount();
+    // THEN the settings listener is not called
+    expect(listener).not.toHaveBeenCalled();
+  });
 });
 
 describe('skip counter storage', () => {
