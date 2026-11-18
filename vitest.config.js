@@ -8,7 +8,7 @@ export default defineConfig({
     exclude: ['tests/e2e/**', 'node_modules/**'],
     coverage: {
       provider: 'v8',
-      include: ['src/**/*.js', 'popup/**/*.js'],
+      include: ['src/**/*.js', 'popup/**/*.js', 'scripts/**/*.js'],
     },
   },
 });
