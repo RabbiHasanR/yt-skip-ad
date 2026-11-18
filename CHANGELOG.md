@@ -3,6 +3,27 @@
 All notable changes to this project. Versions match `version` in
 `manifest.json`.
 
+## 1.0.0 — 2026-11-18
+
+Ready for colleagues ([Phase 4 spec](specs/2026-11-18-mvp/requirements.md)).
+
+### Added
+
+- A fixed extension ID: the extension keeps its ID, settings, and skip
+  counter wherever its folder lives. Moving the folder now needs only
+  "Load unpacked" again.
+- `npm run package` builds `dist/yt-skip-ad-<version>.zip` with only the
+  extension files, ready to share over WhatsApp or the shared folder.
+- README for colleagues: install from the zip or the shared folder, use,
+  update, uninstall, troubleshooting, and a privacy note (no data
+  collected, nothing sent off the computer, why each permission is needed).
+
+### Changed
+
+- **Upgrading from 0.x:** remove the old card in `chrome://extensions`,
+  then "Load unpacked" again. Because the ID changes once, settings and the
+  skip counter start again from the defaults this one time.
+
 ## 0.4.0 — 2026-11-18
 
 Skip counter ([Phase 3 spec](specs/2026-11-18-skip-counter/requirements.md)).

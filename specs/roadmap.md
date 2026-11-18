@@ -101,17 +101,30 @@ After this phase, a user sees how many ads were skipped and can reset it.
 - The popup counter updates live while open.
 - "Reset counter" sets it to 0.
 
-## Phase 4 — MVP ⏳ Not started
+## Phase 4 — MVP 🔍 In review
+
+Spec: [2026-11-18-mvp](2026-11-18-mvp/requirements.md).
+Automated checks pass (2026-11-18), as version 1.0.0; the manual pass on
+real YouTube and the clean-profile install from the zip are pending.
 
 Closes the mission's unmet promises and makes v1 ready for colleagues.
+
+### Stable extension ID
+
+- A `key` in `manifest.json` fixes the extension ID, so settings and the
+  skip counter survive moving the folder (settles the deferred decision).
+
+### Dist zip
+
+- `npm run package` builds the dist zip (see
+  [tech-stack.md → Distribution](tech-stack.md#distribution)).
 
 ### Ready for colleagues
 
 - `README.md` with install ("Load unpacked" from the shared folder or the
   WhatsApp zip), update, and uninstall steps,
   plus a privacy note: no data collected, nothing sent off the device.
-- Final icons at 16/48/128 px.
-- `DEBUG` flag for verbose logging, off by default.
+- The existing icons at 16/48/128 px are final.
 - Version `1.0.0` in `manifest.json`.
 
 ### Release check
@@ -119,8 +132,6 @@ Closes the mission's unmet promises and makes v1 ready for colleagues.
 - Full suite, lint, and type checks pass.
 - Manual test pass on real YouTube (see
   [tech-stack.md → Validation](tech-stack.md#validation)).
-- `npm run package` builds the dist zip (see
-  [tech-stack.md → Distribution](tech-stack.md#distribution)).
 - Install from the zip on a clean Chrome profile, following only the README.
 
 ## Later (out of v1 scope)
@@ -128,4 +139,5 @@ Closes the mission's unmet promises and makes v1 ready for colleagues.
 "Don't skip this ad" button in the player, per-channel rules, countdown
 overlay with cancel, muting or speeding up unskippable ads, toolbar badge
 counter, Firefox/Edge builds, public Chrome Web Store release, a warning when
-`ad-showing` lasts 30+ s with no Skip button found (a sign a selector broke).
+`ad-showing` lasts 30+ s with no Skip button found (a sign a selector broke),
+a `DEBUG` flag for verbose logging (moved out of Phase 4).

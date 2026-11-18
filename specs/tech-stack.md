@@ -39,6 +39,7 @@ Why no framework:
 | Lint/format | ESLint (flat config) + Prettier                                        |
 | Type checks | `tsc --noEmit` with `checkJs` over JSDoc types                         |
 | Tests       | Vitest + jsdom (fast); Playwright + Chromium (e2e)                     |
+| Packaging   | `npm run package`: system `zip` over the source files, no build        |
 
 ## Storage schema
 
@@ -63,7 +64,9 @@ Rules:
   rounded to a whole number, then clamped to 0–10; any other `delaySec`
   reads as `0`.
 - Upgrades never wipe stored values; a renamed key needs a migration step in
-  `storage.js`.
+  `storage.js`. One exception, in Phase 4: 1.0.0 added the manifest `key`,
+  so a 0.x install gets a new extension ID once and starts again from the
+  defaults. Stored values belong to the extension ID.
 - _(Phase 3, built)_ `skipCount` lives in `local`, not `sync`: each device
   keeps its own count, so synced browsers can't overwrite each other's
   counts, and no sync write quota is spent per skip. It is cleaned up by
@@ -229,6 +232,52 @@ counter` with `console.error` on failure, never throwing at the page.
   storage → popup.
 - **Version:** `0.4.0`.
 
+## Decided in Phase 4
+
+See [the Phase 4 spec](2026-11-18-mvp/requirements.md#decisions) and its
+[tests.md](2026-11-18-mvp/tests.md) Gate 2 notes.
+
+- **Stable extension ID:** `manifest.json` → `key` holds the base64 DER
+  public key of a 2048-bit RSA key generated with `openssl`, so the ID is
+  `efdhjhghkcidlflkhipiaijdemjjknbl` wherever the folder lives. Chromium
+  accepts a locally generated key (proven by the e2e tests); the Web Store
+  dashboard isn't needed.
+- **Private key:** kept outside the repo at `~/.keys/yt-skip-ad.pem` (mode
+  600), needed only to build a `.crx`; `*.pem` is in `.gitignore`, and a
+  test fails if one is tracked by git.
+- **ID in tests:** `tests/fixtures/extension-id.js` →
+  `extensionIdFromKey(key)` (SHA-256 of the key bytes, first 32 hex digits
+  mapped 0–f to a–p) and the pinned `EXPECTED_EXTENSION_ID`. The manifest
+  test pins it; the e2e fixtures open the popup at the ID derived from the
+  loaded folder's manifest, replacing the old folder-path rule.
+- **Dist zip:** `scripts/package.js` exports `PACKAGE_FILES`
+  (`manifest.json`, `src`, `popup`, `icons`, `README.md`) and
+  `packageExtension({ rootDir, outDir })`. It runs `zip -r -X -q` with
+  `execFileSync` (no shell), excludes `*/.*` and `*.pem` at any depth, and
+  deletes an existing zip of the same version first. `npm run package`
+  writes `dist/yt-skip-ad-<version>.zip`; `node scripts/package.js <outDir>`
+  writes elsewhere (tests use temp folders). A missing `zip` prints
+  `[yt-skip-ad] can't build the dist zip: the zip command is not installed`
+  and exits 1.
+- **`Error` cause:** `jsconfig.json` → `lib` gains `ES2022.Error`, for
+  `new Error(message, { cause })`, which ESLint's `preserve-caught-error`
+  requires.
+- **Package tests:** `tests/integration/package.test.js` runs in Vitest's
+  Node environment (`// @vitest-environment node`) against small temp
+  projects with decoy files, and reads zips with `unzip -Z1`. Coverage
+  can't see the CLI path, which runs in a child process.
+- **e2e fixtures:** an `extensionDir` fixture (the repo by default) feeds
+  `context` and `extensionId`; `tests/e2e/install-from-zip.spec.js`
+  overrides it with a folder unzipped from a fresh zip. The shared steps
+  `openYouTubeFixture`, `countTrustedSkipClicks` and `showSkippableAd` live
+  in `tests/e2e/fixtures.js`.
+- **Versions:** a test fails unless `manifest.json`, `package.json` and
+  `package-lock.json` agree. To release: bump `manifest.json`, run
+  `npm version <same> --no-git-tag-version`, then `npm run package`.
+- **Icons:** the existing 16/48/128 px icons are final.
+- **`DEBUG` flag:** not built; moved to the roadmap's **Later** list.
+- **Version:** `1.0.0`.
+
 ## Project conventions
 
 Every phase follows this layout. Update this section when a convention
@@ -241,6 +290,7 @@ changes. Approved in Phase 0.
 | `src/shared/`        | Constants (storage keys, defaults) and the storage adapter           |
 | `src/content/`       | Content script entry: observer and event wiring; page-world scripts  |
 | `popup/`             | Popup HTML, CSS, and thin JS wiring                                  |
+| `scripts/`           | Dev tooling run with Node (`package.js`); never in the dist zip      |
 | `icons/`             | 16/48/128 px icons                                                   |
 | `tests/unit/`        | Unit tests for `src/core/` and `src/shared/`                         |
 | `tests/integration/` | Content script and popup against fixtures + `chrome` mock            |
@@ -263,6 +313,8 @@ Rules:
   exception: `src/content/trusted-click.js` runs in the page's world, where
   it can't import, so it repeats the Skip-button selectors; a test fails if
   the two lists drift.
+- `scripts/` is Node dev tooling: linted with Node globals, type-checked,
+  and tested in `tests/integration/`; extension code never imports it.
 - Page-world (`"world": "MAIN"`) scripts are classic scripts with no imports
   and no `chrome.*` calls, which don't exist there.
 - Naming: kebab-case file names, camelCase functions and variables,
@@ -279,6 +331,8 @@ pass.
   committing.
 - `npm run test:watch` re-runs tests as you edit.
 - `npm run test:e2e` runs the slow Playwright tests.
+- `npm run package` builds the dist zip; each shared build is installed once
+  from that zip before it goes out.
 - Each phase's acceptance criteria are written as tests in `tests/`.
 - Run `npm run lint`, `npm run format:check`, and `npm run typecheck`
   alongside the tests.
@@ -360,11 +414,14 @@ Office machines use regular (unmanaged) Chrome, so "Load unpacked" works.
 - **Channels:** a shared directory, or a **dist zip** sent over WhatsApp.
 - **Dist zip:** `npm run package` builds `dist/yt-skip-ad-<version>.zip` with
   only the extension files (`manifest.json`, `src/`, `popup/`, `icons/`,
-  `README.md`) — no `tests/`, `node_modules/`, `specs/`, or `docs/`.
+  `README.md`) — no `tests/`, `node_modules/`, `specs/`, `docs/`, dotfiles,
+  or keys. It needs the system `zip` (Linux or macOS). The zip has no
+  top-level folder, so it is unzipped into a folder made first.
 - **Install:** unzip to a permanent folder → `chrome://extensions` →
   Developer mode on → "Load unpacked" → pick the folder.
 - **Update:** replace the folder contents with the new version (same folder
-  path) → click the reload icon on the extension card.
+  path) → click the reload icon on the extension card. Settings and the
+  counter are kept; from 1.0.0 the ID doesn't depend on the path.
 - **Versioning:** bump `version` in `manifest.json` for every shared build so
   colleagues can tell which one they have.
 
@@ -373,8 +430,16 @@ Office machines use regular (unmanaged) Chrome, so "Load unpacked" works.
 - **Updates:** unpacked extensions never auto-update; each colleague must
   replace the folder and reload by hand.
 - **Folder must stay put:** deleting or moving the unpacked folder breaks the
-  extension; moving it may also reset settings and the counter, because the
-  extension ID comes from the folder path.
+  extension until it is loaded again from the new place. Settings and the
+  counter are kept, because the manifest `key` fixes the ID (since 1.0.0).
+- **Upgrading from 0.x resets once:** 0.x IDs came from the folder path, so
+  the first 1.0.0 install starts from the default settings and a counter of 0. The README tells 0.x users to remove the old card first.
+- **One ID for every copy:** two copies of the folder share one ID, so
+  Chrome can load only one of them at a time.
+- **Zip has no top-level folder:** unzipping without a destination scatters
+  the files; the README has colleagues make the folder first.
+- **Building the zip needs `zip`:** `npm run package` works on Linux and
+  macOS, not on Windows without a `zip` command.
 - **Detectable on YouTube:** the modules in `src/` are web-accessible to
   YouTube pages, so a page could tell the extension is installed by fetching
   one. Nothing sensitive is exposed.
@@ -396,9 +461,6 @@ Office machines use regular (unmanaged) Chrome, so "Load unpacked" works.
 - **Selectors break:** YouTube renames classes from time to time; fixes go in
   `src/core/selectors.js`.
 
-- **Settings reset when the folder moves:** the extension ID comes from the
-  folder path, and settings belong to the ID, until the stable ID is decided
-  (Phase 4).
 - **Settings follow Chrome Sync:** `chrome.storage.sync` copies the two
   settings to the colleague's other signed-in Chrome browsers. The
   extension itself still makes no network requests.
@@ -422,6 +484,4 @@ Office machines use regular (unmanaged) Chrome, so "Load unpacked" works.
 - **CI:** lint, format check, type check, and tests on every push. The repo
   now has a remote, but it is a self-hosted git server, not GitHub, so
   GitHub Actions needs a compatible runner there; still to decide.
-- **Stable extension ID:** whether to add a `key` to `manifest.json` so the
-  ID (and stored settings) survive moving the folder.
 - **Public Web Store release:** not planned for v1.
