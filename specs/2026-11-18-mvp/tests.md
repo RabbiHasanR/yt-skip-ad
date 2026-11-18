@@ -34,8 +34,8 @@ Behaviours: B1–B5 · Branch: phase-4-mvp
 | T1  | B1        | acceptance  | tests/integration/manifest.test.js            | gives the extension the same pinned ID from its key, whatever its folder | ✅     |
 | T2  | B5        | integration | tests/integration/manifest.test.js            | its key is a 2048-bit RSA public key, never the private key              | ✅     |
 | T3  | B5        | integration | tests/integration/manifest.test.js            | no private key file is tracked by git                                    | ✅     |
-| T4  | B1        | e2e         | tests/e2e/settings.spec.js (existing)         | the popup opens at the ID derived from the key                           | ⬜     |
-| —   | B4        | integration | tests/integration/manifest.test.js (existing) | asks only for storage and YouTube host access (unchanged, stays green)   | ⬜     |
+| T4  | B1        | e2e         | tests/e2e/settings.spec.js (existing)         | the popup opens at the ID derived from the key                           | ✅     |
+| —   | B4        | integration | tests/integration/manifest.test.js (existing) | asks only for storage and YouTube host access (unchanged, stays green)   | ✅     |
 | —   | B2, B3    | manual      | validation.md manual checks 3 and 2           | Chrome's storage per extension ID can't be faked in a test               | ➖     |
 
 The private key lives at `~/.keys/yt-skip-ad.pem` (folder 700, file 600),

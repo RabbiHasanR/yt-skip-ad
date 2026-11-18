@@ -5,9 +5,9 @@
 // routed: Playwright would otherwise intercept the loader's import() of
 // chrome-extension:// files too.
 import { test as base, chromium } from '@playwright/test';
-import { createHash } from 'node:crypto';
-import { realpathSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { extensionIdFromKey } from '../fixtures/extension-id.js';
 
 const EXTENSION_DIR = fileURLToPath(new URL('../../', import.meta.url));
 const PLAYER_FIXTURE = fileURLToPath(
@@ -16,25 +16,6 @@ const PLAYER_FIXTURE = fileURLToPath(
 
 /** URL that serves `tests/fixtures/player.html` inside the test browser. */
 export const YOUTUBE_FIXTURE_URL = 'https://www.youtube.com/watch?v=fixture';
-
-/**
- * Works out an unpacked extension's ID the way Chrome does: SHA-256 of the
- * folder's absolute path (symlinks resolved, no trailing slash), first 32
- * hex digits, each mapped 0–f to a–p. The extension has no service worker,
- * so Playwright's usual way of reading the ID doesn't apply.
- *
- * @param {string} dir The unpacked extension folder.
- * @returns {string} The extension ID Chrome gives that folder.
- */
-function unpackedExtensionId(dir) {
-  const hex = createHash('sha256')
-    .update(realpathSync(dir))
-    .digest('hex')
-    .slice(0, 32);
-  return [...hex]
-    .map((digit) => String.fromCharCode(97 + parseInt(digit, 16)))
-    .join('');
-}
 
 /**
  * Tells whether a request goes to the web, as opposed to extension files.
@@ -75,7 +56,11 @@ export const test = base.extend({
   },
   // eslint-disable-next-line no-empty-pattern
   extensionId: async ({}, use) => {
-    await use(unpackedExtensionId(EXTENSION_DIR));
+    // With no service worker, Playwright can't read the ID; the manifest's
+    // key fixes it instead, whatever folder Chromium loads.
+    const manifestPath = new URL('../../manifest.json', import.meta.url);
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+    await use(extensionIdFromKey(manifest.key));
   },
 });
 
