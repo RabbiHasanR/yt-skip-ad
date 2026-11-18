@@ -113,7 +113,9 @@ export async function incrementSkipCount() {
  * @param {(count: number) => void} listener Gets the cleaned-up count.
  */
 export function watchSkipCount(listener) {
-  chrome.storage.onChanged.addListener((changes) => {
-    listener(normalizeSkipCount(changes[SKIP_COUNT_KEY]?.newValue));
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    // A settings save in `sync` says nothing about the count.
+    if (areaName !== 'local' || !(SKIP_COUNT_KEY in changes)) return;
+    listener(normalizeSkipCount(changes[SKIP_COUNT_KEY].newValue));
   });
 }
