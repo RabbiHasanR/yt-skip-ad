@@ -34,6 +34,8 @@ export function followPlayer(doc, settings) {
   let current = null;
   /** @type {MutationObserver | null} */
   let playerObserver = null;
+  /** Checks the followed player soon; a no-op until there is one. */
+  let scheduleCheck = () => {};
   // Throttled too: on the home page there is never a player, and YouTube
   // changes the page constantly.
   const waiter = new MutationObserver(
@@ -62,14 +64,18 @@ export function followPlayer(doc, settings) {
    */
   function watch(player) {
     const skipper = createSkipper({ getSettings: settings.current });
-    playerObserver = new MutationObserver(
-      createThrottle(() => skipper.check(player), CHECK_THROTTLE_MS),
+    scheduleCheck = createThrottle(
+      () => skipper.check(player),
+      CHECK_THROTTLE_MS,
     );
+    playerObserver = new MutationObserver(scheduleCheck);
     playerObserver.observe(player, PLAYER_CHANGES);
     skipper.check(player);
   }
 
   doc.addEventListener(NAVIGATE_EVENT, follow);
+  // Turning auto-skip on must skip an ad already on screen.
+  settings.onChange(() => scheduleCheck());
   follow();
   return () => {
     doc.removeEventListener(NAVIGATE_EVENT, follow);
