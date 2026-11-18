@@ -20,5 +20,7 @@ enabledInput.addEventListener('change', () => {
 
 delayInput.addEventListener('change', () => {
   const delaySec = parseDelayField(delayInput.value);
-  if (delaySec !== null) setSettings({ delaySec });
+  if (delaySec === null) return;
+  delayInput.value = String(delaySec);
+  setSettings({ delaySec });
 });

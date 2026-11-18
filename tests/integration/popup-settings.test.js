@@ -106,4 +106,18 @@ describe('popup settings', () => {
       expect(await readStored()).toEqual({ enabled: false, delaySec: 3 }),
     );
   });
+
+  it('saves and shows a typed delay of 25 as 10', async () => {
+    // GIVEN the popup is open
+    const { delay } = await openPopup();
+    // WHEN a colleague types 25, past the 10-second limit, and presses Enter
+    change(delay, (input) => {
+      input.value = '25';
+    });
+    // THEN 10 is saved, and the field shows what was saved
+    await vi.waitFor(async () =>
+      expect((await readStored()).delaySec).toBe(10),
+    );
+    expect(delay.value).toBe('10');
+  });
 });
