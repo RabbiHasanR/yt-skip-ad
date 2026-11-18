@@ -22,6 +22,8 @@ import { findSkipButton, isAdShowing } from './ad-detection.js';
  */
 export function createSkipper({ getSettings }) {
   let armed = true;
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
+  let wait;
 
   /**
    * Clicks the Skip button if the player still shows an ad with a visible
@@ -44,6 +46,8 @@ export function createSkipper({ getSettings }) {
     check(player) {
       const button = findSkipButton(player);
       if (!button) {
+        // A wait belongs to one appearance of the button.
+        clearTimeout(wait);
         armed = true;
         return;
       }
@@ -55,7 +59,7 @@ export function createSkipper({ getSettings }) {
         clickIfStillWanted(player);
         return;
       }
-      setTimeout(() => clickIfStillWanted(player), delaySec * 1000);
+      wait = setTimeout(() => clickIfStillWanted(player), delaySec * 1000);
     },
   };
 }

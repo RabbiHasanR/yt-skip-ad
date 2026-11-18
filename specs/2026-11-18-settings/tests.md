@@ -54,7 +54,7 @@ Behaviours: B9–B14 · Branch: phase-2-settings
 | T3  | B11       | unit        | tests/unit/skipper.test.js              | does not click when $what during the delay                                                       | ✅     |
 | T4  | B10       | unit        | tests/unit/skipper.test.js              | does not click when auto-skip is turned off during the delay, and waits again once it is back on | ✅     |
 | T5  | B13       | unit        | tests/unit/skipper.test.js              | clicks each ad of a pod once, each after its own delay                                           | ✅     |
-| T6  | B13       | unit        | tests/unit/skipper.test.js              | gives a Skip button that reappears during the delay its own full wait                            | ⬜     |
+| T6  | B13       | unit        | tests/unit/skipper.test.js              | gives a Skip button that reappears during the delay its own full wait                            | ✅     |
 | T7  | B12       | unit        | tests/unit/skipper.test.js              | keeps a running wait's length when the delay changes, and uses the new one next                  | ⬜     |
 | T8  | B14       | integration | tests/integration/content-delay.test.js | calls off the old player's wait when navigation replaces the player                              | ⬜     |
 

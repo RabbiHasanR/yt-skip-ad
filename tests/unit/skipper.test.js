@@ -186,5 +186,26 @@ describe('skipper', () => {
       vi.advanceTimersByTime(1);
       expect(clicks).toHaveBeenCalledTimes(2);
     });
+
+    it('gives a Skip button that reappears during the delay its own full wait', () => {
+      // GIVEN a skipper is waiting 3 s to click a visible Skip button
+      const { player, clicks, startAd, showSkipButton, hideSkipButton } =
+        loadPlayer();
+      startAd();
+      showSkipButton();
+      const skipper = createSkipper(delayOf(3));
+      skipper.check(player);
+      // WHEN, 1 s in, the button is hidden and then shown again
+      vi.advanceTimersByTime(1000);
+      hideSkipButton();
+      skipper.check(player);
+      showSkipButton();
+      skipper.check(player);
+      // THEN the first wait clicks nothing; the new one clicks 3 s later
+      vi.advanceTimersByTime(2999);
+      expect(clicks).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(1);
+      expect(clicks).toHaveBeenCalledOnce();
+    });
   });
 });
