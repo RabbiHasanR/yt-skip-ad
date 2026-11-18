@@ -262,5 +262,23 @@ describe('skipper', () => {
         expect(onSkip).toHaveBeenCalledOnce();
       },
     );
+
+    it('calls onSkip once for each ad of a pod', () => {
+      // GIVEN the first ad of a pod shows its Skip button
+      const { player, startAd, showSkipButton, hideSkipButton } = loadPlayer();
+      startAd();
+      showSkipButton();
+      const onSkip = vi.fn();
+      const skipper = createSkipper({ ...ON, onSkip });
+      // WHEN both ads are skipped, the second after its own countdown
+      skipper.check(player);
+      skipper.check(player);
+      hideSkipButton();
+      skipper.check(player);
+      showSkipButton();
+      skipper.check(player);
+      // THEN two skips are reported
+      expect(onSkip).toHaveBeenCalledTimes(2);
+    });
   });
 });
