@@ -92,4 +92,18 @@ describe('popup settings', () => {
       expect(await readStored()).toEqual({ enabled: false, delaySec: 4 }),
     );
   });
+
+  it('saves a new delay when the field changes', async () => {
+    // GIVEN auto-skip is stored off, and the popup is open
+    await seedStorage({ enabled: false });
+    const { delay } = await openPopup();
+    // WHEN a colleague sets the delay to 3
+    change(delay, (input) => {
+      input.value = '3';
+    });
+    // THEN the delay is saved, and auto-skip stays off
+    await vi.waitFor(async () =>
+      expect(await readStored()).toEqual({ enabled: false, delaySec: 3 }),
+    );
+  });
 });
