@@ -1,13 +1,20 @@
 // Popup wiring: shows the stored settings in the controls and saves changes.
 // The rules live in src/core/; storage access in src/shared/storage.js.
 import { parseDelayField } from '../src/core/settings.js';
-import { getSettings, setSettings } from '../src/shared/storage.js';
+import {
+  getSettings,
+  getSkipCount,
+  setSettings,
+} from '../src/shared/storage.js';
 
 const enabledInput = /** @type {HTMLInputElement} */ (
   document.getElementById('enabled')
 );
 const delayInput = /** @type {HTMLInputElement} */ (
   document.getElementById('delay')
+);
+const countOutput = /** @type {HTMLOutputElement} */ (
+  document.getElementById('skip-count')
 );
 
 /**
@@ -22,6 +29,7 @@ const showDelay = (delaySec) => {
 const settings = await getSettings();
 enabledInput.checked = settings.enabled;
 showDelay(settings.delaySec);
+countOutput.value = String(await getSkipCount());
 
 enabledInput.addEventListener('change', () => {
   setSettings({ enabled: enabledInput.checked });

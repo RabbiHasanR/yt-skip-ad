@@ -89,7 +89,7 @@ function newValues(changes) {
  *
  * @returns {Promise<number>} The stored count, or 0 when missing or invalid.
  */
-async function readSkipCount() {
+export async function getSkipCount() {
   const stored = await chrome.storage.local.get({
     [SKIP_COUNT_KEY]: DEFAULT_SKIP_COUNT,
   });
@@ -103,6 +103,6 @@ async function readSkipCount() {
  * @returns {Promise<void>} Resolves once the new count is stored.
  */
 export async function incrementSkipCount() {
-  const count = await readSkipCount();
+  const count = await getSkipCount();
   await chrome.storage.local.set({ [SKIP_COUNT_KEY]: count + 1 });
 }
