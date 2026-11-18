@@ -1,5 +1,10 @@
-import { LOG_PREFIX } from '../../src/shared/constants.js';
-import { expect, test, YOUTUBE_FIXTURE_URL } from './fixtures.js';
+import {
+  countTrustedSkipClicks,
+  expect,
+  openYouTubeFixture,
+  showSkippableAd,
+  test,
+} from './fixtures.js';
 
 test('turning auto-skip off in the popup stops the Skip click on a YouTube-like page', async ({
   context,
@@ -18,27 +23,9 @@ test('turning auto-skip off in the popup stops the Skip click on a YouTube-like 
     )
     .toBe(false);
   // WHEN a YouTube watch page shows an ad with a visible Skip button
-  const loaded = page.waitForEvent('console', {
-    predicate: (message) =>
-      message.text() === `${LOG_PREFIX} content script loaded`,
-  });
-  await page.goto(YOUTUBE_FIXTURE_URL);
-  await loaded;
-  const skipButton = page.locator('.ytp-skip-ad-button');
-  await skipButton.evaluate((button) => {
-    // Counted from the page's own world, like YouTube's click handler.
-    button.dataset.clicks = '0';
-    button.addEventListener('click', (event) => {
-      if (!event.isTrusted) return;
-      button.dataset.clicks = String(Number(button.dataset.clicks) + 1);
-    });
-  });
-  await page
-    .locator('#movie_player')
-    .evaluate((player) => player.classList.add('ad-showing'));
-  await page.locator('.ytp-skip-ad').evaluate((slot) => {
-    /** @type {HTMLElement} */ (slot).style.display = '';
-  });
+  await openYouTubeFixture(page);
+  const skipButton = await countTrustedSkipClicks(page);
+  await showSkippableAd(page);
   // THEN the extension leaves the Skip button alone
   await page.waitForTimeout(500);
   await expect(skipButton).toHaveAttribute('data-clicks', '0');

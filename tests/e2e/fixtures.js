@@ -6,10 +6,13 @@
 // chrome-extension:// files too.
 import { test as base, chromium } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { LOG_PREFIX } from '../../src/shared/constants.js';
 import { extensionIdFromKey } from '../fixtures/extension-id.js';
 
-const EXTENSION_DIR = fileURLToPath(new URL('../../', import.meta.url));
+/** The repo folder: the unpacked extension the tests load by default. */
+export const REPO_DIR = fileURLToPath(new URL('../../', import.meta.url));
 const PLAYER_FIXTURE = fileURLToPath(
   new URL('../fixtures/player.html', import.meta.url),
 );
@@ -28,22 +31,80 @@ function isWebRequest(url) {
 }
 
 /**
+ * Opens the YouTube-like fixture page and waits for the content script.
+ *
+ * @param {import('@playwright/test').Page} page The tab to use.
+ * @returns {Promise<void>} Resolves once the content script has loaded.
+ */
+export async function openYouTubeFixture(page) {
+  const loaded = page.waitForEvent('console', {
+    predicate: (message) =>
+      message.text() === `${LOG_PREFIX} content script loaded`,
+  });
+  await page.goto(YOUTUBE_FIXTURE_URL);
+  await loaded;
+}
+
+/**
+ * Counts trusted clicks on the fixture's Skip button in its `data-clicks`
+ * attribute, from the page's own world, as YouTube's click handler does: it
+ * ignores clicks whose `isTrusted` is false.
+ *
+ * @param {import('@playwright/test').Page} page The fixture page.
+ * @returns {Promise<import('@playwright/test').Locator>} The Skip button.
+ */
+export async function countTrustedSkipClicks(page) {
+  const skipButton = page.locator('.ytp-skip-ad-button');
+  await skipButton.evaluate((button) => {
+    button.dataset.clicks = '0';
+    button.addEventListener('click', (event) => {
+      if (!event.isTrusted) return;
+      button.dataset.clicks = String(Number(button.dataset.clicks) + 1);
+    });
+  });
+  return skipButton;
+}
+
+/**
+ * Starts an ad on the fixture page and shows its Skip button, as YouTube
+ * does after the countdown.
+ *
+ * @param {import('@playwright/test').Page} page The fixture page.
+ * @returns {Promise<void>} Resolves once the button is visible.
+ */
+export async function showSkippableAd(page) {
+  await page
+    .locator('#movie_player')
+    .evaluate((player) => player.classList.add('ad-showing'));
+  await page.locator('.ytp-skip-ad').evaluate((slot) => {
+    /** @type {HTMLElement} */ (slot).style.display = '';
+  });
+}
+
+/**
  * @type {import('@playwright/test').TestType<
  *   import('@playwright/test').PlaywrightTestArgs &
- *     import('@playwright/test').PlaywrightTestOptions & { extensionId: string },
+ *     import('@playwright/test').PlaywrightTestOptions & {
+ *       extensionDir: string,
+ *       extensionId: string,
+ *     },
  *   import('@playwright/test').PlaywrightWorkerArgs &
  *     import('@playwright/test').PlaywrightWorkerOptions
  * >}
  */
 export const test = base.extend({
+  // The unpacked extension folder to load; a spec can override it.
   // Playwright reads fixture dependencies from the destructured first arg.
   // eslint-disable-next-line no-empty-pattern
-  context: async ({}, use) => {
+  extensionDir: async ({}, use) => {
+    await use(REPO_DIR);
+  },
+  context: async ({ extensionDir }, use) => {
     const context = await chromium.launchPersistentContext('', {
       channel: 'chromium',
       args: [
-        `--disable-extensions-except=${EXTENSION_DIR}`,
-        `--load-extension=${EXTENSION_DIR}`,
+        `--disable-extensions-except=${extensionDir}`,
+        `--load-extension=${extensionDir}`,
       ],
     });
     await context.route(isWebRequest, (route) =>
@@ -54,11 +115,10 @@ export const test = base.extend({
     await use(context);
     await context.close();
   },
-  // eslint-disable-next-line no-empty-pattern
-  extensionId: async ({}, use) => {
+  extensionId: async ({ extensionDir }, use) => {
     // With no service worker, Playwright can't read the ID; the manifest's
     // key fixes it instead, whatever folder Chromium loads.
-    const manifestPath = new URL('../../manifest.json', import.meta.url);
+    const manifestPath = join(extensionDir, 'manifest.json');
     const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
     await use(extensionIdFromKey(manifest.key));
   },
