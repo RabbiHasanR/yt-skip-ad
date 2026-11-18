@@ -17,6 +17,31 @@ function createChromeMock() {
         (/** @type {string} */ path) => `${EXTENSION_ORIGIN}${path}`,
       ),
     },
+    storage: { sync: createStorageArea() },
+  };
+}
+
+/**
+ * Builds an in-memory `chrome.storage` area that starts empty.
+ *
+ * @returns {object} An object shaped like `chrome.storage.sync`.
+ */
+function createStorageArea() {
+  /** @type {Record<string, unknown>} */
+  const store = {};
+  return {
+    // Only the defaults-object form of `get`, the one the extension uses.
+    get: vi.fn(async (/** @type {Record<string, unknown>} */ defaults) =>
+      Object.fromEntries(
+        Object.entries(defaults).map(([key, fallback]) => [
+          key,
+          key in store ? store[key] : fallback,
+        ]),
+      ),
+    ),
+    set: vi.fn(async (/** @type {Record<string, unknown>} */ items) => {
+      Object.assign(store, items);
+    }),
   };
 }
 

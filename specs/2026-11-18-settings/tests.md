@@ -6,7 +6,7 @@ Behaviours: none (tooling) · Branch: phase-2-settings
 
 | #   | Behaviour | Level | File                      | Test name                                                                | Status |
 | --- | --------- | ----- | ------------------------- | ------------------------------------------------------------------------ | ------ |
-| T1  | setup     | unit  | tests/unit/sanity.test.js | the storage mock returns seeded values and the defaults for missing keys | ⬜     |
+| T1  | setup     | unit  | tests/unit/sanity.test.js | the storage mock returns seeded values and the defaults for missing keys | ✅     |
 | T2  | setup     | unit  | tests/unit/sanity.test.js | the storage mock tells listeners what changed, with the 'sync' area      | ⬜     |
 | T3  | setup     | unit  | tests/unit/sanity.test.js | the storage mock reports no change when a value is set to what it was    | ⬜     |
 

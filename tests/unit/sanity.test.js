@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { loadFixture } from '../fixtures/load-fixture.js';
+import { seedStorage } from '../setup/storage.js';
 
 describe('test setup', () => {
   it('runs in a jsdom environment with a document', () => {
@@ -28,6 +29,20 @@ describe('test setup', () => {
     const button = player?.querySelector('.ytp-skip-ad-button');
     expect(button).toBeInstanceOf(HTMLButtonElement);
     expect(button?.closest('[style*="display: none"]')).not.toBeNull();
+  });
+
+  describe('chrome.storage mock', () => {
+    it('the storage mock returns seeded values and the defaults for missing keys', async () => {
+      // GIVEN a colleague saved only the delay
+      await seedStorage({ delaySec: 3 });
+      // WHEN code reads both settings with defaults
+      const stored = await chrome.storage.sync.get({
+        enabled: true,
+        delaySec: 0,
+      });
+      // THEN the saved value wins and the missing key gets its default
+      expect(stored).toEqual({ enabled: true, delaySec: 3 });
+    });
   });
 
   // Runs in file order: the first test leaves a call, the second checks it's gone.
