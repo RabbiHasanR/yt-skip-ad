@@ -66,3 +66,29 @@ player; turning auto-skip off during a wait is caught when the wait ends
 (no click, re-armed). T5 and T7 are expected to pass on arrival and are
 mutation-checked. B10 has no content test: the fire-time check reads
 `settings.current`, whose wiring group 2 proved.
+
+## 4. Popup controls
+
+Behaviours: B15–B21 · Branch: phase-2-settings
+
+| #   | Behaviour      | Level       | File                                     | Test name                                                                      | Status |
+| --- | -------------- | ----------- | ---------------------------------------- | ------------------------------------------------------------------------------ | ------ |
+| T1  | B15            | acceptance  | tests/integration/popup-settings.test.js | shows the stored settings when the popup opens                                 | 🔴     |
+| T2  | B19            | integration | tests/integration/popup-settings.test.js | labels the $label control                                                      | ⬜     |
+| T3  | B15            | integration | tests/integration/popup-settings.test.js | shows auto-skip on with no delay on a fresh install                            | ⬜     |
+| T4  | B16            | integration | tests/integration/popup-settings.test.js | saves auto-skip as soon as the checkbox is unticked, keeping the delay         | ⬜     |
+| T5  | B18            | unit        | tests/unit/settings.test.js              | reads a delay field of "$typed" as $expected                                   | ⬜     |
+| T6  | B17            | integration | tests/integration/popup-settings.test.js | saves a new delay when the field changes                                       | ⬜     |
+| T7  | B18            | integration | tests/integration/popup-settings.test.js | saves and shows a typed delay of 25 as 10                                      | ⬜     |
+| T8  | B18            | integration | tests/integration/popup-settings.test.js | puts the stored delay back when the field is emptied, saving nothing           | ⬜     |
+| T9  | B16, B2        | e2e         | tests/e2e/settings.spec.js               | turning auto-skip off in the popup stops the Skip click on a YouTube-like page | ⬜     |
+| T10 | B19 (keyboard) | manual      | —                                        | Tab, Space, Enter, and arrow keys on the native controls                       | ➖     |
+| T11 | B20            | manual      | —                                        | about 280px wide, readable in light and dark mode                              | ➖     |
+| T12 | B21            | manual      | —                                        | settings survive reopening the popup and restarting Chrome                     | ➖     |
+
+Agreed at Gate 2: T10–T12 are manual only (validation.md manual checks 9,
+10, and 8): keyboard use of native controls and Chrome's own storage
+persistence are what Chrome guarantees, and styling is checked by eye.
+`tests/integration/popup-placeholder.test.js` is deleted when T2 replaces the
+placeholder line, as `plan.md` says. T4 forces `setSettings` to write only
+the keys it is given.
