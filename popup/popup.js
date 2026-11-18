@@ -4,6 +4,7 @@ import { parseDelayField } from '../src/core/settings.js';
 import {
   getSettings,
   getSkipCount,
+  resetSkipCount,
   setSettings,
   watchSkipCount,
 } from '../src/shared/storage.js';
@@ -16,6 +17,9 @@ const delayInput = /** @type {HTMLInputElement} */ (
 );
 const countOutput = /** @type {HTMLOutputElement} */ (
   document.getElementById('skip-count')
+);
+const resetButton = /** @type {HTMLButtonElement} */ (
+  document.getElementById('reset-count')
 );
 
 /**
@@ -55,4 +59,10 @@ delayInput.addEventListener('change', async () => {
   }
   showDelay(delaySec);
   await setSettings({ delaySec });
+});
+
+// No confirmation: one click, low stakes. The counter shows 0 through
+// watchSkipCount, as for any other change.
+resetButton.addEventListener('click', () => {
+  resetSkipCount();
 });

@@ -81,4 +81,20 @@ describe('popup skip counter', () => {
     // THEN the count is grouped the way their language writes numbers
     await vi.waitFor(() => expect(count?.value).toBe((12345).toLocaleString()));
   });
+
+  it('resets the counter to 0 at once when Reset counter is clicked', async () => {
+    // GIVEN 9 ads were skipped, and the popup is open showing them
+    await seedStorage({ skipCount: 9 }, 'local');
+    const { count, reset } = await openPopup();
+    await vi.waitFor(() => expect(count?.value).toBe('9'));
+    // WHEN a colleague clicks Reset counter, with no confirmation asked
+    reset?.click();
+    // THEN 0 is stored, and the popup shows 0
+    await vi.waitFor(async () =>
+      expect(await chrome.storage.local.get({ skipCount: null })).toEqual({
+        skipCount: 0,
+      }),
+    );
+    expect(count?.value).toBe('0');
+  });
 });

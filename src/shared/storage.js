@@ -108,6 +108,15 @@ export async function incrementSkipCount() {
 }
 
 /**
+ * Sets the skip counter back to 0.
+ *
+ * @returns {Promise<void>} Resolves once 0 is stored.
+ */
+export async function resetSkipCount() {
+  await chrome.storage.local.set({ [SKIP_COUNT_KEY]: DEFAULT_SKIP_COUNT });
+}
+
+/**
  * Calls `listener` with the new skip count after each change in storage.
  *
  * @param {(count: number) => void} listener Gets the cleaned-up count.
