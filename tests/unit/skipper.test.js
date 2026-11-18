@@ -136,5 +136,28 @@ describe('skipper', () => {
       // THEN nothing is clicked
       expect(fixture.clicks).not.toHaveBeenCalled();
     });
+
+    it('does not click when auto-skip is turned off during the delay, and waits again once it is back on', () => {
+      // GIVEN a skipper is waiting 3 s to click a visible Skip button
+      const { player, clicks, startAd, showSkipButton } = loadPlayer();
+      startAd();
+      showSkipButton();
+      const settings = { enabled: true, delaySec: 3 };
+      const skipper = createSkipper({ getSettings: () => settings });
+      skipper.check(player);
+      // WHEN auto-skip is turned off before the wait ends
+      settings.enabled = false;
+      vi.advanceTimersByTime(3000);
+      // THEN nothing is clicked
+      expect(clicks).not.toHaveBeenCalled();
+      // WHEN it is turned back on and the player is checked
+      settings.enabled = true;
+      skipper.check(player);
+      // THEN the Skip button gets a new full wait, then one click
+      vi.advanceTimersByTime(2999);
+      expect(clicks).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(1);
+      expect(clicks).toHaveBeenCalledOnce();
+    });
   });
 });
