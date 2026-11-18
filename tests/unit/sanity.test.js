@@ -120,6 +120,18 @@ describe('test setup', () => {
         'local',
       );
     });
+
+    it('the sync and local storage areas keep their values apart', async () => {
+      // GIVEN the same key stored with different values in each area
+      await seedStorage({ skipCount: 1 });
+      await seedStorage({ skipCount: 2 }, 'local');
+      // WHEN code reads it from each area
+      const fromSync = await chrome.storage.sync.get({ skipCount: 0 });
+      const fromLocal = await chrome.storage.local.get({ skipCount: 0 });
+      // THEN each area returns its own value
+      expect(fromSync).toEqual({ skipCount: 1 });
+      expect(fromLocal).toEqual({ skipCount: 2 });
+    });
   });
 
   // Runs in file order: the first test leaves a call, the second checks it's gone.

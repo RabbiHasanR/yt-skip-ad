@@ -8,7 +8,7 @@ Behaviours: none (tooling) · Branch: phase-3-skip-counter
 | --- | --------- | ----- | ------------------------- | ------------------------------------------------------------------------------ | ------ |
 | T1  | setup     | unit  | tests/unit/sanity.test.js | the local storage mock returns seeded values and the defaults for missing keys | ✅     |
 | T2  | setup     | unit  | tests/unit/sanity.test.js | the storage mock tells listeners what changed, with the 'local' area           | ✅     |
-| T3  | setup     | unit  | tests/unit/sanity.test.js | the sync and local storage areas keep their values apart                       | ⬜     |
+| T3  | setup     | unit  | tests/unit/sanity.test.js | the sync and local storage areas keep their values apart                       | ✅     |
 
 No acceptance test: this group has no user-facing behaviour (`plan.md` names
 none). The tests prove the `chrome.storage.local` mock behaves like Chrome,
