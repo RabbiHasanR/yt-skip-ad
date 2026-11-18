@@ -77,6 +77,23 @@ describe('test setup', () => {
         'sync',
       );
     });
+
+    it('the storage mock reports a removed key with only its old value', async () => {
+      // GIVEN a stored delay and a listener for storage changes
+      await seedStorage({ delaySec: 3 });
+      const listener = vi.fn();
+      chrome.storage.onChanged.addListener(listener);
+      // WHEN the delay is removed, along with a key that was never stored
+      await chrome.storage.sync.remove(['delaySec', 'enabled']);
+      // THEN only the stored key is reported, with its old value, and it's gone
+      expect(listener).toHaveBeenCalledExactlyOnceWith(
+        { delaySec: { oldValue: 3 } },
+        'sync',
+      );
+      expect(await chrome.storage.sync.get({ delaySec: 0 })).toEqual({
+        delaySec: 0,
+      });
+    });
   });
 
   // Runs in file order: the first test leaves a call, the second checks it's gone.

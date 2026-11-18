@@ -48,6 +48,14 @@ function createEvent() {
 function createStorageArea(areaName, changed) {
   /** @type {Record<string, unknown>} */
   const store = {};
+  /**
+   * Tells `onChanged` listeners about the changes, if there are any.
+   *
+   * @param {Record<string, chrome.storage.StorageChange>} changes What changed.
+   */
+  const report = (changes) => {
+    if (Object.keys(changes).length > 0) changed.fire(changes, areaName);
+  };
   return {
     // Only the defaults-object form of `get`, the one the extension uses.
     get: vi.fn(async (/** @type {Record<string, unknown>} */ defaults) =>
@@ -68,7 +76,17 @@ function createStorageArea(areaName, changed) {
           key in store ? { oldValue: store[key], newValue } : { newValue };
         store[key] = newValue;
       }
-      if (Object.keys(changes).length > 0) changed.fire(changes, areaName);
+      report(changes);
+    }),
+    remove: vi.fn(async (/** @type {string | string[]} */ keys) => {
+      /** @type {Record<string, { oldValue: unknown }>} */
+      const changes = {};
+      for (const key of [keys].flat()) {
+        if (!(key in store)) continue;
+        changes[key] = { oldValue: store[key] };
+        delete store[key];
+      }
+      report(changes);
     }),
   };
 }
