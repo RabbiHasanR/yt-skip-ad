@@ -37,4 +37,16 @@ describe('popup settings', () => {
     expect(enabled.checked).toBe(false);
     expect(delay.value).toBe('4');
   });
+
+  it.each([
+    { label: 'Auto-skip ads', control: 'enabled' },
+    { label: 'Delay (seconds)', control: 'delay' },
+  ])('labels the $label control', async ({ label, control }) => {
+    // GIVEN a colleague opens the popup
+    const controls = await openPopup();
+    // WHEN they look for the control
+    const input = controls[/** @type {'enabled' | 'delay'} */ (control)];
+    // THEN it has a visible label naming it
+    expect(input.labels?.[0]?.textContent?.trim()).toBe(label);
+  });
 });

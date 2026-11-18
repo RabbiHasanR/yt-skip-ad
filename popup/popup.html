@@ -4,11 +4,29 @@
     <meta charset="utf-8" />
     <title>YT Skip Ad</title>
     <link rel="stylesheet" href="popup.css" />
+    <script type="module" src="popup.js"></script>
   </head>
   <body>
     <main>
       <h1>YT Skip Ad</h1>
-      <p>Coming soon: settings for skipping ads.</p>
+      <form class="settings">
+        <div class="field">
+          <label for="enabled">Auto-skip ads</label>
+          <input id="enabled" name="enabled" type="checkbox" />
+        </div>
+        <div class="field">
+          <label for="delay">Delay (seconds)</label>
+          <input
+            id="delay"
+            name="delay"
+            type="number"
+            min="0"
+            max="10"
+            step="1"
+            inputmode="numeric"
+          />
+        </div>
+      </form>
     </main>
   </body>
 </html>
