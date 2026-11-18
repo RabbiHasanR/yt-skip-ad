@@ -60,4 +60,17 @@ describe('content script follows the settings', () => {
     // THEN the ad on screen is skipped
     expect(clicks).toHaveBeenCalledOnce();
   });
+
+  it('does not click an ad already showing at load when auto-skip is stored off', async () => {
+    // GIVEN a colleague turned auto-skip off earlier, and an ad shows Skip
+    await seedStorage({ enabled: false });
+    const { startAd, showSkipButton, clicks } = loadPlayer();
+    startAd();
+    showSkipButton();
+    // WHEN the content script loads on the page
+    await import(MAIN);
+    await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
+    // THEN the ad is not skipped
+    expect(clicks).not.toHaveBeenCalled();
+  });
 });
