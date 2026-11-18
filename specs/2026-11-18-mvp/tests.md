@@ -88,3 +88,7 @@ three agree at `1.0.0`. No test pins `1.0.0` itself (manual check 1 does).
 README reviewed by Rabbi before commit. It tells colleagues to create the
 folder first and check `manifest.json` sits directly inside it, because the
 zip has no top-level folder.
+
+User guide (added after group 4, user's request): T1 and T3 of group 3 now
+expect `USER-GUIDE.md` in the zip; seen red with the file present but not in
+`PACKAGE_FILES`, then green once added.

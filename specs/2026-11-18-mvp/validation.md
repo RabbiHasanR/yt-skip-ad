@@ -28,7 +28,7 @@ survive moving the folder.
 - B6 — `npm run package` builds `dist/yt-skip-ad-<version>.zip`, named
   with the version in `manifest.json`. [tooling]
 - B7 — The zip contains only `manifest.json`, `src/`, `popup/`, `icons/`,
-  and `README.md`; no tests, specs, docs, `node_modules`, dotfiles, or keys.
+  `README.md`, and `USER-GUIDE.md`; no tests, specs, docs, `node_modules`, dotfiles, or keys.
   [tooling]
 - B8 — Unzipped into a new folder, it loads in Chrome with no errors, with
   the same ID, and skips an ad. [tooling] [manifest]
@@ -40,8 +40,9 @@ survive moving the folder.
 ### Ready for colleagues
 
 - B11 — A colleague installs the extension from the WhatsApp zip or the
-  shared folder by following only the README. [docs]
-- B12 — The README explains how to update, how to uninstall, and what
+  shared folder by following only the User Guide (`USER-GUIDE.md`, linked
+  from the README). [docs]
+- B12 — The User Guide explains how to update, how to uninstall, and what
   upgrading from 0.x does. [docs]
 - B13 — The README's privacy note says no data is collected, nothing is
   sent off the device, where settings and the counter are kept, and why
@@ -91,11 +92,11 @@ other ad-related extensions (ad blockers) off first.
    card, move the folder, and Load unpacked from the new path: same ID,
    same delay, same count (B1, B2).
 4. **Clean install:** on a new Chrome profile, take
-   `dist/yt-skip-ad-1.0.0.zip` and follow only the README to install it,
+   `dist/yt-skip-ad-1.0.0.zip` and follow only the User Guide to install it,
    with no other help: it loads with no errors and the same ID (B8, B11).
 5. In that profile, a pre-roll is skipped with delay 0, and the popup shows
    1 (B8, B15).
-6. Follow the README's update steps with the same zip, then its uninstall
+6. Follow the User Guide's update steps with the same zip, then its uninstall
    steps: both work as written (B12).
 7. Read the README's privacy note against the extension: every claim holds
    (B13).

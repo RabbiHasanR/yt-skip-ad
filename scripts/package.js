@@ -20,6 +20,7 @@ export const PACKAGE_FILES = Object.freeze([
   'popup',
   'icons',
   'README.md',
+  'USER-GUIDE.md',
 ]);
 
 /**

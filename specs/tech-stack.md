@@ -251,8 +251,8 @@ See [the Phase 4 spec](2026-11-18-mvp/requirements.md#decisions) and its
   test pins it; the e2e fixtures open the popup at the ID derived from the
   loaded folder's manifest, replacing the old folder-path rule.
 - **Dist zip:** `scripts/package.js` exports `PACKAGE_FILES`
-  (`manifest.json`, `src`, `popup`, `icons`, `README.md`) and
-  `packageExtension({ rootDir, outDir })`. It runs `zip -r -X -q` with
+  (`manifest.json`, `src`, `popup`, `icons`, `README.md`, `USER-GUIDE.md`)
+  and `packageExtension({ rootDir, outDir })`. It runs `zip -r -X -q` with
   `execFileSync` (no shell), excludes `*/.*` and `*.pem` at any depth, and
   deletes an existing zip of the same version first. `npm run package`
   writes `dist/yt-skip-ad-<version>.zip`; `node scripts/package.js <outDir>`
@@ -414,7 +414,7 @@ Office machines use regular (unmanaged) Chrome, so "Load unpacked" works.
 - **Channels:** a shared directory, or a **dist zip** sent over WhatsApp.
 - **Dist zip:** `npm run package` builds `dist/yt-skip-ad-<version>.zip` with
   only the extension files (`manifest.json`, `src/`, `popup/`, `icons/`,
-  `README.md`) — no `tests/`, `node_modules/`, `specs/`, `docs/`, dotfiles,
+  `README.md`, `USER-GUIDE.md`) — no `tests/`, `node_modules/`, `specs/`, `docs/`, dotfiles,
   or keys. It needs the system `zip` (Linux or macOS). The zip has no
   top-level folder, so it is unzipped into a folder made first.
 - **Install:** unzip to a permanent folder → `chrome://extensions` →

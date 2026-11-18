@@ -52,6 +52,7 @@ function makeProject(version, extraFiles = {}) {
   const files = {
     'manifest.json': JSON.stringify({ manifest_version: 3, version }),
     'README.md': '# Fixture',
+    'USER-GUIDE.md': '# Fixture guide',
     'src/content/main.js': '',
     'popup/popup.html': '',
     'icons/icon16.png': '',
@@ -88,6 +89,7 @@ describe('npm run package', () => {
       expect.arrayContaining([
         'manifest.json',
         'README.md',
+        'USER-GUIDE.md',
         'src/content/loader.js',
         'popup/popup.html',
         'icons/icon16.png',
@@ -128,6 +130,7 @@ describe('npm run package', () => {
     // THEN only the extension files are in the zip
     expect(entries.sort()).toEqual([
       'README.md',
+      'USER-GUIDE.md',
       'icons/icon16.png',
       'manifest.json',
       'popup/popup.html',

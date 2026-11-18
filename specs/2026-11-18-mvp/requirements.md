@@ -88,8 +88,8 @@ maintenance notes and publishing checklist.
   - reads `version` from `manifest.json`;
   - writes `dist/yt-skip-ad-<version>.zip`, creating `dist/` if missing and
     replacing an existing zip of the same version (never adding to it);
-  - includes only `manifest.json`, `src/`, `popup/`, `icons/`, and
-    `README.md`, with paths relative to the repo root, so unzipping gives a
+  - includes only `manifest.json`, `src/`, `popup/`, `icons/`,
+    `README.md`, and `USER-GUIDE.md`, with paths relative to the repo root, so unzipping gives a
     folder Chrome can load directly;
   - calls the system `zip` with `execFileSync` (no shell, no new
     dependency);
@@ -101,6 +101,11 @@ maintenance notes and publishing checklist.
   `coverage/`, dotfiles, `*.pem`, `package*.json`.
 
 ### README for colleagues
+
+- Added after group 4 (user's request): install, use, update, and
+  uninstall live in `USER-GUIDE.md`, which is also in the zip; the README
+  links to it and keeps the intro, privacy, troubleshooting, and develop
+  sections, so the steps have one home.
 
 - **Install**, two ways: from the shared folder, or from the WhatsApp zip
   (unzip to a permanent folder → `chrome://extensions` → Developer mode →
@@ -174,6 +179,7 @@ most likely affects only Rabbi; colleagues install 1.0.0 fresh.
 | Part tags         | `[tooling]` and `[docs]` added for this phase                                  | The phase touches neither core, content, nor popup                        |
 | End-to-end test   | `tests/e2e/install-from-zip.spec.js`: unzip to a temp folder, load, check ID   | Proves the zip, the key, and the README's install path together           |
 | Version check     | A test that `manifest.json` and `package.json` versions agree                  | The zip name and the card must match                                      |
+| User guide        | Install, use, update, uninstall moved to `USER-GUIDE.md`, shipped in the zip   | User's request after group 4; one home for the steps, readable on unzip   |
 
 ## Constraints
 
