@@ -87,7 +87,11 @@ popup, and changes apply live.
 - Changing them writes to storage.
 - Meets the [popup UI standard](tech-stack.md#popup-ui-standard).
 
-## Phase 3 — Skip counter ⏳ Not started
+## Phase 3 — Skip counter ✅ Complete
+
+Spec: [2026-11-18-skip-counter](2026-11-18-skip-counter/requirements.md).
+Automated checks and the manual pass on real YouTube pass (2026-11-18), as
+version 0.4.0.
 
 After this phase, a user sees how many ads were skipped and can reset it.
 

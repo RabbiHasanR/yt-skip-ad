@@ -28,17 +28,17 @@ Why no framework:
 
 ## Stack summary
 
-| Layer       | Choice                                                     |
-| ----------- | ---------------------------------------------------------- |
-| Language    | JavaScript (ES2020+), JSDoc types                          |
-| Framework   | None — Chrome Extension Manifest V3                        |
-| UI          | Popup: plain HTML + CSS                                    |
-| Backend     | None — content script on YouTube pages                     |
-| Data access | Thin adapter over `chrome.storage.sync`                    |
-| Database    | `chrome.storage.sync` (`enabled`, `delaySec`, `skipCount`) |
-| Lint/format | ESLint (flat config) + Prettier                            |
-| Type checks | `tsc --noEmit` with `checkJs` over JSDoc types             |
-| Tests       | Vitest + jsdom (fast); Playwright + Chromium (e2e)         |
+| Layer       | Choice                                                                 |
+| ----------- | ---------------------------------------------------------------------- |
+| Language    | JavaScript (ES2020+), JSDoc types                                      |
+| Framework   | None — Chrome Extension Manifest V3                                    |
+| UI          | Popup: plain HTML + CSS                                                |
+| Backend     | None — content script on YouTube pages                                 |
+| Data access | Thin adapter over `chrome.storage.sync`                                |
+| Database    | `chrome.storage` — `sync`: `enabled`, `delaySec`; `local`: `skipCount` |
+| Lint/format | ESLint (flat config) + Prettier                                        |
+| Type checks | `tsc --noEmit` with `checkJs` over JSDoc types                         |
+| Tests       | Vitest + jsdom (fast); Playwright + Chromium (e2e)                     |
 
 ## Storage schema
 
@@ -47,11 +47,11 @@ in `src/shared/constants.js`; only `src/shared/storage.js` reads or writes
 them. Changes are agreed first (`/feature-spec` Gate 0), and each row says
 which phase built it.
 
-| Key         | Area    | Type    | Default | Valid range    | Written by             | Read by        | Status               |
-| ----------- | ------- | ------- | ------- | -------------- | ---------------------- | -------------- | -------------------- |
-| `enabled`   | `sync`  | boolean | `true`  | `true`/`false` | popup                  | content, popup | _(Phase 2, built)_   |
-| `delaySec`  | `sync`  | integer | `0`     | 0–10           | popup                  | content, popup | _(Phase 2, built)_   |
-| `skipCount` | `local` | integer | `0`     | ≥ 0            | content, popup (reset) | popup          | _(Phase 3, planned)_ |
+| Key         | Area    | Type    | Default | Valid range    | Written by             | Read by        | Status             |
+| ----------- | ------- | ------- | ------- | -------------- | ---------------------- | -------------- | ------------------ |
+| `enabled`   | `sync`  | boolean | `true`  | `true`/`false` | popup                  | content, popup | _(Phase 2, built)_ |
+| `delaySec`  | `sync`  | integer | `0`     | 0–10           | popup                  | content, popup | _(Phase 2, built)_ |
+| `skipCount` | `local` | integer | `0`     | ≥ 0            | content, popup (reset) | popup          | _(Phase 3, built)_ |
 
 Rules:
 
@@ -64,7 +64,7 @@ Rules:
   reads as `0`.
 - Upgrades never wipe stored values; a renamed key needs a migration step in
   `storage.js`.
-- _(Phase 3, planned)_ `skipCount` lives in `local`, not `sync`: each device
+- _(Phase 3, built)_ `skipCount` lives in `local`, not `sync`: each device
   keeps its own count, so synced browsers can't overwrite each other's
   counts, and no sync write quota is spent per skip. It is cleaned up by
   `normalizeSkipCount` in `src/core/skip-count.js` (a finite number ≥ 0 is
@@ -196,6 +196,38 @@ its [tests.md](2026-11-18-settings/tests.md) Gate 2 notes.
   hex digits mapped 0–f to a–p.
 - **Stable extension ID:** still deferred, to Phase 4.
 - **Version:** `0.3.0`.
+
+## Decided in Phase 3
+
+See [the Phase 3 spec](2026-11-18-skip-counter/requirements.md#decisions)
+and its [tests.md](2026-11-18-skip-counter/tests.md) Gate 2 notes.
+
+- **Counter area:** `skipCount` in `chrome.storage.local`
+  (`SKIP_COUNT_KEY`, `DEFAULT_SKIP_COUNT` in `src/shared/constants.js`):
+  per device, no cross-device overwrites, no sync quota spent per skip.
+- **Clean-up rule** (`src/core/skip-count.js`): `normalizeSkipCount(raw)`
+  rounds a finite number ≥ 0 down; anything else reads as `0`.
+- **Counting point:** `createSkipper({ getSettings, onSkip })`; the optional
+  `onSkip` is called right after each click the skipper makes, never for a
+  wait that was called off.
+- **Content wiring:** `follow-player.js` passes `countSkip`, which calls
+  `incrementSkipCount()` and logs `[yt-skip-ad] failed to save the skip
+counter` with `console.error` on failure, never throwing at the page.
+- **Storage adapter** (`src/shared/storage.js`): `getSkipCount()`,
+  `incrementSkipCount()` (read, add 1, write; no lock), `resetSkipCount()`,
+  `watchSkipCount(listener)` (only `local` changes that include
+  `skipCount`). `watchSettings()` now follows only the `sync` area, so a
+  counted skip is not a settings change.
+- **Popup:** "Ads skipped:" with the count in a labelled `<output>`,
+  formatted with `toLocaleString()`; a native `<button type="button">`
+  "Reset counter" with no confirmation. The open popup shows each new count,
+  including 0 after a reset, through `watchSkipCount`.
+- **`chrome` mock:** `storage.local` built by the same `createStorageArea`
+  as `sync`, firing `onChanged` with `'local'`; `seedStorage(values, area)`.
+  `tests/fixtures/popup.js` → `openPopup()` is the shared popup helper.
+- **No e2e test** for the counter; integration tests cover content →
+  storage → popup.
+- **Version:** `0.4.0`.
 
 ## Project conventions
 
@@ -374,9 +406,16 @@ Office machines use regular (unmanaged) Chrome, so "Load unpacked" works.
   comes up to 100 ms after "N seconds after the Skip button appears". A
   button hidden and shown again within one 100 ms window is not seen as a
   new appearance, so the first wait carries on.
+- **A skip can be lost between tabs:** the counter is read, increased, and
+  written with no lock, so two YouTube tabs skipping at the same moment can
+  count one skip instead of two.
+- **Counter is per computer:** `skipCount` is in `chrome.storage.local`, so
+  each computer counts its own skips; Chrome Sync doesn't merge them.
+- **Counts clicks made:** a skip is counted when the extension clicks Skip;
+  whether YouTube accepted the click can't be seen.
 - **Open popup doesn't refresh:** if the settings change elsewhere (another
   computer through Chrome Sync) while the popup is open, it shows the old
-  values until reopened.
+  values until reopened. The skip counter does update live.
 
 ## Deferred decisions
 

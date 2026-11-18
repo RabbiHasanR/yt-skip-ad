@@ -3,6 +3,27 @@
 All notable changes to this project. Versions match `version` in
 `manifest.json`.
 
+## 0.4.0 — 2026-11-18
+
+Skip counter ([Phase 3 spec](specs/2026-11-18-skip-counter/requirements.md)).
+
+### Added
+
+- The popup shows **Ads skipped:** with the number of ads the extension has
+  skipped, and updates it while open. Large numbers are grouped (12,345).
+- **Reset counter** sets it back to 0 at once.
+- Only real clicks count: nothing is counted when auto-skip is off, or when
+  a delay is called off because auto-skip was turned off, the ad ended, the
+  button disappeared, or you moved to another video.
+- The counter is kept in Chrome's local storage on this computer, not
+  synced. A missing or invalid stored count reads as 0. If saving it fails,
+  skipping still works.
+
+### Changed
+
+- Settings changes are followed only in sync storage, so counting a skip
+  never triggers a settings update.
+
 ## 0.3.0 — 2026-11-18
 
 Settings ([Phase 2 spec](specs/2026-11-18-settings/requirements.md)).

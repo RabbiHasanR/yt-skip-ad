@@ -4,10 +4,10 @@ A Chrome extension that clicks YouTube's **Skip** button for you when an ad
 becomes skippable. It runs only on YouTube, asks only for `storage` and
 YouTube access, and sends nothing off your device.
 
-> **Status: 0.3.0, settings.** Skippable ads are skipped when the Skip
-> button appears, including after you move between videos without reloading.
-> Unskippable ads play normally. The skip counter comes next; see the
-> [roadmap](specs/roadmap.md).
+> **Status: 0.4.0, skip counter.** Skippable ads are skipped when the Skip
+> button appears, including after you move between videos without reloading,
+> and the popup counts them. Unskippable ads play normally. Getting v1 ready
+> for colleagues comes next; see the [roadmap](specs/roadmap.md).
 
 ## Use
 
@@ -18,10 +18,14 @@ Click the extension's toolbar icon to open the popup:
 - **Delay (seconds):** how long to wait after the Skip button appears before
   clicking it, from 0 (at once) to 10. Use the arrows, or type a number and
   press Enter.
+- **Ads skipped:** how many ads the extension has skipped on this computer.
+  It goes up while the popup is open. **Reset counter** sets it back to 0
+  at once, with no confirmation.
 
 Changes apply straight away to open YouTube tabs, with no reload. Settings
 are kept by Chrome and follow you to other computers where you're signed in
-to Chrome. Moving the extension's folder resets them.
+to Chrome. The skip counter stays on this computer only. Moving the
+extension's folder resets the settings and the counter.
 
 ## Install (colleagues)
 
@@ -56,16 +60,16 @@ After changing code, click the reload icon on the extension's card in
 
 ### Layout
 
-| Path            | What                                                      |
-| --------------- | --------------------------------------------------------- |
-| `manifest.json` | Extension manifest (MV3)                                  |
-| `src/core/`     | Rules: selectors, ad detection, skipper, settings, timing |
-| `src/shared/`   | Constants, settings defaults, and the storage adapter     |
-| `src/content/`  | `loader.js` imports `main.js`; `trusted-click.js`         |
-| `popup/`        | Toolbar popup: auto-skip toggle and delay                 |
-| `icons/`        | 16/48/128 px icons                                        |
-| `tests/`        | `unit/`, `integration/`, `e2e/`, `fixtures/`, `setup/`    |
-| `specs/`        | Mission, roadmap, tech stack, and per-phase specs         |
+| Path            | What                                                                  |
+| --------------- | --------------------------------------------------------------------- |
+| `manifest.json` | Extension manifest (MV3)                                              |
+| `src/core/`     | Rules: selectors, ad detection, skipper, settings, skip count, timing |
+| `src/shared/`   | Constants, settings defaults, and the storage adapter                 |
+| `src/content/`  | `loader.js` imports `main.js`; `trusted-click.js`                     |
+| `popup/`        | Toolbar popup: auto-skip toggle, delay, skip counter                  |
+| `icons/`        | 16/48/128 px icons                                                    |
+| `tests/`        | `unit/`, `integration/`, `e2e/`, `fixtures/`, `setup/`                |
+| `specs/`        | Mission, roadmap, tech stack, and per-phase specs                     |
 
 **When skipping stops working**, YouTube has most likely renamed a class.
 The selectors live in one place, `src/core/selectors.js`.
