@@ -74,4 +74,19 @@ describe('content script counts skips', () => {
     // THEN nothing is counted
     expect(await storedCount()).toBeUndefined();
   });
+
+  it('never changes the skip counter on a page without a player', async () => {
+    // GIVEN the content script runs on a page without a player, like Shorts
+    document.body.replaceChildren();
+    stop = followPlayer(document, await watchSettings());
+    // WHEN the page keeps changing and YouTube navigates in-page
+    const browse = async () => {
+      document.body.append(document.createElement('ytd-reel-video-renderer'));
+      document.dispatchEvent(new Event('yt-navigate-finish'));
+      await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS * 3);
+    };
+    // THEN nothing is thrown and the skip counter is never written
+    await expect(browse()).resolves.toBeUndefined();
+    expect(chrome.storage.local.set).not.toHaveBeenCalled();
+  });
 });
