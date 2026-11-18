@@ -1,8 +1,9 @@
 // @vitest-environment node
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import {
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -14,6 +15,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { PACKAGE_FILES, packageExtension } from '../../scripts/package.js';
 
 const REPO_DIR = fileURLToPath(new URL('../../', import.meta.url));
+const PACKAGE_SCRIPT = join(REPO_DIR, 'scripts/package.js');
 
 /** @type {string[]} */
 const tempDirs = [];
@@ -144,5 +146,22 @@ describe('npm run package', () => {
     // THEN the new zip no longer holds it
     expect(entries).not.toContain('src/old.js');
     expect(entries).toContain('src/content/main.js');
+  });
+
+  it('without zip installed, stops with a clear [yt-skip-ad] message and no zip', () => {
+    // GIVEN a machine where the zip command can't be found
+    const outDir = makeTempDir();
+    // WHEN the package script runs, as npm run package does
+    const run = spawnSync(process.execPath, [PACKAGE_SCRIPT, outDir], {
+      cwd: REPO_DIR,
+      encoding: 'utf8',
+      env: { ...process.env, PATH: '' },
+    });
+    // THEN it fails with a message naming the missing command, and writes nothing
+    expect(run.status).toBe(1);
+    expect(run.stderr).toContain(
+      "[yt-skip-ad] can't build the dist zip: the zip command is not installed",
+    );
+    expect(readdirSync(outDir)).toEqual([]);
   });
 });

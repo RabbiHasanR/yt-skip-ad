@@ -51,7 +51,7 @@ Behaviours: B6–B10 · Branch: phase-4-mvp
 | T2  | B6        | integration | tests/integration/package.test.js  | names the zip with the version in manifest.json                                   | ✅     |
 | T3  | B7, B5    | integration | tests/integration/package.test.js  | leaves out dotfiles and private keys, even inside included folders                | ✅     |
 | T4  | B9        | integration | tests/integration/package.test.js  | a second run replaces the zip, so deleted files don't linger in it                | ✅     |
-| T5  | B10       | integration | tests/integration/package.test.js  | without zip installed, stops with a clear [yt-skip-ad] message and no zip         | ⬜     |
+| T5  | B10       | integration | tests/integration/package.test.js  | without zip installed, stops with a clear [yt-skip-ad] message and no zip         | ✅     |
 | T6  | B8        | e2e         | tests/e2e/install-from-zip.spec.js | the extension unzipped from the dist zip loads with the pinned ID and skips an ad | ⬜     |
 
 Tests write to temp folders, never the real `dist/`; `node scripts/package.js

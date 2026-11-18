@@ -13,7 +13,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc -p jsconfig.json",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "package": "node scripts/package.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
