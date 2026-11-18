@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 const ICON_SIZES = ['16', '48', '128'];
 const YOUTUBE = '*://*.youtube.com/*';
+const TRUSTED_CLICK = 'src/content/trusted-click.js';
 
 /** @returns {any} The parsed manifest.json from the repo root. */
 function readManifest() {
@@ -77,10 +78,26 @@ describe('manifest.json', () => {
     );
     const resources = manifest.web_accessible_resources;
     // THEN everything is limited to YouTube, and only our modules are exposed
-    expect(scriptMatches).toEqual([[YOUTUBE]]);
+    expect(scriptMatches).toEqual([[YOUTUBE], [YOUTUBE]]);
     expect(resources).toEqual([
       { resources: ['src/**/*.js'], matches: [YOUTUBE] },
     ]);
+  });
+
+  it("runs the trusted-click script in the page's world before its scripts", () => {
+    // GIVEN the manifest
+    const manifest = readManifest();
+    // WHEN Chrome decides how to inject the trusted-click script
+    const trustedClick = manifest.content_scripts.find(
+      (/** @type {any} */ cs) => cs.js.includes(TRUSTED_CLICK),
+    );
+    // THEN it runs alone, in YouTube's own world, before YouTube's scripts
+    expect(trustedClick).toEqual({
+      matches: [YOUTUBE],
+      js: [TRUSTED_CLICK],
+      world: 'MAIN',
+      run_at: 'document_start',
+    });
   });
 });
 

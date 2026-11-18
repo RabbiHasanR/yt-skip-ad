@@ -1,11 +1,17 @@
 {
   "manifest_version": 3,
   "name": "YT Skip Ad",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Automatically clicks YouTube's Skip Ad button when it appears.",
   "permissions": ["storage"],
   "host_permissions": ["*://*.youtube.com/*"],
   "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["src/content/trusted-click.js"],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
     {
       "matches": ["*://*.youtube.com/*"],
       "js": ["src/content/loader.js"],
