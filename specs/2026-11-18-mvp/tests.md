@@ -52,9 +52,23 @@ Behaviours: B6–B10 · Branch: phase-4-mvp
 | T3  | B7, B5    | integration | tests/integration/package.test.js  | leaves out dotfiles and private keys, even inside included folders                | ✅     |
 | T4  | B9        | integration | tests/integration/package.test.js  | a second run replaces the zip, so deleted files don't linger in it                | ✅     |
 | T5  | B10       | integration | tests/integration/package.test.js  | without zip installed, stops with a clear [yt-skip-ad] message and no zip         | ✅     |
-| T6  | B8        | e2e         | tests/e2e/install-from-zip.spec.js | the extension unzipped from the dist zip loads with the pinned ID and skips an ad | ⬜     |
+| T6  | B8        | e2e         | tests/e2e/install-from-zip.spec.js | the extension unzipped from the dist zip loads with the pinned ID and skips an ad | ✅     |
 
 Tests write to temp folders, never the real `dist/`; `node scripts/package.js
 [outDir]` takes the output folder for that. T5 runs the real script with an
 empty `PATH`, so `zip` is genuinely missing (no mocks). T6 overrides the e2e
 `extensionDir` fixture with a folder unzipped from a fresh zip.
+
+Notes:
+
+- T1 passed as soon as T2 was green (the repo has no dotfiles or keys
+  inside `src/`, `popup/`, or `icons/`), so its `it.fails` mark came off
+  then; T3 proves the exclusions with decoys.
+- T6 is a guard: it was seen red by temporarily leaving `src` out of
+  `PACKAGE_FILES` (Chromium refused to load the folder), then green.
+- `jsconfig.json` gained `"ES2022.Error"` in `lib`, for `new Error(message,
+{ cause })` (required by ESLint's `preserve-caught-error`).
+- Coverage of `scripts/package.js` is ~58%: the missing-`zip` path and the
+  CLI run in T5's child process, which v8 coverage doesn't see. The one
+  path with no test is an installed `zip` failing for another reason; it
+  rethrows `zip`'s own error, printed with the prefix.
