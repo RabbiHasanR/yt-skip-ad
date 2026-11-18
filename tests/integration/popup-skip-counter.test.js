@@ -67,4 +67,15 @@ describe('popup skip counter', () => {
     expect(count?.labels[0]?.textContent?.trim()).toBe('Ads skipped:');
     expect(reset?.type).toBe('button');
   });
+
+  it('updates the count while the popup is open', async () => {
+    // GIVEN 2 ads were skipped, and the popup is open showing them
+    await seedStorage({ skipCount: 2 }, 'local');
+    const { count } = await openPopup();
+    await vi.waitFor(() => expect(count?.value).toBe('2'));
+    // WHEN a YouTube tab skips another ad
+    await chrome.storage.local.set({ skipCount: 3 });
+    // THEN the open popup shows the new count
+    await vi.waitFor(() => expect(count?.value).toBe('3'));
+  });
 });

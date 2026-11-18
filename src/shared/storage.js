@@ -106,3 +106,14 @@ export async function incrementSkipCount() {
   const count = await getSkipCount();
   await chrome.storage.local.set({ [SKIP_COUNT_KEY]: count + 1 });
 }
+
+/**
+ * Calls `listener` with the new skip count after each change in storage.
+ *
+ * @param {(count: number) => void} listener Gets the cleaned-up count.
+ */
+export function watchSkipCount(listener) {
+  chrome.storage.onChanged.addListener((changes) => {
+    listener(normalizeSkipCount(changes[SKIP_COUNT_KEY]?.newValue));
+  });
+}

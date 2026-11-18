@@ -5,6 +5,7 @@ import {
   getSettings,
   getSkipCount,
   setSettings,
+  watchSkipCount,
 } from '../src/shared/storage.js';
 
 const enabledInput = /** @type {HTMLInputElement} */ (
@@ -18,6 +19,15 @@ const countOutput = /** @type {HTMLOutputElement} */ (
 );
 
 /**
+ * Shows a skip count in the counter.
+ *
+ * @param {number} count Ads skipped so far.
+ */
+const showCount = (count) => {
+  countOutput.value = String(count);
+};
+
+/**
  * Shows a delay in the delay field.
  *
  * @param {number} delaySec Whole seconds.
@@ -29,7 +39,8 @@ const showDelay = (delaySec) => {
 const settings = await getSettings();
 enabledInput.checked = settings.enabled;
 showDelay(settings.delaySec);
-countOutput.value = String(await getSkipCount());
+showCount(await getSkipCount());
+watchSkipCount(showCount);
 
 enabledInput.addEventListener('change', () => {
   setSettings({ enabled: enabledInput.checked });
