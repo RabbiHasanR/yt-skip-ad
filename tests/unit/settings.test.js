@@ -14,4 +14,33 @@ describe('settings rules', () => {
     // THEN the delay is a whole number of seconds within 0–10
     expect(settings.delaySec).toBe(expected);
   });
+
+  it.each([
+    { key: 'delaySec', label: 'missing', value: undefined, expected: 0 },
+    { key: 'delaySec', label: 'the text "5"', value: '5', expected: 0 },
+    { key: 'delaySec', label: 'null', value: null, expected: 0 },
+    { key: 'delaySec', label: 'true', value: true, expected: 0 },
+    { key: 'delaySec', label: 'NaN', value: NaN, expected: 0 },
+    { key: 'delaySec', label: 'Infinity', value: Infinity, expected: 0 },
+    { key: 'enabled', label: 'missing', value: undefined, expected: true },
+    {
+      key: 'enabled',
+      label: 'the text "false"',
+      value: 'false',
+      expected: true,
+    },
+    { key: 'enabled', label: '0', value: 0, expected: true },
+    { key: 'enabled', label: 'null', value: null, expected: true },
+  ])(
+    'uses the default when the stored $key is $label',
+    ({ key, value, expected }) => {
+      // GIVEN a setting of the wrong type, or none, as found in storage
+      // WHEN the settings are cleaned up
+      const settings = normalizeSettings({ [key]: value });
+      // THEN that setting is its default, and nothing is thrown
+      expect(settings[/** @type {'delaySec' | 'enabled'} */ (key)]).toBe(
+        expected,
+      );
+    },
+  );
 });

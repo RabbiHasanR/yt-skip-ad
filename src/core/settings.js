@@ -24,6 +24,8 @@ export function normalizeSettings(raw) {
  * @returns {number} Whole seconds from `DELAY_SEC_MIN` to `DELAY_SEC_MAX`.
  */
 function normalizeDelay(value) {
-  if (typeof value !== 'number') return DEFAULT_SETTINGS.delaySec;
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return DEFAULT_SETTINGS.delaySec;
+  }
   return Math.min(DELAY_SEC_MAX, Math.max(DELAY_SEC_MIN, Math.round(value)));
 }
