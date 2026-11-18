@@ -1,8 +1,13 @@
 // Storage adapter: the only file that touches `chrome.storage`. Reads, saves,
-// and follows the settings in the `sync` area, cleaned up by the settings
-// rules.
+// and follows the settings in the `sync` area, and the skip counter in the
+// `local` area, each cleaned up by its rules in src/core/.
 import { normalizeSettings } from '../core/settings.js';
-import { DEFAULT_SETTINGS } from './constants.js';
+import { normalizeSkipCount } from '../core/skip-count.js';
+import {
+  DEFAULT_SETTINGS,
+  DEFAULT_SKIP_COUNT,
+  SKIP_COUNT_KEY,
+} from './constants.js';
 
 /**
  * Reads the settings once.
@@ -75,4 +80,27 @@ function newValues(changes) {
   return Object.fromEntries(
     Object.entries(changes).map(([key, change]) => [key, change.newValue]),
   );
+}
+
+/**
+ * Reads the skip counter once.
+ *
+ * @returns {Promise<number>} The stored count, or 0 when missing or invalid.
+ */
+async function readSkipCount() {
+  const stored = await chrome.storage.local.get({
+    [SKIP_COUNT_KEY]: DEFAULT_SKIP_COUNT,
+  });
+  return normalizeSkipCount(stored[SKIP_COUNT_KEY]);
+}
+
+/**
+ * Adds 1 to the skip counter. Read, add, write, with no lock: two tabs
+ * counting at the same moment can lose one count.
+ *
+ * @returns {Promise<void>} Resolves once the new count is stored.
+ */
+export async function incrementSkipCount() {
+  const count = await readSkipCount();
+  await chrome.storage.local.set({ [SKIP_COUNT_KEY]: count + 1 });
 }

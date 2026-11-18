@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
-import { getSettings, watchSettings } from '../../src/shared/storage.js';
+import {
+  getSettings,
+  incrementSkipCount,
+  watchSettings,
+} from '../../src/shared/storage.js';
 import { seedStorage } from '../setup/storage.js';
 
 describe('settings storage', () => {
@@ -34,4 +38,27 @@ describe('settings storage', () => {
     // THEN the delay goes back to its default
     expect(settings.current().delaySec).toBe(0);
   });
+});
+
+describe('skip counter storage', () => {
+  it.each([
+    { stored: 4, expected: 5 },
+    { stored: undefined, expected: 1 },
+    { stored: -3, expected: 1 },
+    { stored: 'x', expected: 1 },
+    { stored: 2.7, expected: 3 },
+  ])(
+    'adds 1 to a stored count of $stored, saving $expected',
+    async ({ stored, expected }) => {
+      // GIVEN a count in storage, valid or not (undefined: none yet)
+      if (stored !== undefined)
+        await seedStorage({ skipCount: stored }, 'local');
+      // WHEN a skip is counted
+      await incrementSkipCount();
+      // THEN the cleaned-up count plus 1 is saved
+      expect(await chrome.storage.local.get({ skipCount: null })).toEqual({
+        skipCount: expected,
+      });
+    },
+  );
 });
