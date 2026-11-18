@@ -18,7 +18,11 @@ function createChromeMock() {
         (/** @type {string} */ path) => `${EXTENSION_ORIGIN}${path}`,
       ),
     },
-    storage: { sync: createStorageArea('sync', onChanged), onChanged },
+    storage: {
+      sync: createStorageArea('sync', onChanged),
+      local: createStorageArea('local', onChanged),
+      onChanged,
+    },
   };
 }
 

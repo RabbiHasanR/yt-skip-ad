@@ -94,6 +94,18 @@ describe('test setup', () => {
         delaySec: 0,
       });
     });
+
+    it('the local storage mock returns seeded values and the defaults for missing keys', async () => {
+      // GIVEN some ads were already skipped on this computer
+      await seedStorage({ skipCount: 4 }, 'local');
+      // WHEN code reads the counter and a missing key with defaults
+      const stored = await chrome.storage.local.get({
+        skipCount: 0,
+        other: 'fallback',
+      });
+      // THEN the saved value wins and the missing key gets its default
+      expect(stored).toEqual({ skipCount: 4, other: 'fallback' });
+    });
   });
 
   // Runs in file order: the first test leaves a call, the second checks it's gone.
