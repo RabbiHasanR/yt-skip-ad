@@ -32,7 +32,7 @@ Behaviours: B1–B8 · Branch: phase-3-skip-counter
 | T5  | B6        | unit        | tests/unit/storage.test.js                     | does not tell settings listeners about a skip counter change                     | ✅     |
 | T6  | B1        | unit        | tests/unit/skipper.test.js                     | calls onSkip once for each click it makes, with or without a delay ($delaySec s) | ✅     |
 | T7  | B2        | unit        | tests/unit/skipper.test.js                     | calls onSkip once for each ad of a pod                                           | ✅     |
-| T8  | B3, B4    | unit        | tests/unit/skipper.test.js                     | does not call onSkip when $what                                                  | ⬜     |
+| T8  | B3, B4    | unit        | tests/unit/skipper.test.js                     | does not call onSkip when $what                                                  | ✅     |
 | T9  | B4        | integration | tests/integration/content-skip-counter.test.js | does not count a wait called off when navigation replaces the player             | ⬜     |
 | T10 | B6        | integration | tests/integration/content-skip-counter.test.js | keeps skipping when saving the skip counter fails, logging one error             | ⬜     |
 | T11 | B7        | integration | tests/integration/content-skip-counter.test.js | never changes the skip counter on a page without a player                        | ⬜     |

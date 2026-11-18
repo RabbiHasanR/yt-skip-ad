@@ -280,5 +280,54 @@ describe('skipper', () => {
       // THEN two skips are reported
       expect(onSkip).toHaveBeenCalledTimes(2);
     });
+
+    /**
+     * @type {{
+     *   what: string,
+     *   enabled?: boolean,
+     *   during: (
+     *     settings: { enabled: boolean },
+     *     fixture: ReturnType<typeof loadPlayer>,
+     *   ) => void,
+     * }[]}
+     */
+    const noClick = [
+      { what: 'auto-skip is off', enabled: false, during: () => {} },
+      {
+        what: 'auto-skip is turned off during the delay',
+        during: (settings) => {
+          settings.enabled = false;
+        },
+      },
+      {
+        what: 'the ad ends during the delay',
+        during: (_settings, fixture) => fixture.endAd(),
+      },
+      {
+        what: 'the Skip button is hidden during the delay',
+        during: (_settings, fixture) => fixture.hideSkipButton(),
+      },
+    ];
+
+    it.each(noClick)(
+      'does not call onSkip when $what',
+      ({ during, enabled = true }) => {
+        // GIVEN an ad shows its Skip button, with a 3 s delay
+        const fixture = loadPlayer();
+        fixture.startAd();
+        fixture.showSkipButton();
+        const settings = { enabled, delaySec: 3 };
+        const onSkip = vi.fn();
+        createSkipper({ getSettings: () => settings, onSkip }).check(
+          fixture.player,
+        );
+        // WHEN the situation changes before the wait ends
+        during(settings, fixture);
+        vi.advanceTimersByTime(3000);
+        // THEN nothing was clicked, so no skip is reported
+        expect(fixture.clicks).not.toHaveBeenCalled();
+        expect(onSkip).not.toHaveBeenCalled();
+      },
+    );
   });
 });
