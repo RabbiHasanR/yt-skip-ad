@@ -74,6 +74,20 @@ describe('manifest.json', () => {
     expect(tracked.trim()).toBe('');
   });
 
+  it('manifest.json, package.json and package-lock.json have the same version', () => {
+    // GIVEN the version Chrome shows on the card
+    const { version } = readManifest();
+    // WHEN the dev tooling's version files are read
+    const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+    const lock = JSON.parse(readFileSync('package-lock.json', 'utf8'));
+    // THEN they all match it, so the zip name and the card agree
+    expect([pkg.version, lock.version, lock.packages[''].version]).toEqual([
+      version,
+      version,
+      version,
+    ]);
+  });
+
   it('every file the manifest references exists', () => {
     // GIVEN the manifest declares a content script, a popup and icons
     const manifest = readManifest();

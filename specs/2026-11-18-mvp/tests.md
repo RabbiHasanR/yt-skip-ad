@@ -72,3 +72,15 @@ Notes:
   CLI run in T5's child process, which v8 coverage doesn't see. The one
   path with no test is an installed `zip` failing for another reason; it
   rethrows `zip`'s own error, printed with the prefix.
+
+## 4. Ready for colleagues
+
+Behaviours: B11–B14 · Branch: phase-4-mvp
+
+| #   | Behaviour | Level      | File                                | Test name                                                                | Status |
+| --- | --------- | ---------- | ----------------------------------- | ------------------------------------------------------------------------ | ------ |
+| T1  | B14       | acceptance | tests/integration/manifest.test.js  | manifest.json, package.json and package-lock.json have the same version  | ⬜     |
+| —   | B11–B13   | manual     | validation.md manual checks 4, 6, 7 | README wording is checked by following it on a clean profile, not tested | ➖     |
+
+T1 is a guard: seen red by bumping only `manifest.json`, then green once all
+three agree at `1.0.0`. No test pins `1.0.0` itself (manual check 1 does).
