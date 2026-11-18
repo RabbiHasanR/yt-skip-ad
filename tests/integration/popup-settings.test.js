@@ -28,7 +28,7 @@ describe('popup settings', () => {
     vi.resetModules();
   });
 
-  it.fails('shows the stored settings when the popup opens', async () => {
+  it('shows the stored settings when the popup opens', async () => {
     // GIVEN a colleague turned auto-skip off and set a 4-second delay
     await seedStorage({ enabled: false, delaySec: 4 });
     // WHEN they open the popup
@@ -48,5 +48,14 @@ describe('popup settings', () => {
     const input = controls[/** @type {'enabled' | 'delay'} */ (control)];
     // THEN it has a visible label naming it
     expect(input.labels?.[0]?.textContent?.trim()).toBe(label);
+  });
+
+  it('shows auto-skip on with no delay on a fresh install', async () => {
+    // GIVEN a fresh install: nothing is stored yet
+    // WHEN a colleague opens the popup
+    const { enabled, delay } = await openPopup();
+    // THEN auto-skip is on with no delay
+    expect(enabled.checked).toBe(true);
+    expect(delay.value).toBe('0');
   });
 });
