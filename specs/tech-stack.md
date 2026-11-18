@@ -47,11 +47,11 @@ in `src/shared/constants.js`; only `src/shared/storage.js` reads or writes
 them. Changes are agreed first (`/feature-spec` Gate 0), and each row says
 which phase built it.
 
-| Key         | Area   | Type    | Default | Valid range    | Written by             | Read by        | Status               |
-| ----------- | ------ | ------- | ------- | -------------- | ---------------------- | -------------- | -------------------- |
-| `enabled`   | `sync` | boolean | `true`  | `true`/`false` | popup                  | content, popup | _(Phase 2, built)_   |
-| `delaySec`  | `sync` | integer | `0`     | 0–10           | popup                  | content, popup | _(Phase 2, built)_   |
-| `skipCount` | `sync` | integer | `0`     | ≥ 0            | content, popup (reset) | popup          | _(Phase 3, planned)_ |
+| Key         | Area    | Type    | Default | Valid range    | Written by             | Read by        | Status               |
+| ----------- | ------- | ------- | ------- | -------------- | ---------------------- | -------------- | -------------------- |
+| `enabled`   | `sync`  | boolean | `true`  | `true`/`false` | popup                  | content, popup | _(Phase 2, built)_   |
+| `delaySec`  | `sync`  | integer | `0`     | 0–10           | popup                  | content, popup | _(Phase 2, built)_   |
+| `skipCount` | `local` | integer | `0`     | ≥ 0            | content, popup (reset) | popup          | _(Phase 3, planned)_ |
 
 Rules:
 
@@ -64,9 +64,13 @@ Rules:
   reads as `0`.
 - Upgrades never wipe stored values; a renamed key needs a migration step in
   `storage.js`.
-- _(to confirm in Phase 3)_ `skipCount` in `sync` vs `local`: `sync` write
-  quotas (about 120 writes per minute) are far above real ad rates, but two
-  YouTube tabs incrementing at once can lose a count.
+- _(Phase 3, planned)_ `skipCount` lives in `local`, not `sync`: each device
+  keeps its own count, so synced browsers can't overwrite each other's
+  counts, and no sync write quota is spent per skip. It is cleaned up by
+  `normalizeSkipCount` in `src/core/skip-count.js` (a finite number ≥ 0 is
+  rounded down; anything else reads as `0`). The increment is read, add 1,
+  write, with no lock, so two tabs skipping at the same moment can lose one
+  count.
 
 ## Decided in Phase 0
 
