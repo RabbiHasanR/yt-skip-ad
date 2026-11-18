@@ -79,7 +79,7 @@ Behaviours: B11–B14 · Branch: phase-4-mvp
 
 | #   | Behaviour | Level      | File                                | Test name                                                                | Status |
 | --- | --------- | ---------- | ----------------------------------- | ------------------------------------------------------------------------ | ------ |
-| T1  | B14       | acceptance | tests/integration/manifest.test.js  | manifest.json, package.json and package-lock.json have the same version  | ⬜     |
+| T1  | B14       | acceptance | tests/integration/manifest.test.js  | manifest.json, package.json and package-lock.json have the same version  | ✅     |
 | —   | B11–B13   | manual     | validation.md manual checks 4, 6, 7 | README wording is checked by following it on a clean profile, not tested | ➖     |
 
 T1 is a guard: seen red by bumping only `manifest.json`, then green once all
