@@ -32,7 +32,7 @@ Behaviours: B1–B8 · Branch: phase-2-settings
 | T8  | B2        | unit        | tests/unit/skipper.test.js                 | does not click a visible Skip button while auto-skip is off               | ✅     |
 | T9  | B3        | integration | tests/integration/content-settings.test.js | skips the ad on screen when auto-skip is turned back on                   | ✅     |
 | T10 | B7        | integration | tests/integration/content-settings.test.js | does not click an ad already showing at load when auto-skip is stored off | ✅     |
-| T11 | B8        | integration | tests/integration/content-settings.test.js | handles a settings change on a page without a player without errors       | ⬜     |
+| T11 | B8        | integration | tests/integration/content-settings.test.js | handles a settings change on a page without a player without errors       | ✅     |
 
 Agreed at Gate 2: `storage.js` exports `getSettings()` and `watchSettings()`
 (`{ current(), onChange(listener) }`) instead of `onSettingsChanged`, so

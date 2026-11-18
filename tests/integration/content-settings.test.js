@@ -73,4 +73,18 @@ describe('content script follows the settings', () => {
     // THEN the ad is not skipped
     expect(clicks).not.toHaveBeenCalled();
   });
+
+  it('handles a settings change on a page without a player without errors', async () => {
+    // GIVEN the content script runs on a page without a player, like Shorts
+    document.body.replaceChildren();
+    stop = followPlayer(document, await watchSettings());
+    // WHEN a colleague turns auto-skip off and on again
+    const toggle = async () => {
+      await chrome.storage.sync.set({ enabled: false });
+      await chrome.storage.sync.set({ enabled: true });
+      await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
+    };
+    // THEN nothing is thrown
+    await expect(toggle()).resolves.toBeUndefined();
+  });
 });
