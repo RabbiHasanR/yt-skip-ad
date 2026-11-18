@@ -14,7 +14,11 @@ import {
  * @returns {import('../shared/constants.js').Settings} Valid settings.
  */
 export function normalizeSettings(raw) {
-  return { ...DEFAULT_SETTINGS, delaySec: normalizeDelay(raw.delaySec) };
+  return {
+    enabled:
+      typeof raw.enabled === 'boolean' ? raw.enabled : DEFAULT_SETTINGS.enabled,
+    delaySec: normalizeDelay(raw.delaySec),
+  };
 }
 
 /**

@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { getSettings } from '../../src/shared/storage.js';
+import { describe, expect, it, vi } from 'vitest';
+import { getSettings, watchSettings } from '../../src/shared/storage.js';
 
 describe('settings storage', () => {
   it('reads auto-skip on with no delay when nothing is stored', async () => {
@@ -8,5 +8,18 @@ describe('settings storage', () => {
     const settings = await getSettings();
     // THEN auto-skip is on with no delay
     expect(settings).toEqual({ enabled: true, delaySec: 0 });
+  });
+
+  it('tells listeners the new settings when they change in storage', async () => {
+    // GIVEN the settings are being watched, with a listener
+    const settings = await watchSettings();
+    const listener = vi.fn();
+    settings.onChange(listener);
+    // WHEN a colleague turns auto-skip off
+    await chrome.storage.sync.set({ enabled: false });
+    // THEN the listener gets the new settings, and so does current()
+    const expected = { enabled: false, delaySec: 0 };
+    expect(listener).toHaveBeenCalledExactlyOnceWith(expected);
+    expect(settings.current()).toEqual(expected);
   });
 });
