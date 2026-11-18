@@ -26,9 +26,14 @@ export function createSkipper({ getSettings }) {
         return;
       }
       // Staying armed while off lets turning auto-skip on click this button.
-      if (!armed || !isAdShowing(player) || !getSettings().enabled) return;
-      button.click();
+      const { enabled, delaySec } = getSettings();
+      if (!armed || !isAdShowing(player) || !enabled) return;
       armed = false;
+      if (delaySec === 0) {
+        button.click();
+        return;
+      }
+      setTimeout(() => button.click(), delaySec * 1000);
     },
   };
 }

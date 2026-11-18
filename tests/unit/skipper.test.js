@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createSkipper } from '../../src/core/skipper.js';
 import { DEFAULT_SETTINGS } from '../../src/shared/constants.js';
 import { loadPlayer } from '../fixtures/player.js';
@@ -84,5 +84,41 @@ describe('skipper', () => {
     createSkipper({ getSettings: () => off }).check(player);
     // THEN nothing is clicked
     expect(clicks).not.toHaveBeenCalled();
+  });
+
+  describe('with a delay', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    /**
+     * Skipper options with auto-skip on and a delay.
+     *
+     * @param {number} delaySec Seconds to wait before clicking.
+     */
+    const delayOf = (delaySec) => ({
+      getSettings: () => ({ enabled: true, delaySec }),
+    });
+
+    it.each([{ delaySec: 3 }, { delaySec: 10 }])(
+      'clicks a visible Skip button $delaySec seconds after it appears',
+      ({ delaySec }) => {
+        // GIVEN an ad shows its Skip button
+        const { player, clicks, startAd, showSkipButton } = loadPlayer();
+        startAd();
+        showSkipButton();
+        // WHEN a skipper with a delay checks the player
+        createSkipper(delayOf(delaySec)).check(player);
+        // THEN it clicks once the delay has passed, not before
+        vi.advanceTimersByTime(delaySec * 1000 - 1);
+        expect(clicks).not.toHaveBeenCalled();
+        vi.advanceTimersByTime(1);
+        expect(clicks).toHaveBeenCalledOnce();
+      },
+    );
   });
 });
