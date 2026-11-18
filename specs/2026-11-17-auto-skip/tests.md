@@ -66,3 +66,28 @@ Behaviours: B5, B7–B10, B12 · Branch: phase-1-auto-skip
 - T9 was added after Gate 2 with the user's agreement: coverage showed the
   same-player navigation branch untested; without it a still-visible Skip
   button gets a second click. A guard, mutation-checked.
+
+## 5. Trusted click
+
+Behaviours: B14, B15 · Branch: phase-1-auto-skip
+
+| #   | Behaviour | Level       | File                                            | Test name                                                            | Status |
+| --- | --------- | ----------- | ----------------------------------------------- | -------------------------------------------------------------------- | ------ |
+| T1  | B14       | acceptance  | tests/e2e/auto-skip.spec.js                     | the loaded extension clicks the Skip button on a YouTube-like page   | ✅     |
+| T2  | B14       | integration | tests/integration/manifest.test.js              | runs the trusted-click script in the page's world before its scripts | ✅     |
+| T3  | B14       | integration | tests/integration/content-trusted-click.test.js | a click listener on a $selector Skip button sees a trusted click     | ✅     |
+| T4  | B14       | integration | tests/integration/content-trusted-click.test.js | the trusted click still acts as the real event                       | ✅     |
+| T5  | B15       | integration | tests/integration/content-trusted-click.test.js | leaves $listener untouched                                           | ✅     |
+| T6  | B15       | integration | tests/integration/content-trusted-click.test.js | removing a Skip button's click listener still stops it ($case)       | ✅     |
+
+- T1 tightens group 3's T8 instead of adding a second e2e test: the page's
+  click counter now counts only `isTrusted` clicks, as YouTube's handler
+  does. It is the acceptance test; it was marked `test.fail` until T6 was green.
+- T5 is a guard expected to pass on arrival; it is mutation-checked
+  instead: dropping each of the three conditions (click only, functions
+  only, Skip buttons only) fails exactly one of its cases.
+- T3 runs once per entry in `SKIP_BUTTON_SELECTORS`, so it also fails if the
+  copy of the list in `trusted-click.js` drifts from `src/core/selectors.js`.
+- The script's tests are integration tests: it lives in `src/content/`
+  because it must be a classic script in the page's world and can't import
+  from `src/core/`.

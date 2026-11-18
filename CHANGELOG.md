@@ -3,6 +3,16 @@
 All notable changes to this project. Versions match `version` in
 `manifest.json`.
 
+## 0.2.1 — 2026-11-18
+
+### Fixed
+
+- Skipping now works on real YouTube. YouTube ignores clicks made by
+  scripts (`event.isTrusted` is `false`), so the Skip click was made but
+  had no effect. A new script running in YouTube's own page world makes
+  YouTube's Skip handler see the click as trusted. It touches only click
+  listeners on Skip buttons, and needs no new permission.
+
 ## 0.2.0 — 2026-11-17
 
 Auto-skip ([Phase 1 spec](specs/2026-11-17-auto-skip/requirements.md)).

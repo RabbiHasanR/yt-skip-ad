@@ -138,7 +138,14 @@ See [the Phase 1 spec](2026-11-17-auto-skip/requirements.md#decisions).
 - **Test helpers:** `tests/fixtures/player.js` drives the fixture with
   YouTube's literal class names, not `selectors.js`, so a typo in a selector
   fails a test instead of agreeing with itself.
-- **Version:** `0.2.0`.
+- **Trusted click** (added 2026-11-18, after the manual pass showed YouTube
+  ignores `.click()` because `event.isTrusted` is `false`):
+  `src/content/trusted-click.js` runs in the page's world (`"world": "MAIN"`,
+  `"run_at": "document_start"`) and wraps `click` listener functions added
+  to a Skip button, so they get a `Proxy` of the real event whose
+  `isTrusted` reads `true`. Every other listener is untouched, and
+  `removeEventListener` also removes the wrapper. No new permission.
+- **Version:** `0.2.1`.
 
 ## Project conventions
 
@@ -150,7 +157,7 @@ changes. Approved in Phase 0.
 | `manifest.json`      | Extension manifest                                                   |
 | `src/core/`          | Pure logic: selectors, ad detection, skip scheduling, settings rules |
 | `src/shared/`        | Constants (storage keys, defaults) and the storage adapter           |
-| `src/content/`       | Content script entry: observer and event wiring only                 |
+| `src/content/`       | Content script entry: observer and event wiring; page-world scripts  |
 | `popup/`             | Popup HTML, CSS, and thin JS wiring                                  |
 | `icons/`             | 16/48/128 px icons                                                   |
 | `tests/unit/`        | Unit tests for `src/core/` and `src/shared/`                         |
@@ -170,7 +177,12 @@ Rules:
   given.
 - Only `src/shared/storage.js` touches `chrome.storage`.
 - Storage keys and defaults are defined once, in `src/shared/constants.js`.
-- YouTube selectors are defined once, in `src/core/selectors.js`.
+- YouTube selectors are defined once, in `src/core/selectors.js`. One
+  exception: `src/content/trusted-click.js` runs in the page's world, where
+  it can't import, so it repeats the Skip-button selectors; a test fails if
+  the two lists drift.
+- Page-world (`"world": "MAIN"`) scripts are classic scripts with no imports
+  and no `chrome.*` calls, which don't exist there.
 - Naming: kebab-case file names, camelCase functions and variables,
   UPPER_SNAKE_CASE constants (standard JS style, matching `chrome.*` APIs).
 - No secrets exist in this project; if one ever appears, it comes from env
@@ -286,8 +298,12 @@ Office machines use regular (unmanaged) Chrome, so "Load unpacked" works.
 - **One log per full page load:** YouTube's in-page navigation doesn't re-run
   content scripts, so the load log appears once; auto-skip itself follows
   navigation through `yt-navigate-finish`.
-- **Synthetic click:** the Skip button is clicked with `.click()`. If YouTube
-  ever ignores untrusted clicks (`isTrusted`), skipping stops working.
+- **Trusted click depends on YouTube:** the trusted-click script only sees
+  click listeners added directly to the Skip button, after it already has
+  its class. If YouTube moves its handler to a parent element, adds the
+  class later, or checks more than `isTrusted`, skipping stops working
+  again. The script shares YouTube's JavaScript world, so YouTube can also
+  detect or undo it.
 - **Opacity-hidden buttons:** the visibility rule doesn't see `opacity: 0`.
   If YouTube hides the countdown button that way, the click comes early and
   may be ignored (manual check 10 watches for this).

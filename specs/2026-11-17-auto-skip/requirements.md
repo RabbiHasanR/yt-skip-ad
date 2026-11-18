@@ -66,8 +66,26 @@ edge cases, and manual test plan.
   - The ad ends before the check runs: no click, because each check reads the
     DOM fresh.
   - Unskippable ad: no button is ever visible, so no click and no error.
-  - `.click()` ignored if YouTube ever checks `isTrusted`: a known risk,
-    recorded as a known limitation.
+  - YouTube ignores untrusted clicks: its Skip handler checks
+    `event.isTrusted`, which is `false` for `.click()`. Confirmed on real
+    YouTube during the manual pass (2026-11-18), and fixed by the
+    trusted-click script below.
+
+### Trusted click (added 2026-11-18, Gate 0 change)
+
+- `src/content/trusted-click.js` runs in YouTube's own JavaScript world
+  (`"world": "MAIN"`) at `"run_at": "document_start"`, before YouTube's
+  scripts. It is a classic script with no imports and no `chrome.*` calls.
+- It wraps `click` listener functions added to an element that matches a
+  Skip-button selector at the time the listener is added. The wrapped
+  listener receives a `Proxy` of the real event: `isTrusted` reads `true`,
+  everything else is the real event, with its methods bound to it.
+- Every other listener is added unchanged. `removeEventListener` also
+  removes a listener's wrapper, so YouTube's cleanup still works.
+- The skipper still clicks with `.click()` from the isolated world; the DOM
+  event reaches the page's wrapped listener.
+- The selector list is repeated in the script (it can't import); a test
+  fails if it drifts from `SKIP_BUTTON_SELECTORS`.
 
 ### Follow the player
 
@@ -102,7 +120,8 @@ edge cases, and manual test plan.
 
 ## Storage and selectors
 
-No storage keys, permissions, or manifest entries change. The existing
+No storage keys or permissions change. The manifest gains one content
+script (the trusted-click script, added 2026-11-18). The existing
 `src/**/*.js` web-accessible glob covers the new modules.
 
 Agreed at Gate 0, in `src/core/selectors.js`:
@@ -138,25 +157,25 @@ folder loses nothing.
 
 ## Decisions
 
-| Decision            | Choice                                                                      | Why                                                                           |
-| ------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Scope               | Detect and click, follow the player, one e2e test                           | User's choice; all three roadmap sub-slices                                   |
-| Slicing             | One group per roadmap sub-slice                                             | User's choice; each group has a clear acceptance test                         |
-| Merge bar           | Automated checks plus a manual pass on real YouTube                         | User's choice; only live YouTube proves the selectors                         |
-| Selectors           | As in the table above                                                       | Agreed at Gate 0                                                              |
-| Visibility rule     | Computed style up to the player                                             | Agreed at Gate 0; testable in jsdom and correct in Chrome                     |
-| Click rule          | Arm/disarm per appearance                                                   | Agreed at Gate 0; handles pods without relying on element identity            |
-| Throttle            | 100 ms time guard (`CHECK_THROTTLE_MS`)                                     | Agreed at Gate 0; bounded latency, works in background tabs                   |
-| Observed target     | The player: subtree, childList, `class`/`style`/`hidden`                    | Agreed at Gate 0; catches reveals done with a style change                    |
-| Waiting for player  | Document-level `MutationObserver`, disconnected once found                  | No polling when idle; reacts immediately                                      |
-| Navigation          | Re-resolve on `yt-navigate-finish`; re-attach only if the element changed   | Avoids needless re-attaching; handles a replaced player                       |
-| Click method        | `button.click()`                                                            | Simplest; the `isTrusted` risk is recorded as a known limitation              |
-| Log prefix          | `LOG_PREFIX` in new `src/shared/constants.js`; `loader.js` keeps its copy   | Planned in Phase 0; the classic loader can't import                           |
-| Logging             | Only the existing load log                                                  | Verbose logging waits for Phase 4's `DEBUG` flag                              |
-| Core modules        | `selectors.js`, `ad-detection.js`, `skipper.js`, `throttle.js`              | One responsibility each; `main.js` stays wiring only                          |
-| e2e fixture hosting | Playwright route intercept of a `www.youtube.com` URL; other requests abort | Real loader and content script, no manifest change, nothing leaves the device |
-| e2e dependency      | `@playwright/test` and its Chromium build                                   | Already chosen in tech-stack.md                                               |
-| Version             | `0.2.0` in the Verify group, if the build will be shared                    | Colleagues can tell builds apart; `1.0.0` stays reserved for v1               |
+| Decision            | Choice                                                                      | Why                                                                                   |
+| ------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Scope               | Detect and click, follow the player, one e2e test                           | User's choice; all three roadmap sub-slices                                           |
+| Slicing             | One group per roadmap sub-slice                                             | User's choice; each group has a clear acceptance test                                 |
+| Merge bar           | Automated checks plus a manual pass on real YouTube                         | User's choice; only live YouTube proves the selectors                                 |
+| Selectors           | As in the table above                                                       | Agreed at Gate 0                                                                      |
+| Visibility rule     | Computed style up to the player                                             | Agreed at Gate 0; testable in jsdom and correct in Chrome                             |
+| Click rule          | Arm/disarm per appearance                                                   | Agreed at Gate 0; handles pods without relying on element identity                    |
+| Throttle            | 100 ms time guard (`CHECK_THROTTLE_MS`)                                     | Agreed at Gate 0; bounded latency, works in background tabs                           |
+| Observed target     | The player: subtree, childList, `class`/`style`/`hidden`                    | Agreed at Gate 0; catches reveals done with a style change                            |
+| Waiting for player  | Document-level `MutationObserver`, disconnected once found                  | No polling when idle; reacts immediately                                              |
+| Navigation          | Re-resolve on `yt-navigate-finish`; re-attach only if the element changed   | Avoids needless re-attaching; handles a replaced player                               |
+| Click method        | `button.click()`, plus the trusted-click script (MAIN world)                | Real YouTube ignores untrusted clicks; probe proved the wrapper fixes it (2026-11-18) |
+| Log prefix          | `LOG_PREFIX` in new `src/shared/constants.js`; `loader.js` keeps its copy   | Planned in Phase 0; the classic loader can't import                                   |
+| Logging             | Only the existing load log                                                  | Verbose logging waits for Phase 4's `DEBUG` flag                                      |
+| Core modules        | `selectors.js`, `ad-detection.js`, `skipper.js`, `throttle.js`              | One responsibility each; `main.js` stays wiring only                                  |
+| e2e fixture hosting | Playwright route intercept of a `www.youtube.com` URL; other requests abort | Real loader and content script, no manifest change, nothing leaves the device         |
+| e2e dependency      | `@playwright/test` and its Chromium build                                   | Already chosen in tech-stack.md                                                       |
+| Version             | `0.2.0` in the Verify group, if the build will be shared                    | Colleagues can tell builds apart; `1.0.0` stays reserved for v1                       |
 
 ## Constraints
 

@@ -4,7 +4,7 @@ A Chrome extension that clicks YouTube's **Skip** button for you when an ad
 becomes skippable. It runs only on YouTube, asks only for `storage` and
 YouTube access, and sends nothing off your device.
 
-> **Status: 0.2.0, auto-skip.** Skippable ads are skipped as soon as the Skip
+> **Status: 0.2.1, auto-skip.** Skippable ads are skipped as soon as the Skip
 > button appears, including after you move between videos without reloading.
 > There are no settings yet: auto-skip is always on, with no delay, and the
 > popup is still a placeholder. Unskippable ads play normally. See the
@@ -43,16 +43,16 @@ After changing code, click the reload icon on the extension's card in
 
 ### Layout
 
-| Path            | What                                                       |
-| --------------- | ---------------------------------------------------------- |
-| `manifest.json` | Extension manifest (MV3)                                   |
-| `src/core/`     | Rules: YouTube selectors, ad detection, skipper, throttle  |
-| `src/shared/`   | Shared constants                                           |
-| `src/content/`  | `loader.js` (classic script) imports `main.js` (ES module) |
-| `popup/`        | Toolbar popup                                              |
-| `icons/`        | 16/48/128 px icons                                         |
-| `tests/`        | `unit/`, `integration/`, `e2e/`, `fixtures/`, `setup/`     |
-| `specs/`        | Mission, roadmap, tech stack, and per-phase specs          |
+| Path            | What                                                      |
+| --------------- | --------------------------------------------------------- |
+| `manifest.json` | Extension manifest (MV3)                                  |
+| `src/core/`     | Rules: YouTube selectors, ad detection, skipper, throttle |
+| `src/shared/`   | Shared constants                                          |
+| `src/content/`  | `loader.js` imports `main.js`; `trusted-click.js`         |
+| `popup/`        | Toolbar popup                                             |
+| `icons/`        | 16/48/128 px icons                                        |
+| `tests/`        | `unit/`, `integration/`, `e2e/`, `fixtures/`, `setup/`    |
+| `specs/`        | Mission, roadmap, tech stack, and per-phase specs         |
 
 **When skipping stops working**, YouTube has most likely renamed a class.
 The selectors live in one place, `src/core/selectors.js`.

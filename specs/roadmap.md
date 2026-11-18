@@ -25,11 +25,14 @@ Automated and manual checks pass (2026-11-17).
 - Confirm the extension loads in `chrome://extensions` with no errors, the
   content script logs once on YouTube, and the popup opens with a placeholder.
 
-## Phase 1 — Auto-skip 🔍 In review
+## Phase 1 — Auto-skip ✅ Complete
 
 Spec: [2026-11-17-auto-skip](2026-11-17-auto-skip/requirements.md).
-Automated checks pass (2026-11-17); the manual pass on real YouTube is
-pending.
+Automated checks and the manual pass on real YouTube pass (2026-11-18), as
+version 0.2.1. The manual pass found YouTube ignores script clicks
+(`isTrusted`); the trusted-click script fixes it. All 12 manual checks
+pass, including a mid-roll and a two-ad pod (see the
+[manual pass record](2026-11-17-auto-skip/validation.md#manual-pass-record)).
 
 After this phase, skippable ads are skipped automatically (no settings yet).
 

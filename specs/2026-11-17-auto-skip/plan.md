@@ -74,6 +74,34 @@ Tasks, in build order:
   extension; `page.route` serves `tests/fixtures/player.html` at
   `https://www.youtube.com/watch?v=fixture` and aborts every other request.
 
+## 5. Trusted click (fix, added after the manual pass)
+
+The manual pass showed real YouTube ignores our `.click()`: its Skip
+handler checks `event.isTrusted`, which is `false` for script clicks. A
+console probe that wrapped the handler to see `isTrusted: true` made the same
+click skip the ad (`realIsTrusted: false`, then `ad-showing` cleared), and
+three runs without it failed. Agreed as a Gate 0 change on 2026-11-18.
+
+- **Behaviours:** B14, B15.
+- **Acceptance:** `tests/e2e/auto-skip.spec.js` → the page's Skip handler
+  counts only trusted clicks, as YouTube's does.
+- **Storage/selectors:** `SKIP_BUTTON_SELECTORS`, repeated in the new script
+  (it can't import); a test fails if the two lists drift.
+
+Tasks, in build order:
+
+- **Manifest:** a second content script, `src/content/trusted-click.js`, in
+  `world: "MAIN"` at `run_at: "document_start"`, YouTube only. No new
+  permission.
+- **Content:** `src/content/trusted-click.js` (classic script, no imports,
+  no `chrome.*`) wraps `click` listeners added to a Skip button so they see
+  `isTrusted: true`; every other listener is untouched, and
+  `removeEventListener` still removes a wrapped listener. Tests in
+  `tests/integration/content-trusted-click.test.js`.
+- `src/core/skipper.js` is unchanged: it still calls `.click()` from the
+  isolated world, and the page's wrapped listener receives it.
+- Version `0.2.1`, `CHANGELOG.md`, and the docs below.
+
 ## 4. Verify and document
 
 - Run [validation.md](validation.md), including the manual pass on real
