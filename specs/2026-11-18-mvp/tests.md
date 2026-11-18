@@ -84,3 +84,7 @@ Behaviours: B11–B14 · Branch: phase-4-mvp
 
 T1 is a guard: seen red by bumping only `manifest.json`, then green once all
 three agree at `1.0.0`. No test pins `1.0.0` itself (manual check 1 does).
+
+README reviewed by Rabbi before commit. It tells colleagues to create the
+folder first and check `manifest.json` sits directly inside it, because the
+zip has no top-level folder.
