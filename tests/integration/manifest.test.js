@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { createPublicKey } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
@@ -61,6 +62,16 @@ describe('manifest.json', () => {
     expect(key.type).toBe('public');
     expect(key.asymmetricKeyType).toBe('rsa');
     expect(key.asymmetricKeyDetails?.modulusLength).toBe(2048);
+  });
+
+  it('no private key file is tracked by git', () => {
+    // GIVEN the repo, whose .gitignore excludes *.pem
+    // WHEN git lists the tracked and staged key files
+    const tracked = execFileSync('git', ['ls-files', '--', '*.pem'], {
+      encoding: 'utf8',
+    });
+    // THEN there are none, so the private key never reaches the remote
+    expect(tracked.trim()).toBe('');
   });
 
   it('every file the manifest references exists', () => {
