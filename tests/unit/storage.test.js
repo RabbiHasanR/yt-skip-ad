@@ -61,4 +61,13 @@ describe('skip counter storage', () => {
       });
     },
   );
+
+  it('keeps the skip counter in local storage, never in sync', async () => {
+    // GIVEN a fresh install
+    // WHEN a skip is counted
+    await incrementSkipCount();
+    // THEN only this computer's storage changed; nothing went to Chrome Sync
+    expect(chrome.storage.local.set).toHaveBeenCalledOnce();
+    expect(chrome.storage.sync.set).not.toHaveBeenCalled();
+  });
 });
