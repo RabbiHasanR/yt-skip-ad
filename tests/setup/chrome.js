@@ -62,13 +62,26 @@ function createStorageArea(areaName, changed) {
       /** @type {Record<string, { oldValue?: unknown, newValue?: unknown }>} */
       const changes = {};
       for (const [key, newValue] of Object.entries(items)) {
+        // Chrome stores JSON and reports only values that really changed.
+        if (key in store && isSameJson(store[key], newValue)) continue;
         changes[key] =
           key in store ? { oldValue: store[key], newValue } : { newValue };
         store[key] = newValue;
       }
-      changed.fire(changes, areaName);
+      if (Object.keys(changes).length > 0) changed.fire(changes, areaName);
     }),
   };
+}
+
+/**
+ * Tells whether two values are stored the same way, as JSON.
+ *
+ * @param {unknown} a One value.
+ * @param {unknown} b The other value.
+ * @returns {boolean} True when both serialise to the same JSON.
+ */
+function isSameJson(a, b) {
+  return JSON.stringify(a) === JSON.stringify(b);
 }
 
 beforeEach(() => {

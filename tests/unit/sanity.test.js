@@ -61,6 +61,22 @@ describe('test setup', () => {
         'sync',
       );
     });
+
+    it('the storage mock reports no change when a value is set to what it was', async () => {
+      // GIVEN a stored delay and a listener for storage changes
+      await seedStorage({ delaySec: 3, enabled: true });
+      const listener = vi.fn();
+      chrome.storage.onChanged.addListener(listener);
+      // WHEN the same delay is saved again, along with a real change
+      await chrome.storage.sync.set({ delaySec: 3 });
+      await chrome.storage.sync.set({ delaySec: 3, enabled: false });
+      // THEN only the real change is reported, as Chrome does
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect(listener).toHaveBeenCalledWith(
+        { enabled: { oldValue: true, newValue: false } },
+        'sync',
+      );
+    });
   });
 
   // Runs in file order: the first test leaves a call, the second checks it's gone.
