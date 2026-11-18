@@ -1,17 +1,39 @@
 // Builds the dist zip colleagues install from. Dev tooling only: the
-// extension itself has no build step.
-
-/** Repo paths that make up the extension; nothing else goes in the zip. */
-/** @type {string[]} */
-export const PACKAGE_FILES = [];
+// extension itself has no build step, so the zip holds the source files as
+// they are.
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 /**
- * Zips the extension files.
+ * Repo paths that make up the extension; nothing else goes in the zip.
  *
- * @param {{ rootDir: string, outDir: string }} options Repo and output folders.
+ * @type {readonly string[]}
+ */
+export const PACKAGE_FILES = Object.freeze([
+  'manifest.json',
+  'src',
+  'popup',
+  'icons',
+  'README.md',
+]);
+
+/**
+ * Zips the extension files of `rootDir` into
+ * `<outDir>/yt-skip-ad-<version>.zip`, with paths relative to `rootDir`, so
+ * the unzipped folder loads in Chrome as it is.
+ *
+ * @param {{ rootDir: string, outDir: string }} options Project and output folders.
  * @returns {string} Path of the zip written.
  */
-export function packageExtension(options) {
-  void options;
-  throw new Error('not built yet');
+export function packageExtension({ rootDir, outDir }) {
+  const { version } = JSON.parse(
+    readFileSync(join(rootDir, 'manifest.json'), 'utf8'),
+  );
+  const zipPath = join(outDir, `yt-skip-ad-${version}.zip`);
+  mkdirSync(outDir, { recursive: true });
+  execFileSync('zip', ['-r', '-X', '-q', zipPath, ...PACKAGE_FILES], {
+    cwd: rootDir,
+  });
+  return zipPath;
 }

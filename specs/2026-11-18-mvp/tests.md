@@ -47,8 +47,8 @@ Behaviours: B6–B10 · Branch: phase-4-mvp
 
 | #   | Behaviour | Level       | File                               | Test name                                                                         | Status |
 | --- | --------- | ----------- | ---------------------------------- | --------------------------------------------------------------------------------- | ------ |
-| T1  | B6, B7    | acceptance  | tests/integration/package.test.js  | builds dist/yt-skip-ad-<version>.zip containing only the extension files          | 🔴     |
-| T2  | B6        | integration | tests/integration/package.test.js  | names the zip with the version in manifest.json                                   | ⬜     |
+| T1  | B6, B7    | acceptance  | tests/integration/package.test.js  | builds dist/yt-skip-ad-<version>.zip containing only the extension files          | ✅     |
+| T2  | B6        | integration | tests/integration/package.test.js  | names the zip with the version in manifest.json                                   | ✅     |
 | T3  | B7, B5    | integration | tests/integration/package.test.js  | leaves out dotfiles and private keys, even inside included folders                | ⬜     |
 | T4  | B9        | integration | tests/integration/package.test.js  | a second run replaces the zip, so deleted files don't linger in it                | ⬜     |
 | T5  | B10       | integration | tests/integration/package.test.js  | without zip installed, stops with a clear [yt-skip-ad] message and no zip         | ⬜     |
