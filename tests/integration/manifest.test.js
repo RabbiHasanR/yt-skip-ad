@@ -1,5 +1,10 @@
+import { createPublicKey } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import {
+  EXPECTED_EXTENSION_ID,
+  extensionIdFromKey,
+} from '../fixtures/extension-id.js';
 
 const ICON_SIZES = ['16', '48', '128'];
 const YOUTUBE = '*://*.youtube.com/*';
@@ -36,6 +41,26 @@ describe('manifest.json', () => {
     expect(manifest.host_permissions).toEqual([YOUTUBE]);
     expect(manifest.optional_permissions).toBeUndefined();
     expect(manifest.optional_host_permissions).toBeUndefined();
+  });
+
+  it('gives the extension the same pinned ID from its key, whatever its folder', () => {
+    // GIVEN the manifest
+    const manifest = readManifest();
+    // WHEN Chrome derives the extension ID from its public key
+    const id = extensionIdFromKey(String(manifest.key ?? ''));
+    // THEN it is the pinned ID, with no folder path involved
+    expect(id).toBe(EXPECTED_EXTENSION_ID);
+  });
+
+  it('its key is a 2048-bit RSA public key, never the private key', () => {
+    // GIVEN the manifest's key, base64 DER as Chrome expects
+    const der = Buffer.from(String(readManifest().key ?? ''), 'base64');
+    // WHEN it is read as a public key (SubjectPublicKeyInfo)
+    const key = createPublicKey({ key: der, format: 'der', type: 'spki' });
+    // THEN it is a public RSA key of 2048 bits; a private key fails to parse
+    expect(key.type).toBe('public');
+    expect(key.asymmetricKeyType).toBe('rsa');
+    expect(key.asymmetricKeyDetails?.modulusLength).toBe(2048);
   });
 
   it('every file the manifest references exists', () => {
