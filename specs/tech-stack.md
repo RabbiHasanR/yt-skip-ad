@@ -56,8 +56,12 @@ which phase built it.
 Rules:
 
 - A missing or invalid stored value is read as its default; it is never an
-  error.
-- `delaySec` is clamped to 0–10 when written and when read.
+  error. Defaults are not written on install.
+- _(Phase 2, planned)_ Values are cleaned up by `normalizeSettings` in
+  `src/core/settings.js`, when read and before written: `enabled` that is
+  not a boolean reads as `true`; `delaySec` that is a finite number is
+  rounded to a whole number, then clamped to 0–10; any other `delaySec`
+  reads as `0`.
 - Upgrades never wipe stored values; a renamed key needs a migration step in
   `storage.js`.
 - _(to confirm in Phase 3)_ `skipCount` in `sync` vs `local`: `sync` write
