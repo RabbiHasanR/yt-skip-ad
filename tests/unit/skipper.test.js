@@ -1,13 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { createSkipper } from '../../src/core/skipper.js';
+import { DEFAULT_SETTINGS } from '../../src/shared/constants.js';
 import { loadPlayer } from '../fixtures/player.js';
+
+/** Auto-skip on with no delay, as on a fresh install. */
+const ON = { getSettings: () => DEFAULT_SETTINGS };
 
 describe('skipper', () => {
   it('clicks the Skip button once it becomes visible after the countdown', () => {
     // GIVEN an ad is showing and its Skip button is still counting down
     const { player, clicks, startAd, showSkipButton } = loadPlayer();
     startAd();
-    const skipper = createSkipper();
+    const skipper = createSkipper(ON);
     skipper.check(player);
     expect(clicks).not.toHaveBeenCalled();
     // WHEN the Skip button appears and the player is checked again
@@ -22,7 +26,7 @@ describe('skipper', () => {
     const { player, clicks, showSkipButton } = loadPlayer();
     showSkipButton();
     // WHEN the player is checked
-    createSkipper().check(player);
+    createSkipper(ON).check(player);
     // THEN nothing is clicked
     expect(clicks).not.toHaveBeenCalled();
   });
@@ -32,7 +36,7 @@ describe('skipper', () => {
     const { player, clicks, startAd, showSkipButton } = loadPlayer();
     startAd();
     showSkipButton();
-    const skipper = createSkipper();
+    const skipper = createSkipper(ON);
     // WHEN the player is checked several times before the button goes away
     skipper.check(player);
     skipper.check(player);
@@ -47,7 +51,7 @@ describe('skipper', () => {
       loadPlayer();
     startAd();
     showSkipButton();
-    const skipper = createSkipper();
+    const skipper = createSkipper(ON);
     skipper.check(player);
     // WHEN the second ad counts down, then shows its Skip button
     hideSkipButton();
@@ -64,9 +68,21 @@ describe('skipper', () => {
     startAd();
     button.remove();
     // WHEN the player is checked
-    const check = () => createSkipper().check(player);
+    const check = () => createSkipper(ON).check(player);
     // THEN nothing is clicked and nothing is thrown
     expect(check).not.toThrow();
+    expect(clicks).not.toHaveBeenCalled();
+  });
+
+  it('does not click a visible Skip button while auto-skip is off', () => {
+    // GIVEN auto-skip is off, and an ad shows its Skip button
+    const { player, clicks, startAd, showSkipButton } = loadPlayer();
+    startAd();
+    showSkipButton();
+    const off = { ...DEFAULT_SETTINGS, enabled: false };
+    // WHEN the player is checked
+    createSkipper({ getSettings: () => off }).check(player);
+    // THEN nothing is clicked
     expect(clicks).not.toHaveBeenCalled();
   });
 });

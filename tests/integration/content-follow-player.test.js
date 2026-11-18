@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { followPlayer } from '../../src/content/follow-player.js';
 import { CHECK_THROTTLE_MS } from '../../src/shared/constants.js';
+import { watchSettings } from '../../src/shared/storage.js';
 import { loadPlayer } from '../fixtures/player.js';
 
 describe('content script follows the player', () => {
@@ -19,7 +20,7 @@ describe('content script follows the player', () => {
   it('skips an ad that starts after the page has loaded', async () => {
     // GIVEN the content script follows a player with no ad yet
     const { startAd, showSkipButton, clicks } = loadPlayer();
-    stop = followPlayer(document);
+    stop = followPlayer(document, await watchSettings());
     // WHEN an ad starts and its Skip button appears
     startAd();
     showSkipButton();
@@ -31,7 +32,7 @@ describe('content script follows the player', () => {
   it('follows a player that appears after the content script loads', async () => {
     // GIVEN the content script starts on a page with no player yet
     document.body.replaceChildren();
-    stop = followPlayer(document);
+    stop = followPlayer(document, await watchSettings());
     // WHEN the player appears, then an ad with a visible Skip button
     const { startAd, showSkipButton, clicks } = loadPlayer();
     await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
@@ -45,7 +46,7 @@ describe('content script follows the player', () => {
   it('keeps skipping after navigation replaces the player', async () => {
     // GIVEN the content script follows a player
     loadPlayer();
-    stop = followPlayer(document);
+    stop = followPlayer(document, await watchSettings());
     // WHEN in-page navigation replaces it, and the new player shows an ad
     const next = loadPlayer();
     document.dispatchEvent(new Event('yt-navigate-finish'));
@@ -59,7 +60,7 @@ describe('content script follows the player', () => {
   it('does not click when the ad ends before the throttled check runs', async () => {
     // GIVEN the content script follows a player
     const { startAd, endAd, showSkipButton, clicks } = loadPlayer();
-    stop = followPlayer(document);
+    stop = followPlayer(document, await watchSettings());
     // WHEN an ad shows its Skip button, but ends before the check runs
     startAd();
     showSkipButton();
@@ -75,7 +76,7 @@ describe('content script follows the player', () => {
     const { startAd, showSkipButton, clicks } = loadPlayer();
     startAd();
     showSkipButton();
-    stop = followPlayer(document);
+    stop = followPlayer(document, await watchSettings());
     // WHEN in-page navigation finishes with the same player
     document.dispatchEvent(new Event('yt-navigate-finish'));
     await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);

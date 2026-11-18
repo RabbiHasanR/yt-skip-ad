@@ -8,12 +8,15 @@
 import { findSkipButton, isAdShowing } from './ad-detection.js';
 
 /**
- * Creates a skipper for one page.
+ * Creates a skipper for one player.
  *
+ * @param {object} options How the skipper reads the user's settings.
+ * @param {() => import('../shared/constants.js').Settings} options.getSettings
+ *   Returns the settings as they are now.
  * @returns {{ check: (player: Element) => void }} Checks the player and
  *   clicks the Skip button when it should be clicked.
  */
-export function createSkipper() {
+export function createSkipper({ getSettings }) {
   let armed = true;
   return {
     check(player) {
@@ -22,7 +25,8 @@ export function createSkipper() {
         armed = true;
         return;
       }
-      if (!armed || !isAdShowing(player)) return;
+      // Staying armed while off lets turning auto-skip on click this button.
+      if (!armed || !isAdShowing(player) || !getSettings().enabled) return;
       button.click();
       armed = false;
     },

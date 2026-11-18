@@ -16,27 +16,24 @@ describe('content script follows the settings', () => {
     vi.useRealTimers();
   });
 
-  it.fails(
-    'stops clicking when auto-skip is turned off in storage, without a reload',
-    async () => {
-      // GIVEN the content script skipped an ad on the page
-      const { startAd, endAd, showSkipButton, hideSkipButton, clicks } =
-        loadPlayer();
-      await import(MAIN);
-      startAd();
-      showSkipButton();
-      await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
-      expect(clicks).toHaveBeenCalledOnce();
-      endAd();
-      hideSkipButton();
-      await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
-      // WHEN a colleague turns auto-skip off, then the next ad shows Skip
-      await chrome.storage.sync.set({ enabled: false });
-      startAd();
-      showSkipButton();
-      await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
-      // THEN the next ad is not skipped
-      expect(clicks).toHaveBeenCalledOnce();
-    },
-  );
+  it('stops clicking when auto-skip is turned off in storage, without a reload', async () => {
+    // GIVEN the content script skipped an ad on the page
+    const { startAd, endAd, showSkipButton, hideSkipButton, clicks } =
+      loadPlayer();
+    await import(MAIN);
+    startAd();
+    showSkipButton();
+    await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
+    expect(clicks).toHaveBeenCalledOnce();
+    endAd();
+    hideSkipButton();
+    await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
+    // WHEN a colleague turns auto-skip off, then the next ad shows Skip
+    await chrome.storage.sync.set({ enabled: false });
+    startAd();
+    showSkipButton();
+    await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
+    // THEN the next ad is not skipped
+    expect(clicks).toHaveBeenCalledOnce();
+  });
 });

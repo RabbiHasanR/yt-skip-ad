@@ -22,14 +22,14 @@ Behaviours: B1–B8 · Branch: phase-2-settings
 
 | #   | Behaviour | Level       | File                                       | Test name                                                                 | Status |
 | --- | --------- | ----------- | ------------------------------------------ | ------------------------------------------------------------------------- | ------ |
-| T1  | B2        | acceptance  | tests/integration/content-settings.test.js | stops clicking when auto-skip is turned off in storage, without a reload  | 🔴     |
+| T1  | B2        | acceptance  | tests/integration/content-settings.test.js | stops clicking when auto-skip is turned off in storage, without a reload  | ✅     |
 | T2  | B4        | unit        | tests/unit/settings.test.js                | uses a stored delay of $stored as $expected                               | ✅     |
 | T3  | B5        | unit        | tests/unit/settings.test.js                | uses the default when the stored $key is $label                           | ✅     |
 | T4  | B1        | unit        | tests/unit/storage.test.js                 | reads auto-skip on with no delay when nothing is stored                   | ✅     |
 | T5  | B2        | unit        | tests/unit/storage.test.js                 | tells listeners the new settings when they change in storage              | ✅     |
 | T6  | setup     | unit        | tests/unit/sanity.test.js                  | the storage mock reports a removed key with only its old value            | ✅     |
 | T7  | B6        | unit        | tests/unit/storage.test.js                 | goes back to the default when a setting is removed from storage           | ✅     |
-| T8  | B2        | unit        | tests/unit/skipper.test.js                 | does not click a visible Skip button while auto-skip is off               | ⬜     |
+| T8  | B2        | unit        | tests/unit/skipper.test.js                 | does not click a visible Skip button while auto-skip is off               | ✅     |
 | T9  | B3        | integration | tests/integration/content-settings.test.js | skips the ad on screen when auto-skip is turned back on                   | ⬜     |
 | T10 | B7        | integration | tests/integration/content-settings.test.js | does not click an ad already showing at load when auto-skip is stored off | ⬜     |
 | T11 | B8        | integration | tests/integration/content-settings.test.js | handles a settings change on a page without a player without errors       | ⬜     |

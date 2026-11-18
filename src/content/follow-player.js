@@ -25,9 +25,11 @@ const PAGE_CHANGES = { subtree: true, childList: true };
  * in-page navigation, and checks it after each burst of player changes.
  *
  * @param {Document} doc The page's document.
+ * @param {import('../shared/storage.js').LiveSettings} settings The user's
+ *   settings, kept up to date with storage.
  * @returns {() => void} Stops following the page.
  */
-export function followPlayer(doc) {
+export function followPlayer(doc, settings) {
   /** @type {Element | null} */
   let current = null;
   /** @type {MutationObserver | null} */
@@ -59,7 +61,7 @@ export function followPlayer(doc) {
    * @param {Element} player The video player element.
    */
   function watch(player) {
-    const skipper = createSkipper();
+    const skipper = createSkipper({ getSettings: settings.current });
     playerObserver = new MutationObserver(
       createThrottle(() => skipper.check(player), CHECK_THROTTLE_MS),
     );
