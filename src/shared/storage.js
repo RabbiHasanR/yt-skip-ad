@@ -1,5 +1,6 @@
-// Storage adapter: the only file that touches `chrome.storage`. Reads and
-// follows the settings in the `sync` area, cleaned up by the settings rules.
+// Storage adapter: the only file that touches `chrome.storage`. Reads, saves,
+// and follows the settings in the `sync` area, cleaned up by the settings
+// rules.
 import { normalizeSettings } from '../core/settings.js';
 import { DEFAULT_SETTINGS } from './constants.js';
 
@@ -11,6 +12,26 @@ import { DEFAULT_SETTINGS } from './constants.js';
  */
 export async function getSettings() {
   return normalizeSettings(await chrome.storage.sync.get(DEFAULT_SETTINGS));
+}
+
+/**
+ * Saves some of the settings, cleaned up first. Keys not given keep their
+ * stored values.
+ *
+ * @param {Partial<import('./constants.js').Settings>} changes The settings
+ *   to save.
+ * @returns {Promise<void>} Resolves once they are stored.
+ */
+export async function setSettings(changes) {
+  const clean = normalizeSettings(changes);
+  await chrome.storage.sync.set(
+    Object.fromEntries(
+      Object.keys(changes).map((key) => [
+        key,
+        clean[/** @type {keyof typeof clean} */ (key)],
+      ]),
+    ),
+  );
 }
 
 /**

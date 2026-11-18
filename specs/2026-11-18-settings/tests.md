@@ -76,7 +76,7 @@ Behaviours: B15–B21 · Branch: phase-2-settings
 | T1  | B15            | acceptance  | tests/integration/popup-settings.test.js | shows the stored settings when the popup opens                                 | ✅     |
 | T2  | B19            | integration | tests/integration/popup-settings.test.js | labels the $label control                                                      | ✅     |
 | T3  | B15            | integration | tests/integration/popup-settings.test.js | shows auto-skip on with no delay on a fresh install                            | ✅     |
-| T4  | B16            | integration | tests/integration/popup-settings.test.js | saves auto-skip as soon as the checkbox is unticked, keeping the delay         | ⬜     |
+| T4  | B16            | integration | tests/integration/popup-settings.test.js | saves auto-skip as soon as the checkbox is unticked, keeping the delay         | ✅     |
 | T5  | B18            | unit        | tests/unit/settings.test.js              | reads a delay field of "$typed" as $expected                                   | ⬜     |
 | T6  | B17            | integration | tests/integration/popup-settings.test.js | saves a new delay when the field changes                                       | ⬜     |
 | T7  | B18            | integration | tests/integration/popup-settings.test.js | saves and shows a typed delay of 25 as 10                                      | ⬜     |

@@ -23,6 +23,26 @@ async function openPopup() {
   };
 }
 
+/**
+ * Reads both settings as they are stored now.
+ *
+ * @returns {Promise<Record<string, unknown>>} The stored settings.
+ */
+function readStored() {
+  return chrome.storage.sync.get({ enabled: true, delaySec: 0 });
+}
+
+/**
+ * Changes a control the way a colleague does, firing its `change` event.
+ *
+ * @param {HTMLInputElement} input The control.
+ * @param {(input: HTMLInputElement) => void} edit Sets the new value.
+ */
+function change(input, edit) {
+  edit(input);
+  input.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
 describe('popup settings', () => {
   beforeEach(() => {
     vi.resetModules();
@@ -57,5 +77,19 @@ describe('popup settings', () => {
     // THEN auto-skip is on with no delay
     expect(enabled.checked).toBe(true);
     expect(delay.value).toBe('0');
+  });
+
+  it('saves auto-skip as soon as the checkbox is unticked, keeping the delay', async () => {
+    // GIVEN a stored 4-second delay, and the popup is open
+    await seedStorage({ delaySec: 4 });
+    const { enabled } = await openPopup();
+    // WHEN a colleague unticks "Auto-skip ads"
+    change(enabled, (input) => {
+      input.checked = false;
+    });
+    // THEN auto-skip is saved as off, and the delay is untouched
+    await vi.waitFor(async () =>
+      expect(await readStored()).toEqual({ enabled: false, delaySec: 4 }),
+    );
   });
 });
