@@ -13,8 +13,10 @@ test('the loaded extension clicks the Skip button on a YouTube-like page', async
   await loaded;
   const skipButton = page.locator('.ytp-skip-ad-button');
   await skipButton.evaluate((button) => {
-    // Counted from the page's own world, like YouTube's click handler.
-    button.addEventListener('click', () => {
+    // Counted from the page's own world, like YouTube's click handler, which
+    // ignores clicks whose `isTrusted` is false.
+    button.addEventListener('click', (event) => {
+      if (!event.isTrusted) return;
       button.dataset.clicks = String(Number(button.dataset.clicks ?? 0) + 1);
     });
   });
@@ -25,7 +27,7 @@ test('the loaded extension clicks the Skip button on a YouTube-like page', async
   await page.locator('.ytp-skip-ad').evaluate((slot) => {
     /** @type {HTMLElement} */ (slot).style.display = '';
   });
-  // THEN the extension clicks it once
+  // THEN the extension clicks it once, and YouTube counts the click
   await expect(skipButton).toHaveAttribute('data-clicks', '1');
   await page.waitForTimeout(500);
   await expect(skipButton).toHaveAttribute('data-clicks', '1');
