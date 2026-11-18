@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { loadFixture } from '../fixtures/load-fixture.js';
 import { seedStorage } from '../setup/storage.js';
 
@@ -42,6 +42,24 @@ describe('test setup', () => {
       });
       // THEN the saved value wins and the missing key gets its default
       expect(stored).toEqual({ enabled: true, delaySec: 3 });
+    });
+
+    it("the storage mock tells listeners what changed, with the 'sync' area", async () => {
+      // GIVEN a stored delay and a listener for storage changes
+      await seedStorage({ delaySec: 3 });
+      const listener = vi.fn();
+      chrome.storage.onChanged.addListener(listener);
+      // WHEN the delay changes and auto-skip is saved for the first time
+      await chrome.storage.sync.set({ delaySec: 5, enabled: false });
+      // THEN the listener hears each change once, as Chrome reports it
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect(listener).toHaveBeenCalledWith(
+        {
+          delaySec: { oldValue: 3, newValue: 5 },
+          enabled: { newValue: false },
+        },
+        'sync',
+      );
     });
   });
 
