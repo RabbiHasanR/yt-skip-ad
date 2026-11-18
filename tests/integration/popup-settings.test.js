@@ -120,4 +120,17 @@ describe('popup settings', () => {
     );
     expect(delay.value).toBe('10');
   });
+
+  it('puts the stored delay back when the field is emptied, saving nothing', async () => {
+    // GIVEN a stored 4-second delay, and the popup is open
+    await seedStorage({ delaySec: 4 });
+    const { delay } = await openPopup();
+    // WHEN a colleague clears the field and leaves it
+    change(delay, (input) => {
+      input.value = '';
+    });
+    // THEN the field shows the stored delay again, and nothing is saved
+    await vi.waitFor(() => expect(delay.value).toBe('4'));
+    expect(chrome.storage.sync.set).not.toHaveBeenCalled();
+  });
 });

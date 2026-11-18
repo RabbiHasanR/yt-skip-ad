@@ -10,17 +10,30 @@ const delayInput = /** @type {HTMLInputElement} */ (
   document.getElementById('delay')
 );
 
+/**
+ * Shows a delay in the delay field.
+ *
+ * @param {number} delaySec Whole seconds.
+ */
+const showDelay = (delaySec) => {
+  delayInput.value = String(delaySec);
+};
+
 const settings = await getSettings();
 enabledInput.checked = settings.enabled;
-delayInput.value = String(settings.delaySec);
+showDelay(settings.delaySec);
 
 enabledInput.addEventListener('change', () => {
   setSettings({ enabled: enabledInput.checked });
 });
 
-delayInput.addEventListener('change', () => {
+delayInput.addEventListener('change', async () => {
   const delaySec = parseDelayField(delayInput.value);
-  if (delaySec === null) return;
-  delayInput.value = String(delaySec);
-  setSettings({ delaySec });
+  if (delaySec === null) {
+    // Nothing to save: show the stored delay again.
+    showDelay((await getSettings()).delaySec);
+    return;
+  }
+  showDelay(delaySec);
+  await setSettings({ delaySec });
 });
