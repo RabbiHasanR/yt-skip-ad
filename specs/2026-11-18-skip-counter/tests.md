@@ -45,3 +45,28 @@ expected to pass on arrival and are mutation-checked. T10 was built before
 T9: it drives the `follow-player.js` wiring, without which T9 would pass for
 the wrong reason (nothing counted at all). T1 went green with that same wiring. T6's name
 gained `($delaySec s)` so its two cases have distinct titles.
+
+## 3. Popup counter
+
+Behaviours: B9–B14 · Branch: phase-3-skip-counter
+
+| #   | Behaviour | Level       | File                                         | Test name                                                                  | Status |
+| --- | --------- | ----------- | -------------------------------------------- | -------------------------------------------------------------------------- | ------ |
+| T1  | B9        | acceptance  | tests/integration/popup-skip-counter.test.js | shows the skip counter increased by 1 after the content script clicks Skip | 🔴     |
+| T2  | B9        | integration | tests/integration/popup-skip-counter.test.js | shows 0 ads skipped on a fresh install                                     | ⬜     |
+| T3  | B12       | integration | tests/integration/popup-skip-counter.test.js | labels the skip counter and the Reset counter button                       | ⬜     |
+| T4  | B10       | integration | tests/integration/popup-skip-counter.test.js | updates the count while the popup is open                                  | ⬜     |
+| T5  | B10       | integration | tests/integration/popup-skip-counter.test.js | keeps showing the count when a setting is saved                            | ⬜     |
+| T6  | B13       | integration | tests/integration/popup-skip-counter.test.js | shows a large count with digit grouping                                    | ⬜     |
+| T7  | B11       | integration | tests/integration/popup-skip-counter.test.js | resets the counter to 0 at once when Reset counter is clicked              | ⬜     |
+
+Agreed at Gate 2: T1 runs the real `followPlayer` on the player fixture,
+stops it, then opens the real popup, so one jsdom document is enough.
+`getSkipCount`, `resetSkipCount`, and `watchSkipCount` are tested through the
+popup, not on their own; the clean-up rule is already covered (B5). Left to
+the manual pass: keyboard use and focus of the native button (B12, manual
+check 10), width, scrolling, and themes (B13, check 11), and the count
+surviving a Chrome restart (B14, checks 8–9; Chrome storage guarantees it,
+and T1 shows the popup reads the stored count on open). No e2e test (user's
+scope choice). Digit grouping is compared with `toLocaleString()` so the
+test doesn't depend on the machine's locale.
