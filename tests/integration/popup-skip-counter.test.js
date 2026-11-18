@@ -11,12 +11,20 @@ const POPUP = '../../popup/popup.js';
 /**
  * Opens the popup as Chrome does: its HTML, then its module script.
  *
- * @returns {Promise<{ count: HTMLOutputElement | null }>} The skip counter.
+ * @returns {Promise<{
+ *   count: HTMLOutputElement | null,
+ *   reset: HTMLButtonElement | undefined,
+ * }>} The skip counter and the Reset counter button.
  */
 async function openPopup() {
   document.documentElement.innerHTML = readFileSync('popup/popup.html', 'utf8');
   await import(POPUP);
-  return { count: document.querySelector('output') };
+  return {
+    count: document.querySelector('output'),
+    reset: [...document.querySelectorAll('button')].find(
+      (button) => button.textContent?.trim() === 'Reset counter',
+    ),
+  };
 }
 
 describe('popup skip counter', () => {
@@ -48,5 +56,15 @@ describe('popup skip counter', () => {
     const { count } = await openPopup();
     // THEN it shows 0 ads skipped
     await vi.waitFor(() => expect(count?.value).toBe('0'));
+  });
+
+  it('labels the skip counter and the Reset counter button', async () => {
+    // GIVEN a colleague opens the popup
+    const { count, reset } = await openPopup();
+    // WHEN they look for the counter and its button
+    // THEN the count has a visible label, and the button is named and never
+    // submits the settings form
+    expect(count?.labels[0]?.textContent?.trim()).toBe('Ads skipped:');
+    expect(reset?.type).toBe('button');
   });
 });

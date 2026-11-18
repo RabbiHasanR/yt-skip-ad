@@ -77,7 +77,32 @@ input[type='number'] {
   font: inherit;
 }
 
-input:focus-visible {
+.counter {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+output {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+button {
+  justify-self: start;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--field-bg);
+  color: var(--fg);
+  font: inherit;
+  cursor: pointer;
+}
+
+input:focus-visible,
+button:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }

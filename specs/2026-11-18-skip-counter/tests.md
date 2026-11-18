@@ -54,7 +54,7 @@ Behaviours: B9–B14 · Branch: phase-3-skip-counter
 | --- | --------- | ----------- | -------------------------------------------- | -------------------------------------------------------------------------- | ------ |
 | T1  | B9        | acceptance  | tests/integration/popup-skip-counter.test.js | shows the skip counter increased by 1 after the content script clicks Skip | ✅     |
 | T2  | B9        | integration | tests/integration/popup-skip-counter.test.js | shows 0 ads skipped on a fresh install                                     | ✅     |
-| T3  | B12       | integration | tests/integration/popup-skip-counter.test.js | labels the skip counter and the Reset counter button                       | ⬜     |
+| T3  | B12       | integration | tests/integration/popup-skip-counter.test.js | labels the skip counter and the Reset counter button                       | ✅     |
 | T4  | B10       | integration | tests/integration/popup-skip-counter.test.js | updates the count while the popup is open                                  | ⬜     |
 | T5  | B10       | integration | tests/integration/popup-skip-counter.test.js | keeps showing the count when a setting is saved                            | ⬜     |
 | T6  | B13       | integration | tests/integration/popup-skip-counter.test.js | shows a large count with digit grouping                                    | ⬜     |
