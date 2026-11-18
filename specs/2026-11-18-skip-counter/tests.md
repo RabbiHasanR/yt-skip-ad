@@ -57,7 +57,7 @@ Behaviours: B9–B14 · Branch: phase-3-skip-counter
 | T3  | B12       | integration | tests/integration/popup-skip-counter.test.js | labels the skip counter and the Reset counter button                       | ✅     |
 | T4  | B10       | integration | tests/integration/popup-skip-counter.test.js | updates the count while the popup is open                                  | ✅     |
 | T5  | B10       | integration | tests/integration/popup-skip-counter.test.js | keeps showing the count when a setting is saved                            | ✅     |
-| T6  | B13       | integration | tests/integration/popup-skip-counter.test.js | shows a large count with digit grouping                                    | ⬜     |
+| T6  | B13       | integration | tests/integration/popup-skip-counter.test.js | shows a large count with digit grouping                                    | ✅     |
 | T7  | B11       | integration | tests/integration/popup-skip-counter.test.js | resets the counter to 0 at once when Reset counter is clicked              | ⬜     |
 
 Agreed at Gate 2: T1 runs the real `followPlayer` on the player fixture,

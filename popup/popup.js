@@ -24,7 +24,7 @@ const countOutput = /** @type {HTMLOutputElement} */ (
  * @param {number} count Ads skipped so far.
  */
 const showCount = (count) => {
-  countOutput.value = String(count);
+  countOutput.value = count.toLocaleString();
 };
 
 /**

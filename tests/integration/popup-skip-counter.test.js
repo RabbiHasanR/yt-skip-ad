@@ -72,4 +72,13 @@ describe('popup skip counter', () => {
     // THEN the counter still shows 7
     expect(count?.value).toBe('7');
   });
+
+  it('shows a large count with digit grouping', async () => {
+    // GIVEN 12345 ads were skipped
+    await seedStorage({ skipCount: 12345 }, 'local');
+    // WHEN a colleague opens the popup
+    const { count } = await openPopup();
+    // THEN the count is grouped the way their language writes numbers
+    await vi.waitFor(() => expect(count?.value).toBe((12345).toLocaleString()));
+  });
 });
