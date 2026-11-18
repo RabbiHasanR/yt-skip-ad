@@ -1,27 +1,6 @@
-import { readFileSync } from 'node:fs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { openPopup } from '../fixtures/popup.js';
 import { seedStorage } from '../setup/storage.js';
-
-const POPUP = '../../popup/popup.js';
-
-/**
- * Opens the popup as Chrome does: its HTML, then its module script.
- *
- * @returns {Promise<{ enabled: HTMLInputElement, delay: HTMLInputElement }>}
- *   The auto-skip checkbox and the delay field.
- */
-async function openPopup() {
-  document.documentElement.innerHTML = readFileSync('popup/popup.html', 'utf8');
-  await import(POPUP);
-  return {
-    enabled: /** @type {HTMLInputElement} */ (
-      document.querySelector('input[type="checkbox"]')
-    ),
-    delay: /** @type {HTMLInputElement} */ (
-      document.querySelector('input[type="number"]')
-    ),
-  };
-}
 
 /**
  * Reads both settings as they are stored now.

@@ -1,31 +1,10 @@
-import { readFileSync } from 'node:fs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { followPlayer } from '../../src/content/follow-player.js';
 import { CHECK_THROTTLE_MS } from '../../src/shared/constants.js';
 import { watchSettings } from '../../src/shared/storage.js';
 import { loadPlayer } from '../fixtures/player.js';
+import { openPopup } from '../fixtures/popup.js';
 import { seedStorage } from '../setup/storage.js';
-
-const POPUP = '../../popup/popup.js';
-
-/**
- * Opens the popup as Chrome does: its HTML, then its module script.
- *
- * @returns {Promise<{
- *   count: HTMLOutputElement | null,
- *   reset: HTMLButtonElement | undefined,
- * }>} The skip counter and the Reset counter button.
- */
-async function openPopup() {
-  document.documentElement.innerHTML = readFileSync('popup/popup.html', 'utf8');
-  await import(POPUP);
-  return {
-    count: document.querySelector('output'),
-    reset: [...document.querySelectorAll('button')].find(
-      (button) => button.textContent?.trim() === 'Reset counter',
-    ),
-  };
-}
 
 describe('popup skip counter', () => {
   beforeEach(() => {
@@ -77,5 +56,20 @@ describe('popup skip counter', () => {
     await chrome.storage.local.set({ skipCount: 3 });
     // THEN the open popup shows the new count
     await vi.waitFor(() => expect(count?.value).toBe('3'));
+  });
+
+  it('keeps showing the count when a setting is saved', async () => {
+    // GIVEN 7 ads were skipped, and the popup is open showing them
+    await seedStorage({ skipCount: 7 }, 'local');
+    const { count, delay } = await openPopup();
+    await vi.waitFor(() => expect(count?.value).toBe('7'));
+    // WHEN a colleague changes the delay
+    delay.value = '3';
+    delay.dispatchEvent(new Event('change', { bubbles: true }));
+    await vi.waitFor(async () =>
+      expect((await chrome.storage.sync.get({ delaySec: 0 })).delaySec).toBe(3),
+    );
+    // THEN the counter still shows 7
+    expect(count?.value).toBe('7');
   });
 });
