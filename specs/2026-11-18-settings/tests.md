@@ -42,3 +42,27 @@ merge state stays out of `main.js`; no area or key filter yet
 settings in, with no assertion changes. T10 is a guard expected to pass on
 arrival: T8's wiring makes `main.js` read settings before following the
 player.
+
+## 3. Delay
+
+Behaviours: B9–B14 · Branch: phase-2-settings
+
+| #   | Behaviour | Level       | File                                    | Test name                                                                                        | Status |
+| --- | --------- | ----------- | --------------------------------------- | ------------------------------------------------------------------------------------------------ | ------ |
+| T1  | B9        | acceptance  | tests/integration/content-delay.test.js | clicks the Skip button delaySec seconds after it appears                                         | 🔴     |
+| T2  | B9        | unit        | tests/unit/skipper.test.js              | clicks a visible Skip button $delaySec seconds after it appears                                  | ⬜     |
+| T3  | B11       | unit        | tests/unit/skipper.test.js              | does not click when $what during the delay                                                       | ⬜     |
+| T4  | B10       | unit        | tests/unit/skipper.test.js              | does not click when auto-skip is turned off during the delay, and waits again once it is back on | ⬜     |
+| T5  | B13       | unit        | tests/unit/skipper.test.js              | clicks each ad of a pod once, each after its own delay                                           | ⬜     |
+| T6  | B13       | unit        | tests/unit/skipper.test.js              | gives a Skip button that reappears during the delay its own full wait                            | ⬜     |
+| T7  | B12       | unit        | tests/unit/skipper.test.js              | keeps a running wait's length when the delay changes, and uses the new one next                  | ⬜     |
+| T8  | B14       | integration | tests/integration/content-delay.test.js | calls off the old player's wait when navigation replaces the player                              | ⬜     |
+
+Agreed at Gate 2: the skipper uses the global `setTimeout` / `clearTimeout`
+(as `throttle.js` does), faked with `vi.useFakeTimers()`, instead of injected
+timers; a delay of 0 clicks right away with no timer, so Phase 1's tests are
+unchanged; the skipper gains `stop()`, called when navigation replaces the
+player; turning auto-skip off during a wait is caught when the wait ends
+(no click, re-armed). T5 and T7 are expected to pass on arrival and are
+mutation-checked. B10 has no content test: the fire-time check reads
+`settings.current`, whose wiring group 2 proved.
