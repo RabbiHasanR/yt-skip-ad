@@ -49,15 +49,15 @@ which phase built it.
 
 | Key         | Area   | Type    | Default | Valid range    | Written by             | Read by        | Status               |
 | ----------- | ------ | ------- | ------- | -------------- | ---------------------- | -------------- | -------------------- |
-| `enabled`   | `sync` | boolean | `true`  | `true`/`false` | popup                  | content, popup | _(Phase 2, planned)_ |
-| `delaySec`  | `sync` | integer | `0`     | 0–10           | popup                  | content, popup | _(Phase 2, planned)_ |
+| `enabled`   | `sync` | boolean | `true`  | `true`/`false` | popup                  | content, popup | _(Phase 2, built)_   |
+| `delaySec`  | `sync` | integer | `0`     | 0–10           | popup                  | content, popup | _(Phase 2, built)_   |
 | `skipCount` | `sync` | integer | `0`     | ≥ 0            | content, popup (reset) | popup          | _(Phase 3, planned)_ |
 
 Rules:
 
 - A missing or invalid stored value is read as its default; it is never an
   error. Defaults are not written on install.
-- _(Phase 2, planned)_ Values are cleaned up by `normalizeSettings` in
+- _(Phase 2, built)_ Values are cleaned up by `normalizeSettings` in
   `src/core/settings.js`, when read and before written: `enabled` that is
   not a boolean reads as `true`; `delaySec` that is a finite number is
   rounded to a whole number, then clamped to 0–10; any other `delaySec`
@@ -150,6 +150,48 @@ See [the Phase 1 spec](2026-11-17-auto-skip/requirements.md#decisions).
   `isTrusted` reads `true`. Every other listener is untouched, and
   `removeEventListener` also removes the wrapper. No new permission.
 - **Version:** `0.2.1`.
+
+## Decided in Phase 2
+
+See [the Phase 2 spec](2026-11-18-settings/requirements.md#decisions) and
+its [tests.md](2026-11-18-settings/tests.md) Gate 2 notes.
+
+- **Settings rules** (`src/core/settings.js`): `normalizeSettings(raw)`
+  cleans up values on every read and write; `parseDelayField(text)` reads
+  the popup's field, where empty or non-numeric means "save nothing".
+- **Storage adapter** (`src/shared/storage.js`): `getSettings()`;
+  `setSettings(changes)` cleans up and writes only the keys it is given, so
+  saving one setting never resets the other; `watchSettings()` resolves to
+  `{ current(), onChange(listener) }`, merging each change through
+  `normalizeSettings` (a removed key becomes its default). No area or key
+  filter: unknown keys are ignored by the rules, and only `sync` is used.
+- **Settings first:** `main.js` uses a top-level `await` to read the
+  settings before following the player, so a stored "off" is never ignored
+  at page load. `popup.js` uses the same pattern.
+- **Settings changes** run the same throttled check as a player change
+  (within 100 ms), so turning auto-skip on skips the ad on screen. While
+  off, the skipper stays armed, so that button can still be clicked.
+- **Delay** lives in the skipper, using the global `setTimeout` /
+  `clearTimeout` (as `throttle.js` does), faked with `vi.useFakeTimers()`.
+  A delay of 0 clicks right away with no timer. Otherwise one wait per Skip
+  button appearance; when it ends, the click happens only if the ad, a
+  visible Skip button, and auto-skip are all still there, else the skipper
+  re-arms. A check that sees no Skip button calls the wait off, and
+  `skipper.stop()` does so when navigation replaces the player. A new delay
+  applies from the next appearance.
+- **Popup:** native checkbox and number input (`min` 0, `max` 10, `step`
+  1); the field shows the cleaned-up delay after saving; an emptied field
+  shows the stored delay again, re-read from storage.
+- **`chrome` mock:** `storage.sync.get` (defaults-object form), `set`,
+  `remove`, and `storage.onChanged`, in memory; change events report
+  `{ oldValue?, newValue? }` with the area, and skip values whose JSON did
+  not change, as Chrome does. `seedStorage()` in `tests/setup/storage.js`
+  stores values before a test.
+- **e2e extension ID:** with no service worker, `tests/e2e/fixtures.js`
+  works it out as Chrome does: SHA-256 of the folder's real path, first 32
+  hex digits mapped 0–f to a–p.
+- **Stable extension ID:** still deferred, to Phase 4.
+- **Version:** `0.3.0`.
 
 ## Project conventions
 
@@ -269,7 +311,8 @@ responsive standard does not apply. Instead:
 - **Controls:** native `<input type="checkbox">`, `<input type="number">`, and
   `<button>`, each with a visible `<label>`.
 - **Keyboard:** every control reachable and usable with Tab, Space, Enter.
-- **Feedback:** changes apply on input; no separate "Save" button.
+- **Feedback:** changes are saved on `change` (a checkbox toggle, a
+  spinner click, Enter, or leaving the field); no separate "Save" button.
 - **Verification:** checked by eye in light and dark mode on each phase with
   popup changes.
 
@@ -316,6 +359,20 @@ Office machines use regular (unmanaged) Chrome, so "Load unpacked" works.
   permission but are untested.
 - **Selectors break:** YouTube renames classes from time to time; fixes go in
   `src/core/selectors.js`.
+
+- **Settings reset when the folder moves:** the extension ID comes from the
+  folder path, and settings belong to the ID, until the stable ID is decided
+  (Phase 4).
+- **Settings follow Chrome Sync:** `chrome.storage.sync` copies the two
+  settings to the colleague's other signed-in Chrome browsers. The
+  extension itself still makes no network requests.
+- **Delay timing:** the delay counts from the throttled check, so the click
+  comes up to 100 ms after "N seconds after the Skip button appears". A
+  button hidden and shown again within one 100 ms window is not seen as a
+  new appearance, so the first wait carries on.
+- **Open popup doesn't refresh:** if the settings change elsewhere (another
+  computer through Chrome Sync) while the popup is open, it shows the old
+  values until reopened.
 
 ## Deferred decisions
 

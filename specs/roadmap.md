@@ -58,7 +58,11 @@ After this phase, skippable ads are skipped automatically (no settings yet).
 - One slow test: the extension, loaded in Chromium, clicks the Skip button on
   a local fixture page.
 
-## Phase 2 — Settings ⏳ Not started
+## Phase 2 — Settings ✅ Complete
+
+Spec: [2026-11-18-settings](2026-11-18-settings/requirements.md).
+Automated checks and the manual pass on real YouTube pass (2026-11-18), as
+version 0.3.0.
 
 After this phase, a user can turn auto-skip on or off and set a delay from the
 popup, and changes apply live.

@@ -3,6 +3,23 @@
 All notable changes to this project. Versions match `version` in
 `manifest.json`.
 
+## 0.3.0 — 2026-11-18
+
+Settings ([Phase 2 spec](specs/2026-11-18-settings/requirements.md)).
+
+### Added
+
+- Popup controls: an **Auto-skip ads** checkbox and a **Delay (seconds)**
+  field (0–10). Changes are saved at once, with no Save button, and apply
+  to open YouTube tabs without a reload.
+- Delay: the Skip button is clicked that many seconds after it appears. No
+  click if, during the wait, auto-skip is turned off, the ad ends, the
+  button disappears, or you move to another video.
+- Turning auto-skip back on skips the ad already on screen.
+- Settings are kept in Chrome's sync storage. Missing or invalid values fall
+  back to the defaults (on, no delay); a typed delay outside 0–10 is saved
+  as the nearest limit.
+
 ## 0.2.1 — 2026-11-18
 
 ### Fixed

@@ -121,6 +121,11 @@ other ad-related extensions (ad blockers) off first.
 15. Chrome Task Manager: the extension's CPU stays near 0% while a video
     plays, including during a delay.
 
+## Manual pass record
+
+Version 0.3.0 on real youtube.com, 2026-11-18. All 15 checks pass, as
+reported by Rabbi after running them; no per-check notes were recorded.
+
 ## Done means
 
 All checks above pass; `specs/tech-stack.md`, `README.md`,

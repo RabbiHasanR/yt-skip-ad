@@ -4,11 +4,24 @@ A Chrome extension that clicks YouTube's **Skip** button for you when an ad
 becomes skippable. It runs only on YouTube, asks only for `storage` and
 YouTube access, and sends nothing off your device.
 
-> **Status: 0.2.1, auto-skip.** Skippable ads are skipped as soon as the Skip
+> **Status: 0.3.0, settings.** Skippable ads are skipped when the Skip
 > button appears, including after you move between videos without reloading.
-> There are no settings yet: auto-skip is always on, with no delay, and the
-> popup is still a placeholder. Unskippable ads play normally. See the
+> Unskippable ads play normally. The skip counter comes next; see the
 > [roadmap](specs/roadmap.md).
+
+## Use
+
+Click the extension's toolbar icon to open the popup:
+
+- **Auto-skip ads:** untick to stop skipping, tick to start again. If an ad
+  is showing its Skip button when you tick it, that ad is skipped.
+- **Delay (seconds):** how long to wait after the Skip button appears before
+  clicking it, from 0 (at once) to 10. Use the arrows, or type a number and
+  press Enter.
+
+Changes apply straight away to open YouTube tabs, with no reload. Settings
+are kept by Chrome and follow you to other computers where you're signed in
+to Chrome. Moving the extension's folder resets them.
 
 ## Install (colleagues)
 
@@ -46,10 +59,10 @@ After changing code, click the reload icon on the extension's card in
 | Path            | What                                                      |
 | --------------- | --------------------------------------------------------- |
 | `manifest.json` | Extension manifest (MV3)                                  |
-| `src/core/`     | Rules: YouTube selectors, ad detection, skipper, throttle |
-| `src/shared/`   | Shared constants                                          |
+| `src/core/`     | Rules: selectors, ad detection, skipper, settings, timing |
+| `src/shared/`   | Constants, settings defaults, and the storage adapter     |
 | `src/content/`  | `loader.js` imports `main.js`; `trusted-click.js`         |
-| `popup/`        | Toolbar popup                                             |
+| `popup/`        | Toolbar popup: auto-skip toggle and delay                 |
 | `icons/`        | 16/48/128 px icons                                        |
 | `tests/`        | `unit/`, `integration/`, `e2e/`, `fixtures/`, `setup/`    |
 | `specs/`        | Mission, roadmap, tech stack, and per-phase specs         |
