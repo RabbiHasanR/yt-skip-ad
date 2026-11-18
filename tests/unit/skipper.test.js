@@ -234,4 +234,33 @@ describe('skipper', () => {
       expect(clicks).toHaveBeenCalledTimes(2);
     });
   });
+
+  describe('counting skips', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it.each([{ delaySec: 0 }, { delaySec: 3 }])(
+      'calls onSkip once for each click it makes, with or without a delay ($delaySec s)',
+      ({ delaySec }) => {
+        // GIVEN an ad shows its Skip button, and a skipper that reports skips
+        const { player, clicks, startAd, showSkipButton } = loadPlayer();
+        startAd();
+        showSkipButton();
+        const onSkip = vi.fn();
+        const getSettings = () => ({ enabled: true, delaySec });
+        // WHEN the skipper checks the player and the delay passes
+        createSkipper({ getSettings, onSkip }).check(player);
+        expect(onSkip).toHaveBeenCalledTimes(delaySec === 0 ? 1 : 0);
+        vi.advanceTimersByTime(delaySec * 1000);
+        // THEN it reported exactly the one click it made
+        expect(clicks).toHaveBeenCalledOnce();
+        expect(onSkip).toHaveBeenCalledOnce();
+      },
+    );
+  });
 });

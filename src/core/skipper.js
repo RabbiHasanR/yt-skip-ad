@@ -9,19 +9,24 @@
 // Delay: with a delay, the check that sees the Skip button starts the wait,
 // and the click happens only if the ad, the button, and auto-skip are all
 // still there when it ends. With a delay of 0 the click happens right away.
+//
+// Counting: `onSkip` is called right after each click the skipper makes, and
+// never for a wait that was called off.
 import { findSkipButton, isAdShowing } from './ad-detection.js';
 
 /**
  * Creates a skipper for one player.
  *
- * @param {object} options How the skipper reads the user's settings.
+ * @param {object} options How the skipper reads the user's settings and
+ *   reports its clicks.
  * @param {() => import('../shared/constants.js').Settings} options.getSettings
  *   Returns the settings as they are now.
+ * @param {() => void} [options.onSkip] Called right after each click.
  * @returns {{ check: (player: Element) => void, stop: () => void }} `check`
  *   checks the player and clicks the Skip button when it should be clicked;
  *   `stop` calls off a pending wait, for a player that is no longer followed.
  */
-export function createSkipper({ getSettings }) {
+export function createSkipper({ getSettings, onSkip = () => {} }) {
   let armed = true;
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   let wait;
@@ -41,6 +46,7 @@ export function createSkipper({ getSettings }) {
     const button = findSkipButton(player);
     if (button && isAdShowing(player) && getSettings().enabled) {
       button.click();
+      onSkip();
     } else {
       armed = true;
     }
