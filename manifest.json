@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "YT Skip Ad",
+  "name": "Skip Ad for YouTube",
   "version": "1.0.0",
   "description": "Clicks YouTube's Skip Ad button for you. Collects no data: no tracking, no network requests, open source.",
   "homepage_url": "https://github.com/RabbiHasanR/yt-skip-ad",
