@@ -10,6 +10,7 @@ import {
 const ICON_SIZES = ['16', '48', '128'];
 const YOUTUBE = '*://*.youtube.com/*';
 const TRUSTED_CLICK = 'src/content/trusted-click.js';
+const SOURCE_URL = 'https://github.com/RabbiHasanR/yt-skip-ad';
 
 /** @returns {any} The parsed manifest.json from the repo root. */
 function readManifest() {
@@ -42,6 +43,39 @@ describe('manifest.json', () => {
     expect(manifest.host_permissions).toEqual([YOUTUBE]);
     expect(manifest.optional_permissions).toBeUndefined();
     expect(manifest.optional_host_permissions).toBeUndefined();
+  });
+
+  it("blocks network connections from the extension's pages", () => {
+    // GIVEN the manifest
+    // WHEN Chrome reads the policy for the popup and other extension pages
+    const policy = parsePolicy(
+      readManifest().content_security_policy?.extension_pages ?? '',
+    );
+    // THEN no connection may leave, and only bundled files may load
+    expect(policy).toEqual({
+      'default-src': ["'self'"],
+      'connect-src': ["'none'"],
+      'object-src': ["'none'"],
+      'base-uri': ["'none'"],
+      'form-action': ["'none'"],
+    });
+  });
+
+  it('has a description that fits the Chrome Web Store summary', () => {
+    // GIVEN the manifest
+    // WHEN the store shows its description as the listing's summary
+    const { description } = readManifest();
+    // THEN it is there and within the store's 132-character limit
+    expect(description.length).toBeGreaterThan(0);
+    expect(description.length).toBeLessThanOrEqual(132);
+  });
+
+  it('names its public source code as its homepage', () => {
+    // GIVEN the manifest
+    // WHEN Chrome shows the extension's homepage link
+    const { homepage_url: homepage } = readManifest();
+    // THEN it is the public GitHub repo, over https
+    expect(homepage).toBe(SOURCE_URL);
   });
 
   it('gives the extension the same pinned ID from its key, whatever its folder', () => {
@@ -150,6 +184,22 @@ describe('manifest.json', () => {
     });
   });
 });
+
+/**
+ * Splits a Content Security Policy into its directives.
+ *
+ * @param {string} policy A policy such as `"default-src 'self'; …"`.
+ * @returns {Record<string, string[]>} Each directive and its sources.
+ */
+function parsePolicy(policy) {
+  return Object.fromEntries(
+    policy
+      .split(';')
+      .map((directive) => directive.trim().split(/\s+/))
+      .filter(([name]) => name)
+      .map(([name, ...sources]) => [name, sources]),
+  );
+}
 
 /**
  * Reads a PNG's dimensions from its IHDR chunk.
