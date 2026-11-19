@@ -1,0 +1,24 @@
+/* Shared look of the store images. Sizes are set per image. */
+:root {
+  --bg: #0f172a;
+  --panel: #1e293b;
+  --fg: #f8fafc;
+  --muted: #94a3b8;
+  --ok: #4ade80;
+}
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+body {
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+}
+.ok {
+  color: var(--ok);
+}
+.muted {
+  color: var(--muted);
+}

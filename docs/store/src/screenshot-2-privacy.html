@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="base.css" />
+    <style>
+      body {
+        width: 1280px;
+        height: 800px;
+        padding: 88px 112px;
+      }
+      h1 {
+        font-size: 64px;
+        margin-bottom: 16px;
+      }
+      .lead {
+        font-size: 28px;
+        margin-bottom: 56px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+      }
+      .stat {
+        background: var(--panel);
+        border-radius: 20px;
+        padding: 36px 28px;
+      }
+      .n {
+        font-size: 88px;
+        font-weight: 800;
+        line-height: 1;
+      }
+      .label {
+        font-size: 24px;
+        margin-top: 16px;
+        line-height: 1.35;
+      }
+      .foot {
+        margin-top: 56px;
+        font-size: 26px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔒 Collects nothing.</h1>
+    <p class="lead muted">
+      No account, no analytics, no servers. Your settings stay on your computer.
+    </p>
+    <div class="grid">
+      <div class="stat">
+        <div class="n ok">0</div>
+        <div class="label">data collected</div>
+      </div>
+      <div class="stat">
+        <div class="n ok">0</div>
+        <div class="label">trackers or analytics</div>
+      </div>
+      <div class="stat">
+        <div class="n ok">0</div>
+        <div class="label">network requests</div>
+      </div>
+      <div class="stat">
+        <div class="n">2</div>
+        <div class="label">permissions: storage and youtube.com</div>
+      </div>
+    </div>
+    <p class="foot muted">
+      Open source. Don't trust us: read every line, or check the Network tab
+      yourself.
+    </p>
+  </body>
+</html>

@@ -1,12 +1,23 @@
-# YT Skip Ad — User Guide
+# Skip Ad for YouTube — User Guide
 
-How to install, use, update, and uninstall YT Skip Ad, the Chrome extension
-that clicks YouTube's **Skip** button for you. For privacy and
-troubleshooting, see the [README](README.md).
+How to install, use, update, and uninstall Skip Ad for YouTube, the Chrome extension
+that clicks YouTube's **Skip** button for you. For privacy, see
+[PRIVACY.md](PRIVACY.md); for troubleshooting, the [README](README.md).
 
 ## Install
 
-You need desktop Chrome. You get the extension in one of two ways:
+You need desktop Chrome.
+
+### From the Chrome Web Store (recommended)
+
+Open the extension's Chrome Web Store page, click **Add to Chrome**, then
+**Add extension**. Chrome updates it for you. Pin it from the puzzle-piece
+icon in the toolbar so its icon is always visible.
+
+### Manually, from a zip
+
+Use this if you got the extension as a zip instead of from the store. You
+get it in one of two ways:
 
 - **From WhatsApp:** a file named `yt-skip-ad-<version>.zip`.
 - **From the shared folder:** the same zip, or a folder already unzipped.
@@ -23,7 +34,7 @@ Then:
 4. Turn on **Developer mode** (switch at the top right).
 5. Click **Load unpacked** and choose the folder from step 1, the one that
    contains `manifest.json`.
-6. **YT Skip Ad** appears in the list. Click the puzzle-piece icon in
+6. **Skip Ad for YouTube** appears in the list. Click the puzzle-piece icon in
    Chrome's toolbar and pin it, so its icon is always visible.
 
 Open any YouTube video: when an ad shows its Skip button, the extension
@@ -46,21 +57,30 @@ Changes apply straight away to open YouTube tabs; there's nothing to reload.
 
 ## Update
 
+**From the Chrome Web Store:** nothing to do; Chrome updates it.
+
+**From a zip:**
+
 1. Delete the old files inside your extension folder, and put the new
    version's files in the **same folder** (same steps as installing).
 2. Open `chrome://extensions` and click the round **reload** arrow on the
-   YT Skip Ad card. The card shows the new version number.
+   Skip Ad for YouTube card. The card shows the new version number.
 
 Your settings and skip counter are kept.
 
+**Moving from a zip install to the store:** click **Remove** on the old card
+first, then add it from the store. The store version is a separate install,
+so it starts from the defaults (on, no delay, counter 0).
+
 **Upgrading from a 0.x version** (before 1.0.0): click **Remove** on the old
-YT Skip Ad card first, then follow [Install](#install). This one time, your
+Skip Ad for YouTube card first, then follow [Install](#install). This one time, your
 settings and skip counter start again from the defaults (on, no delay,
 counter 0). From 1.0.0 on, updates keep them.
 
 ## Uninstall
 
-1. Open `chrome://extensions` and click **Remove** on the YT Skip Ad card.
-2. Delete the extension folder.
+1. Open `chrome://extensions` and click **Remove** on the Skip Ad for YouTube card
+   (or right-click the toolbar icon → **Remove from Chrome**).
+2. If you installed from a zip, delete the extension folder.
 
 Removing the extension also deletes its settings and skip counter.

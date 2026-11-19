@@ -1,48 +1,51 @@
-# YT Skip Ad
+# Skip Ad for YouTube
 
-A Chrome extension that clicks YouTube's **Skip** button for you when an ad
-becomes skippable. It runs only on YouTube, asks only for `storage` and
-YouTube access, and sends nothing off your computer.
+**Skips the ad for you. Collects nothing.**
 
-It is **not an ad blocker**: ads still start, and unskippable ads play to
-the end. It only clicks "Skip" so you don't have to.
+A Chrome extension that clicks YouTube's **Skip** button the moment an ad
+becomes skippable. It is **not an ad blocker**: ads still start, and
+unskippable ads play to the end. It just saves you from watching the corner
+of the screen.
 
-> **Status: 1.0.0.** Skippable ads are skipped when the Skip button appears,
-> including as you move between videos. The popup lets you turn it off, set a
-> delay, and see how many ads were skipped.
+- 🔒 **No data collected.** No account, no analytics, no servers, no network
+  requests. Settings stay on your computer.
+- 🔑 **Two permissions:** storage, and youtube.com. Nothing else.
+- 👀 **Open source, no build step:** the code in this repo is exactly what
+  Chrome runs.
 
-## Install and use
+## Install
 
-See the **[User Guide](USER-GUIDE.md)** for how to install, use, update, and
-uninstall the extension. It is also inside the zip you receive.
+- **Chrome Web Store:** _link added once the listing is approved._
+- **Manually, from a zip:** see the [User Guide](USER-GUIDE.md).
+
+Then open any YouTube video. Click the toolbar icon to turn auto-skip off,
+set a delay of 0–10 seconds, or see how many ads were skipped.
 
 ## Privacy
 
-- **No data is collected.** The extension has no account, no analytics, and
-  makes no network requests of its own.
-- **What it stores, and where:** your two settings (auto-skip on or off, and
-  the delay) in Chrome's own extension storage. If you're signed in to
-  Chrome with sync turned on, Chrome copies these two settings to your other
-  computers, as it does with bookmarks. The skip counter stays on this
-  computer only.
-- **Why it needs its two permissions:**
-  - **Storage:** to remember your settings and the skip counter.
-  - **Read and change your data on youtube.com:** to see when an ad's Skip
-    button appears on a YouTube page and click it. It does nothing on any
-    other site.
+Full policy: **[PRIVACY.md](PRIVACY.md)**. In short:
+
+- **Nothing leaves your computer.** The extension has no network code (the lint
+  check fails if any is added), and the manifest's Content Security Policy
+  (`connect-src 'none'`) makes Chrome itself block the popup from
+  connecting anywhere.
+- **What it stores:** your two settings (on/off, delay) and the skip counter,
+  in Chrome's local extension storage. Not synced, not sent.
+- **Why it needs youtube.com:** to see the ad's Skip button and click it.
+  Chrome words this as "read and change your data on youtube.com"; it is the
+  permission every extension needs to run on a site.
+- **Check it yourself:** the [five-step check](PRIVACY.md#check-it-yourself)
+  takes two minutes.
+- **Pledge:** this extension will never be sold and will never add tracking.
 
 ## Troubleshooting
 
 - **Ads aren't skipped any more.** Check that **Auto-skip ads** is ticked in
-  the popup. If it is, YouTube has most likely changed its page; tell Rabbi,
-  and install the fixed version when it arrives.
-- **The extension disappeared, or its card shows an error.** The extension
-  folder was moved, renamed, or deleted. Put it back, or click **Remove** on
-  the card and **Load unpacked** again from the folder's new place; your
-  settings and counter are kept.
-- **Chrome warns about developer-mode extensions.** Chrome may show this
-  notice for any extension installed with "Load unpacked". Keep the
-  extension; don't choose to disable or remove it.
+  the popup. If it is, YouTube has most likely changed its page:
+  [open an issue](https://github.com/RabbiHasanR/yt-skip-ad/issues), and the
+  fix will come as an update.
+- **Turn other ad extensions off** to test: an ad blocker hides the ad before
+  there's a Skip button to click.
 
 ## Develop
 
@@ -62,6 +65,7 @@ npm run typecheck     # tsc over JSDoc types
 npm run format:check  # Prettier (npm run format to fix)
 npm run coverage
 npm run package       # dist/yt-skip-ad-<version>.zip, extension files only
+npm run package:store # the same, for the Chrome Web Store (no manifest key)
 ```
 
 After changing code, click the reload icon on the extension's card in
@@ -69,7 +73,16 @@ After changing code, click the reload icon on the extension's card in
 
 **Releasing:** bump `version` in `manifest.json` and run
 `npm version <same version> --no-git-tag-version` (a test fails if they
-differ), then `npm run package` and share the zip.
+differ). Then:
+
+- `npm run package`: `dist/yt-skip-ad-<version>.zip` for manual installs
+  (keeps the `key`, so the ID stays pinned).
+- `npm run package:store`: `dist/yt-skip-ad-<version>-store.zip` to upload
+  to the Chrome Web Store (same files, `key` removed; the store sets its
+  own). Tag the release commit so anyone can compare the store build with
+  the source.
+
+Store listing text and privacy answers: [docs/store/listing.md](docs/store/listing.md).
 
 **Extension ID:** the `key` in `manifest.json` fixes the ID to
 `efdhjhghkcidlflkhipiaijdemjjknbl` wherever the folder lives. Its private
@@ -86,7 +99,9 @@ commit a `.pem` file.
 | `src/content/`  | `loader.js` imports `main.js`; `trusted-click.js`                     |
 | `popup/`        | Toolbar popup: auto-skip toggle, delay, skip counter                  |
 | `icons/`        | 16/48/128 px icons                                                    |
-| `USER-GUIDE.md` | Install, use, update, uninstall, for colleagues (also in the zip)     |
+| `USER-GUIDE.md` | Install, use, update, uninstall (also in the zip)                     |
+| `PRIVACY.md`    | Privacy policy, linked from the popup and the store listing           |
+| `docs/store/`   | Store listing text, privacy-practices answers, and images             |
 | `scripts/`      | Dev tooling: `package.js` builds the dist zip                         |
 | `tests/`        | `unit/`, `integration/`, `e2e/`, `fixtures/`, `setup/`                |
 | `specs/`        | Mission, roadmap, tech stack, and per-phase specs                     |
