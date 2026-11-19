@@ -18,7 +18,7 @@ test('turning auto-skip off in the popup stops the Skip click on a YouTube-like 
   await expect
     .poll(() =>
       popup.evaluate(
-        async () => (await chrome.storage.sync.get('enabled')).enabled,
+        async () => (await chrome.storage.local.get('enabled')).enabled,
       ),
     )
     .toBe(false);

@@ -7,10 +7,11 @@
  * only see the calls made by the code under test.
  *
  * @param {Record<string, unknown>} values Keys and values to store.
- * @param {'sync' | 'local'} [area] The storage area; `sync` by default.
+ * @param {'sync' | 'local'} [area] The storage area; `local` by default,
+ *   where the extension keeps everything. `sync` seeds a 1.0.0 install.
  * @returns {Promise<void>} Resolves once the values are stored.
  */
-export async function seedStorage(values, area = 'sync') {
+export async function seedStorage(values, area = 'local') {
   await chrome.storage[area].set(values);
   /** @type {import('vitest').Mock} */ (chrome.storage[area].set).mockClear();
 }

@@ -1,11 +1,13 @@
 // Storage adapter: the only file that touches `chrome.storage`. Reads, saves,
-// and follows the settings in the `sync` area, and the skip counter in the
-// `local` area, each cleaned up by its rules in src/core/.
+// and follows the settings and the skip counter in the `local` area, each
+// cleaned up by its rules in src/core/. Nothing is kept in `sync`, so Chrome
+// Sync never copies anything off the device.
 import { normalizeSettings } from '../core/settings.js';
 import { normalizeSkipCount } from '../core/skip-count.js';
 import {
   DEFAULT_SETTINGS,
   DEFAULT_SKIP_COUNT,
+  SETTING_KEYS,
   SKIP_COUNT_KEY,
 } from './constants.js';
 
@@ -16,7 +18,29 @@ import {
  *   with defaults for missing or invalid values.
  */
 export async function getSettings() {
-  return normalizeSettings(await chrome.storage.sync.get(DEFAULT_SETTINGS));
+  await moveSettingsFromSync();
+  return normalizeSettings(await chrome.storage.local.get(DEFAULT_SETTINGS));
+}
+
+/**
+ * Moves settings that 1.0.0 kept in `sync` to `local`, then removes them from
+ * `sync`, which also removes Chrome Sync's copy. A setting already in `local`
+ * is newer and is kept. When `sync` holds no setting, nothing is written.
+ *
+ * @returns {Promise<void>} Resolves once `sync` holds no setting.
+ */
+async function moveSettingsFromSync() {
+  const synced = await chrome.storage.sync.get([...SETTING_KEYS]);
+  const keys = Object.keys(synced);
+  if (keys.length === 0) return;
+  const local = await chrome.storage.local.get(keys);
+  const missing = keys.filter((key) => !(key in local));
+  if (missing.length > 0) {
+    await chrome.storage.local.set(
+      Object.fromEntries(missing.map((key) => [key, synced[key]])),
+    );
+  }
+  await chrome.storage.sync.remove(keys);
 }
 
 /**
@@ -29,7 +53,7 @@ export async function getSettings() {
  */
 export async function setSettings(changes) {
   const clean = normalizeSettings(changes);
-  await chrome.storage.sync.set(
+  await chrome.storage.local.set(
     Object.fromEntries(
       Object.keys(changes).map((key) => [
         key,
@@ -59,8 +83,10 @@ export async function watchSettings() {
   /** @type {Set<(settings: import('./constants.js').Settings) => void>} */
   const listeners = new Set();
   chrome.storage.onChanged.addListener((changes, areaName) => {
-    // The settings live in `sync`; a counted skip in `local` is not a change.
-    if (areaName !== 'sync') return;
+    // The skip counter shares `local`; a counted skip is not a settings change.
+    if (areaName !== 'local' || !SETTING_KEYS.some((key) => key in changes)) {
+      return;
+    }
     current = normalizeSettings({ ...current, ...newValues(changes) });
     listeners.forEach((listener) => listener(current));
   });
@@ -123,7 +149,7 @@ export async function resetSkipCount() {
  */
 export function watchSkipCount(listener) {
   chrome.storage.onChanged.addListener((changes, areaName) => {
-    // A settings save in `sync` says nothing about the count.
+    // A settings save says nothing about the count.
     if (areaName !== 'local' || !(SKIP_COUNT_KEY in changes)) return;
     listener(normalizeSkipCount(changes[SKIP_COUNT_KEY].newValue));
   });

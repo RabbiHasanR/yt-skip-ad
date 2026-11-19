@@ -67,7 +67,9 @@ describe('popup skip counter', () => {
     delay.value = '3';
     delay.dispatchEvent(new Event('change', { bubbles: true }));
     await vi.waitFor(async () =>
-      expect((await chrome.storage.sync.get({ delaySec: 0 })).delaySec).toBe(3),
+      expect((await chrome.storage.local.get({ delaySec: 0 })).delaySec).toBe(
+        3,
+      ),
     );
     // THEN the counter still shows 7
     expect(count?.value).toBe('7');

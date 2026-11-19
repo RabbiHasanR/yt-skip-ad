@@ -37,7 +37,7 @@ describe('content script follows the settings', () => {
     hideSkipButton();
     await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
     // WHEN a colleague turns auto-skip off, then the next ad shows Skip
-    await chrome.storage.sync.set({ enabled: false });
+    await chrome.storage.local.set({ enabled: false });
     startAd();
     showSkipButton();
     await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
@@ -55,7 +55,7 @@ describe('content script follows the settings', () => {
     await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
     expect(clicks).not.toHaveBeenCalled();
     // WHEN a colleague turns auto-skip back on, with no other page change
-    await chrome.storage.sync.set({ enabled: true });
+    await chrome.storage.local.set({ enabled: true });
     await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
     // THEN the ad on screen is skipped
     expect(clicks).toHaveBeenCalledOnce();
@@ -80,8 +80,8 @@ describe('content script follows the settings', () => {
     stop = followPlayer(document, await watchSettings());
     // WHEN a colleague turns auto-skip off and on again
     const toggle = async () => {
-      await chrome.storage.sync.set({ enabled: false });
-      await chrome.storage.sync.set({ enabled: true });
+      await chrome.storage.local.set({ enabled: false });
+      await chrome.storage.local.set({ enabled: true });
       await vi.advanceTimersByTimeAsync(CHECK_THROTTLE_MS);
     };
     // THEN nothing is thrown

@@ -61,14 +61,24 @@ function createStorageArea(areaName, changed) {
     if (Object.keys(changes).length > 0) changed.fire(changes, areaName);
   };
   return {
-    // Only the defaults-object form of `get`, the one the extension uses.
-    get: vi.fn(async (/** @type {Record<string, unknown>} */ defaults) =>
-      Object.fromEntries(
-        Object.entries(defaults).map(([key, fallback]) => [
-          key,
-          key in store ? store[key] : fallback,
-        ]),
-      ),
+    // The two forms of `get` the extension uses: a defaults object gets every
+    // key, falling back to its default; a list of keys gets only those stored.
+    get: vi.fn(
+      async (
+        /** @type {Record<string, unknown> | string[]} */ keysOrDefaults,
+      ) =>
+        Array.isArray(keysOrDefaults)
+          ? Object.fromEntries(
+              keysOrDefaults
+                .filter((key) => key in store)
+                .map((key) => [key, store[key]]),
+            )
+          : Object.fromEntries(
+              Object.entries(keysOrDefaults).map(([key, fallback]) => [
+                key,
+                key in store ? store[key] : fallback,
+              ]),
+            ),
     ),
     set: vi.fn(async (/** @type {Record<string, unknown>} */ items) => {
       /** @type {Record<string, { oldValue?: unknown, newValue?: unknown }>} */

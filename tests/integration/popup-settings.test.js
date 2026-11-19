@@ -8,7 +8,7 @@ import { seedStorage } from '../setup/storage.js';
  * @returns {Promise<Record<string, unknown>>} The stored settings.
  */
 function readStored() {
-  return chrome.storage.sync.get({ enabled: true, delaySec: 0 });
+  return chrome.storage.local.get({ enabled: true, delaySec: 0 });
 }
 
 /**
@@ -110,6 +110,6 @@ describe('popup settings', () => {
     });
     // THEN the field shows the stored delay again, and nothing is saved
     await vi.waitFor(() => expect(delay.value).toBe('4'));
-    expect(chrome.storage.sync.set).not.toHaveBeenCalled();
+    expect(chrome.storage.local.set).not.toHaveBeenCalled();
   });
 });

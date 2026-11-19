@@ -34,7 +34,7 @@ describe('test setup', () => {
   describe('chrome.storage mock', () => {
     it('the storage mock returns seeded values and the defaults for missing keys', async () => {
       // GIVEN a colleague saved only the delay
-      await seedStorage({ delaySec: 3 });
+      await seedStorage({ delaySec: 3 }, 'sync');
       // WHEN code reads both settings with defaults
       const stored = await chrome.storage.sync.get({
         enabled: true,
@@ -46,7 +46,7 @@ describe('test setup', () => {
 
     it("the storage mock tells listeners what changed, with the 'sync' area", async () => {
       // GIVEN a stored delay and a listener for storage changes
-      await seedStorage({ delaySec: 3 });
+      await seedStorage({ delaySec: 3 }, 'sync');
       const listener = vi.fn();
       chrome.storage.onChanged.addListener(listener);
       // WHEN the delay changes and auto-skip is saved for the first time
@@ -64,7 +64,7 @@ describe('test setup', () => {
 
     it('the storage mock reports no change when a value is set to what it was', async () => {
       // GIVEN a stored delay and a listener for storage changes
-      await seedStorage({ delaySec: 3, enabled: true });
+      await seedStorage({ delaySec: 3, enabled: true }, 'sync');
       const listener = vi.fn();
       chrome.storage.onChanged.addListener(listener);
       // WHEN the same delay is saved again, along with a real change
@@ -80,7 +80,7 @@ describe('test setup', () => {
 
     it('the storage mock reports a removed key with only its old value', async () => {
       // GIVEN a stored delay and a listener for storage changes
-      await seedStorage({ delaySec: 3 });
+      await seedStorage({ delaySec: 3 }, 'sync');
       const listener = vi.fn();
       chrome.storage.onChanged.addListener(listener);
       // WHEN the delay is removed, along with a key that was never stored
@@ -121,9 +121,18 @@ describe('test setup', () => {
       );
     });
 
+    it('the storage mock returns only the stored keys when asked for a list', async () => {
+      // GIVEN one of two settings stored
+      await seedStorage({ delaySec: 3 }, 'sync');
+      // WHEN code asks for both by name, with no defaults
+      const stored = await chrome.storage.sync.get(['delaySec', 'enabled']);
+      // THEN only the stored one comes back, as Chrome does
+      expect(stored).toEqual({ delaySec: 3 });
+    });
+
     it('the sync and local storage areas keep their values apart', async () => {
       // GIVEN the same key stored with different values in each area
-      await seedStorage({ skipCount: 1 });
+      await seedStorage({ skipCount: 1 }, 'sync');
       await seedStorage({ skipCount: 2 }, 'local');
       // WHEN code reads it from each area
       const fromSync = await chrome.storage.sync.get({ skipCount: 0 });

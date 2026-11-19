@@ -12,7 +12,7 @@ export const LOG_PREFIX = '[yt-skip-ad]';
 export const CHECK_THROTTLE_MS = 100;
 
 /**
- * The user's settings, as stored in `chrome.storage.sync`.
+ * The user's settings, as stored in `chrome.storage.local`.
  *
  * @typedef {object} Settings
  * @property {boolean} enabled Whether auto-skip is on.
@@ -27,7 +27,7 @@ export const CHECK_THROTTLE_MS = 100;
  */
 export const DEFAULT_SETTINGS = Object.freeze({ enabled: true, delaySec: 0 });
 
-/** Storage keys of the settings, in `chrome.storage.sync`. */
+/** Storage keys of the settings, in `chrome.storage.local`. */
 export const SETTING_KEYS = Object.freeze(Object.keys(DEFAULT_SETTINGS));
 
 /** Shortest allowed delay before clicking Skip, in seconds. */
