@@ -1,4 +1,4 @@
-# YT Skip Ad — Tech Stack
+# Skip Ad for YouTube — Tech Stack
 
 ## Principles
 
@@ -11,7 +11,10 @@
 - **Logic out of the edges** — rules live in plain modules; the content
   script and popup only wire the DOM and `chrome.*` to them.
 - **Nothing leaves the device** — no network requests, no analytics
-  (colleagues' requirement).
+  (colleagues' requirement). Since Phase 5 this is the public release's main
+  promise, so it also rules out an uninstall URL, "rate us" prompts, remote
+  config, and Chrome Sync storage; the extension pages' CSP blocks
+  connections (`connect-src 'none'`).
 - Popular, well-supported, reliable tools (Rabbi's requirement).
 
 ## Recommended framework: none (vanilla JS on Chrome MV3)
@@ -28,18 +31,18 @@ Why no framework:
 
 ## Stack summary
 
-| Layer       | Choice                                                                 |
-| ----------- | ---------------------------------------------------------------------- |
-| Language    | JavaScript (ES2020+), JSDoc types                                      |
-| Framework   | None — Chrome Extension Manifest V3                                    |
-| UI          | Popup: plain HTML + CSS                                                |
-| Backend     | None — content script on YouTube pages                                 |
-| Data access | Thin adapter over `chrome.storage.sync`                                |
-| Database    | `chrome.storage` — `sync`: `enabled`, `delaySec`; `local`: `skipCount` |
-| Lint/format | ESLint (flat config) + Prettier                                        |
-| Type checks | `tsc --noEmit` with `checkJs` over JSDoc types                         |
-| Tests       | Vitest + jsdom (fast); Playwright + Chromium (e2e)                     |
-| Packaging   | `npm run package`: system `zip` over the source files, no build        |
+| Layer       | Choice                                                          |
+| ----------- | --------------------------------------------------------------- |
+| Language    | JavaScript (ES2020+), JSDoc types                               |
+| Framework   | None — Chrome Extension Manifest V3                             |
+| UI          | Popup: plain HTML + CSS                                         |
+| Backend     | None — content script on YouTube pages                          |
+| Data access | Thin adapter over `chrome.storage.local`                        |
+| Database    | `chrome.storage.local`: `enabled`, `delaySec`, `skipCount`      |
+| Lint/format | ESLint (flat config) + Prettier                                 |
+| Type checks | `tsc --noEmit` with `checkJs` over JSDoc types                  |
+| Tests       | Vitest + jsdom (fast); Playwright + Chromium (e2e)              |
+| Packaging   | `npm run package`: system `zip` over the source files, no build |
 
 ## Storage schema
 
@@ -50,8 +53,8 @@ which phase built it.
 
 | Key         | Area    | Type    | Default | Valid range    | Written by             | Read by        | Status             |
 | ----------- | ------- | ------- | ------- | -------------- | ---------------------- | -------------- | ------------------ |
-| `enabled`   | `sync`  | boolean | `true`  | `true`/`false` | popup                  | content, popup | _(Phase 2, built)_ |
-| `delaySec`  | `sync`  | integer | `0`     | 0–10           | popup                  | content, popup | _(Phase 2, built)_ |
+| `enabled`   | `local` | boolean | `true`  | `true`/`false` | popup                  | content, popup | _(Phase 5, built)_ |
+| `delaySec`  | `local` | integer | `0`     | 0–10           | popup                  | content, popup | _(Phase 5, built)_ |
 | `skipCount` | `local` | integer | `0`     | ≥ 0            | content, popup (reset) | popup          | _(Phase 3, built)_ |
 
 Rules:
@@ -67,6 +70,12 @@ Rules:
   `storage.js`. One exception, in Phase 4: 1.0.0 added the manifest `key`,
   so a 0.x install gets a new extension ID once and starts again from the
   defaults. Stored values belong to the extension ID.
+- _(Phase 5, built)_ `enabled` and `delaySec` moved from `sync` (Phase 2) to
+  `local`, so Chrome Sync never copies them. `getSettings()` first moves any
+  setting still in `sync` (from 1.0.0) to `local`, keeping a value `local`
+  already has, then removes it from `sync`. When `sync` holds no setting,
+  nothing is written. `watchSettings()` follows only `local` changes that
+  include a setting key, since `skipCount` shares the area.
 - _(Phase 3, built)_ `skipCount` lives in `local`, not `sync`: each device
   keeps its own count, so synced browsers can't overwrite each other's
   counts, and no sync write quota is spent per skip. It is cleaned up by
@@ -278,6 +287,42 @@ See [the Phase 4 spec](2026-11-18-mvp/requirements.md#decisions) and its
 - **`DEBUG` flag:** not built; moved to the roadmap's **Later** list.
 - **Version:** `1.0.0`.
 
+## Decided in Phase 5
+
+See [the Phase 5 spec](2026-11-19-web-store/requirements.md#decisions) and
+its [tests.md](2026-11-19-web-store/tests.md).
+
+- **Local-only settings:** see [Storage schema](#storage-schema). The
+  `chrome` mock's `get` also takes a list of keys (returns only stored keys),
+  and `seedStorage()` defaults to `local`.
+- **Network lock:** `content_security_policy.extension_pages` is
+  `default-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'`.
+  A manifest test pins it; `tests/e2e/network-lock.spec.js` proves Chromium
+  refuses a popup `fetch` under `connect-src` (listening for
+  `securitypolicyviolation`, since the e2e routing aborts requests anyway).
+  Content scripts are outside this policy; the ESLint ban covers them.
+- **`use_dynamic_url`:** not used. With it, every e2e test fails: the
+  loader imports `runtime.getURL()`'s static URL, which it then blocks.
+- **Homepage:** `homepage_url` is the GitHub repo; the popup's Privacy and
+  Source links are built on it, and a test keeps them in line.
+- **Store zip:** `packageExtension({ rootDir, outDir, store })`; `store: true`
+  writes `yt-skip-ad-<version>-store.zip`, the same files with `key` removed
+  from `manifest.json` (rewritten into the zip from a temp folder).
+  `npm run package:store` is `node scripts/package.js --store`.
+- **Popup footer:** "🔒 No data collected · Privacy · Source", links in a new
+  tab with `rel="noopener"`, muted 12px text, the same focus ring.
+- **Description:** a manifest test keeps it within the store's 132
+  characters.
+- **Docs:** `PRIVACY.md` (policy, "check it yourself", pledge),
+  `docs/store/listing.md` (dashboard text and privacy-practices answers),
+  store images rendered from `docs/store/src/*.html` with
+  `npx playwright screenshot`.
+- **Name:** "Skip Ad for YouTube" (was "YT Skip Ad") in `manifest.json`, the
+  popup, and the docs; the "… for YouTube" pattern names the brand without
+  implying it is Google's. Internal names stay: `yt-skip-ad` zips and npm
+  package, the `[yt-skip-ad]` log prefix.
+- **Version:** `1.1.0`.
+
 ## Project conventions
 
 Every phase follows this layout. Update this section when a convention
@@ -408,8 +453,13 @@ responsive standard does not apply. Instead:
 
 ## Distribution
 
-v1 is shared with office colleagues directly, not through the Web Store.
-Office machines use regular (unmanaged) Chrome, so "Load unpacked" works.
+From 1.1.0 the main channel is the **Chrome Web Store** (public, free): upload
+`dist/yt-skip-ad-<version>-store.zip` from `npm run package:store`, with the
+listing text in [docs/store/listing.md](../docs/store/listing.md). The store
+sets the extension's ID and updates installs itself.
+
+Colleagues can still install the dist zip directly. Office machines use
+regular (unmanaged) Chrome, so "Load unpacked" works.
 
 - **Channels:** a shared directory, or a **dist zip** sent over WhatsApp.
 - **Dist zip:** `npm run package` builds `dist/yt-skip-ad-<version>.zip` with
@@ -442,7 +492,8 @@ Office machines use regular (unmanaged) Chrome, so "Load unpacked" works.
   macOS, not on Windows without a `zip` command.
 - **Detectable on YouTube:** the modules in `src/` are web-accessible to
   YouTube pages, so a page could tell the extension is installed by fetching
-  one. Nothing sensitive is exposed.
+  one. Nothing sensitive is exposed. `use_dynamic_url` would hide them but
+  breaks the loader (Phase 5).
 - **One log per full page load:** YouTube's in-page navigation doesn't re-run
   content scripts, so the load log appears once; auto-skip itself follows
   navigation through `yt-navigate-finish`.
@@ -461,9 +512,12 @@ Office machines use regular (unmanaged) Chrome, so "Load unpacked" works.
 - **Selectors break:** YouTube renames classes from time to time; fixes go in
   `src/core/selectors.js`.
 
-- **Settings follow Chrome Sync:** `chrome.storage.sync` copies the two
-  settings to the colleague's other signed-in Chrome browsers. The
-  extension itself still makes no network requests.
+- **Settings are per computer:** since 1.1.0 they are in
+  `chrome.storage.local`, so each computer keeps its own. An older 1.0.0
+  install on another synced computer loses its synced settings (back to the
+  defaults) once a 1.1.0 install moves them out of `sync`.
+- **Store and zip installs are separate:** they have different IDs, so
+  settings and the counter don't carry over between them.
 - **Delay timing:** the delay counts from the throttled check, so the click
   comes up to 100 ms after "N seconds after the Skip button appears". A
   button hidden and shown again within one 100 ms window is not seen as a
@@ -476,12 +530,16 @@ Office machines use regular (unmanaged) Chrome, so "Load unpacked" works.
 - **Counts clicks made:** a skip is counted when the extension clicks Skip;
   whether YouTube accepted the click can't be seen.
 - **Open popup doesn't refresh:** if the settings change elsewhere (another
-  computer through Chrome Sync) while the popup is open, it shows the old
-  values until reopened. The skip counter does update live.
+  popup window) while the popup is open, it shows the old values until
+  reopened. The skip counter does update live.
 
 ## Deferred decisions
 
 - **CI:** lint, format check, type check, and tests on every push. The repo
   now has a remote, but it is a self-hosted git server, not GitHub, so
   GitHub Actions needs a compatible runner there; still to decide.
-- **Public Web Store release:** not planned for v1.
+- **One ID for store and zip builds:** after the first upload, the store's
+  public key (dashboard → Package → View public key) could replace the local
+  `key`, so unpacked builds share the store ID. Not needed yet.
+- **Sync migration removal:** `moveSettingsFromSync()` can go once no 1.0.0
+  installs are left.

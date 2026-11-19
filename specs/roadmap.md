@@ -1,4 +1,4 @@
-# YT Skip Ad — Roadmap
+# Skip Ad for YouTube — Roadmap
 
 High-level implementation order. Phases are **vertical slices**: each ships one
 usable, demoable piece end to end (storage → content script → popup). Keep
@@ -134,10 +134,29 @@ Closes the mission's unmet promises and makes v1 ready for colleagues.
   [tech-stack.md → Validation](tech-stack.md#validation)).
 - Install from the zip on a clean Chrome profile, following only the README.
 
+## Phase 5 — Web Store 🔍 In review
+
+Spec: [2026-11-19-web-store](2026-11-19-web-store/requirements.md).
+Automated checks pass (2026-11-19), as version 1.1.0; the manual pass and
+the store submission are pending.
+
+Prepares a public Chrome Web Store release whose main promise is that the
+extension collects no data.
+
+- **Local-only settings:** `enabled` and `delaySec` move from `sync` to
+  `local`, with a one-time move for 1.0.0 installs.
+- **Network lock:** a CSP with `connect-src 'none'` for extension pages,
+  proven in Chromium by an e2e test.
+- **Store zip:** `npm run package:store`, without the manifest `key`.
+- **Privacy line** in the popup, linking to `PRIVACY.md` and the source.
+- **Name:** "Skip Ad for YouTube" (was "YT Skip Ad").
+- **Docs:** privacy policy with "check it yourself" steps and a never-sell
+  pledge, a public README, store listing text, and store images.
+
 ## Later (out of v1 scope)
 
 "Don't skip this ad" button in the player, per-channel rules, countdown
 overlay with cancel, muting or speeding up unskippable ads, toolbar badge
-counter, Firefox/Edge builds, public Chrome Web Store release, a warning when
+counter, Firefox/Edge builds, a new icon (trademark-safe), a warning when
 `ad-showing` lasts 30+ s with no Skip button found (a sign a selector broke),
 a `DEBUG` flag for verbose logging (moved out of Phase 4).

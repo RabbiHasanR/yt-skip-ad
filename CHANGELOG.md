@@ -3,6 +3,33 @@
 All notable changes to this project. Versions match `version` in
 `manifest.json`.
 
+## 1.1.0 — 2026-11-19
+
+Ready for the Chrome Web Store
+([Phase 5 spec](specs/2026-11-19-web-store/requirements.md)).
+
+### Added
+
+- The popup says **🔒 No data collected**, with links to the privacy policy
+  and the source code.
+- Chrome now blocks the extension's pages from connecting to anything
+  (Content Security Policy `connect-src 'none'`).
+- `PRIVACY.md`: the privacy policy, a "check it yourself" guide, and a pledge
+  that the extension will never be sold or add tracking.
+- `npm run package:store` builds the zip to upload to the Chrome Web Store
+  (the same files, without the manifest `key`).
+- Store listing text, privacy-practices answers, and images in
+  `docs/store/`.
+
+### Changed
+
+- **New name: Skip Ad for YouTube** (was YT Skip Ad).
+- **Settings stay on this computer.** Auto-skip and the delay are kept in
+  Chrome's local storage instead of sync storage, so Chrome Sync no longer
+  copies them. Upgrading from 1.0.0 moves them once and keeps their values.
+- The README is written for the public; the User Guide covers installing
+  from the store.
+
 ## 1.0.0 — 2026-11-18
 
 Ready for colleagues ([Phase 4 spec](specs/2026-11-18-mvp/requirements.md)).

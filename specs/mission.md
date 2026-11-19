@@ -1,8 +1,8 @@
-# YT Skip Ad — Mission
+# Skip Ad for YouTube — Mission
 
 ## What it is
 
-**YT Skip Ad** is a Chrome extension (Manifest V3) that clicks YouTube's
+**Skip Ad for YouTube** (named "YT Skip Ad" until 1.1.0) is a Chrome extension (Manifest V3) that clicks YouTube's
 **Skip button** as soon as it appears on a skippable **ad**. Users control it
 through a small popup: an on/off toggle and a skip **delay** (the
 **settings**), plus a **skip counter**. It is **not an ad blocker**:
@@ -27,11 +27,13 @@ In scope:
 - Auto-skip keeps working across YouTube's in-page (SPA) navigation, with no
   reload between videos.
 - A colleague installs the extension by following the README alone.
+- _(Phase 5)_ Anyone installs it from the **Chrome Web Store**, and can see,
+  and check, that it **collects no data**.
 
 Out of scope for v1 (revisit later): "Don't skip this ad" button in the
 player, per-channel rules, countdown overlay with cancel, muting or speeding up
-unskippable ads, toolbar badge counter, Firefox/Edge builds, public Chrome Web
-Store release.
+unskippable ads, toolbar badge counter, Firefox/Edge builds. (A public
+Chrome Web Store release was out of scope for v1; Phase 5 brings it in.)
 
 ## Who it's for
 
@@ -39,6 +41,8 @@ Store release.
   Chrome.
 - **Office colleagues** — install it on their own desktop Chrome so they stop
   clicking "Skip" by hand.
+- **Public users** _(from Phase 5)_ — find it on the Chrome Web Store, and
+  choose it because it collects nothing.
 
 ## Stakeholder goals this serves
 
@@ -58,3 +62,6 @@ Store release.
   watch pages.
 - CPU use from the extension is negligible in Chrome's Task Manager.
 - A colleague can install it from the README without help.
+- The store page shows "will not collect or use your data", and a user can
+  confirm it in two minutes with the "check it yourself" steps in
+  `PRIVACY.md`.

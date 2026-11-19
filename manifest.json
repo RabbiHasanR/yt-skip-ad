@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Skip Ad for YouTube",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Clicks YouTube's Skip Ad button for you. Collects no data: no tracking, no network requests, open source.",
   "homepage_url": "https://github.com/RabbiHasanR/yt-skip-ad",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArIjoQdbz055sCoVnrGTKLyY1WlS0NkISg5/traahD0WdHiTWub7tAush0ubDGmdve7a1vYPLW9OL0zmVx3PvYY6PYa0gsjNtglHgchH6eIvxYmKvGwFP8veoy4ijLoClgWbimbxuu3pW+tLy5DpvzJukQh4GuOo9iPXV1IldHHPmgsP+njtnef3AE/6Qkqb8ACfnMS1veLQe3T5oYZu4yByZypci1UJqPY7cbv2yBGsjMld5XGpIr986t24ias8xQFy3IXvA2LHmt7uf2hfZU0Se/z9B/iEiz1tamO3E4/DvjWa7SH0Nrn6hLh8k1zmCPtN47+5X1iV3rKVQlX387wIDAQAB",
