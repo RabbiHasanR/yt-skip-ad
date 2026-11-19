@@ -67,6 +67,28 @@ function makeProject(version, extraFiles = {}) {
   return rootDir;
 }
 
+/**
+ * Reads the `manifest.json` stored in a zip.
+ *
+ * @param {string} zipPath The zip to read.
+ * @returns {any} The parsed manifest.
+ */
+function zippedManifest(zipPath) {
+  return JSON.parse(
+    execFileSync('unzip', ['-p', zipPath, 'manifest.json'], {
+      encoding: 'utf8',
+    }),
+  );
+}
+
+/** A manifest as the repo keeps it: with the `key` that pins the local ID. */
+const KEYED_MANIFEST = {
+  manifest_version: 3,
+  name: 'Fixture',
+  version: '2.0.0',
+  key: 'PUBLIC-KEY',
+};
+
 afterEach(() => {
   for (const dir of tempDirs.splice(0)) {
     rmSync(dir, { recursive: true, force: true });
@@ -166,5 +188,56 @@ describe('npm run package', () => {
       "[yt-skip-ad] can't build the dist zip: the zip command is not installed",
     );
     expect(readdirSync(outDir)).toEqual([]);
+  });
+
+  it('builds the store zip with the same files and a manifest without key', () => {
+    // GIVEN a project whose manifest carries the key that pins the local ID
+    const rootDir = makeProject('2.0.0', {
+      'manifest.json': JSON.stringify(KEYED_MANIFEST),
+    });
+    const outDir = makeTempDir();
+    const distEntries = zipEntries(packageExtension({ rootDir, outDir }));
+    // WHEN it is packaged for the Chrome Web Store
+    const zipPath = packageExtension({ rootDir, outDir, store: true });
+    // THEN the store zip has the dist zip's files, and a manifest that is the
+    // repo's minus the key, since the store sets its own
+    expect(zipPath).toBe(join(outDir, 'yt-skip-ad-2.0.0-store.zip'));
+    expect(zipEntries(zipPath).sort()).toEqual(distEntries.sort());
+    const { key, ...rest } = KEYED_MANIFEST;
+    expect(key).toBeTruthy();
+    expect(zippedManifest(zipPath)).toEqual(rest);
+  });
+
+  it('keeps the key in the dist zip for colleagues', () => {
+    // GIVEN a project whose manifest carries the key
+    const rootDir = makeProject('2.0.0', {
+      'manifest.json': JSON.stringify(KEYED_MANIFEST),
+    });
+    // WHEN it is packaged for colleagues, as before
+    const zipPath = packageExtension({ rootDir, outDir: makeTempDir() });
+    // THEN its manifest is the repo's, key included, so the ID stays pinned
+    expect(zippedManifest(zipPath)).toEqual(KEYED_MANIFEST);
+  });
+
+  it('npm run package:store writes the store zip from the command line', () => {
+    // GIVEN the repo
+    const outDir = makeTempDir();
+    // WHEN the package script runs with --store, as npm run package:store does
+    const run = spawnSync(
+      process.execPath,
+      [PACKAGE_SCRIPT, '--store', outDir],
+      { cwd: REPO_DIR, encoding: 'utf8' },
+    );
+    // THEN it prints the store zip's path, and that zip has no key
+    expect(run.status).toBe(0);
+    const zipPath = run.stdout.trim();
+    expect(basename(zipPath)).toMatch(/^yt-skip-ad-[\d.]+-store\.zip$/);
+    expect(zippedManifest(zipPath)).not.toHaveProperty('key');
+    const pkg = JSON.parse(
+      readFileSync(join(REPO_DIR, 'package.json'), 'utf8'),
+    );
+    expect(pkg.scripts['package:store']).toBe(
+      'node scripts/package.js --store',
+    );
   });
 });

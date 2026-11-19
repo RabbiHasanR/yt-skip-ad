@@ -14,7 +14,8 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc -p jsconfig.json",
     "test:e2e": "playwright test",
-    "package": "node scripts/package.js"
+    "package": "node scripts/package.js",
+    "package:store": "node scripts/package.js --store"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
