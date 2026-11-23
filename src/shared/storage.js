@@ -1,12 +1,13 @@
 // Storage adapter: the only file that touches `chrome.storage`. Reads, saves,
-// and follows the settings and the skip counter in the `local` area, each
-// cleaned up by its rules in src/core/. Nothing is kept in `sync`, so Chrome
-// Sync never copies anything off the device.
+// and follows the settings, the skip counter, and the rating prompt state in
+// the `local` area, each cleaned up by its rules in src/core/. Nothing is
+// kept in `sync`, so Chrome Sync never copies anything off the device.
 import { normalizeSettings } from '../core/settings.js';
 import { normalizeSkipCount } from '../core/skip-count.js';
 import {
   DEFAULT_SETTINGS,
   DEFAULT_SKIP_COUNT,
+  RATE_PROMPT_DONE_KEY,
   SETTING_KEYS,
   SKIP_COUNT_KEY,
 } from './constants.js';
@@ -162,5 +163,18 @@ export function watchSkipCount(listener) {
  *   invalid.
  */
 export async function isRatePromptDone() {
-  return false;
+  const stored = await chrome.storage.local.get({
+    [RATE_PROMPT_DONE_KEY]: false,
+  });
+  return stored[RATE_PROMPT_DONE_KEY] === true;
+}
+
+/**
+ * Remembers that the user rated or dismissed the rating prompt, so it is
+ * never shown again.
+ *
+ * @returns {Promise<void>} Resolves once stored.
+ */
+export async function markRatePromptDone() {
+  await chrome.storage.local.set({ [RATE_PROMPT_DONE_KEY]: true });
 }

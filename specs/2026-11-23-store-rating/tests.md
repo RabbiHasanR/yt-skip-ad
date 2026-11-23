@@ -26,7 +26,7 @@ Behaviours: B1–B7 · Branch: phase-6-store-rating
 | T2  | B1, B4    | unit        | tests/unit/rate-prompt.test.js              | with $count ads skipped and done=$done, shows it: $expected    | ✅     |
 | T3  | B6        | unit        | tests/unit/storage.test.js                  | reads a fresh install as not done                              | ✅     |
 | T4  | B6        | unit        | tests/unit/storage.test.js                  | reads an invalid stored state of %s as not done                | ✅     |
-| T5  | B7        | unit        | tests/unit/storage.test.js                  | remembers the prompt as done, in local storage only            | ⬜     |
+| T5  | B7        | unit        | tests/unit/storage.test.js                  | remembers the prompt as done, in local storage only            | ✅     |
 | T6  | B1        | integration | tests/integration/popup-rate-prompt.test.js | stays hidden below the threshold                               | ⬜     |
 | T7  | B3        | integration | tests/integration/popup-rate-prompt.test.js | appears while the popup is open, once the threshold is reached | ⬜     |
 | T8  | B4        | integration | tests/integration/popup-rate-prompt.test.js | hides for good after the user clicks %s                        | ⬜     |
@@ -35,4 +35,6 @@ Behaviours: B1–B7 · Branch: phase-6-store-rating
 
 Notes: the code was written before this spec (see `plan.md`). It was backed
 up, reset to `HEAD`, and brought back one test at a time: each test below
-was seen failing first.
+was seen failing first. T4 passed when added (the T3 stub always read
+`false`); once T5 brought the real read, a naive `Boolean(stored)` read was
+shown to fail T4 for `1` and `"true"`.

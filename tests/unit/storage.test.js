@@ -3,6 +3,7 @@ import {
   getSettings,
   incrementSkipCount,
   isRatePromptDone,
+  markRatePromptDone,
   setSettings,
   watchSettings,
 } from '../../src/shared/storage.js';
@@ -151,4 +152,13 @@ describe('rating prompt storage', () => {
       expect(await isRatePromptDone()).toBe(false);
     },
   );
+
+  it('remembers the prompt as done, in local storage only', async () => {
+    // GIVEN a fresh install
+    // WHEN the user rates or dismisses the prompt
+    await markRatePromptDone();
+    // THEN it is done from now on, and Chrome Sync never gets a copy
+    expect(await isRatePromptDone()).toBe(true);
+    expect(chrome.storage.sync.set).not.toHaveBeenCalled();
+  });
 });
