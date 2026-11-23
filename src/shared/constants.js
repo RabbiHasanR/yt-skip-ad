@@ -44,3 +44,16 @@ export const SKIP_COUNT_KEY = 'skipCount';
 
 /** Value of the skip counter when it is missing or invalid in storage. */
 export const DEFAULT_SKIP_COUNT = 0;
+
+/** The extension's reviews page on the Chrome Web Store. */
+export const STORE_REVIEWS_URL =
+  'https://chromewebstore.google.com/detail/kdembckigpophgcgjfmbenkgnnkdoofe/reviews';
+
+/** Ads skipped before the popup asks for a rating. */
+export const RATE_PROMPT_THRESHOLD = 50;
+
+/**
+ * Storage key of the rating prompt's state, in `chrome.storage.local`: `true`
+ * once the user rated or dismissed it, so it is never shown again.
+ */
+export const RATE_PROMPT_DONE_KEY = 'ratePromptDone';
