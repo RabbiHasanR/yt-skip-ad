@@ -51,11 +51,12 @@ in `src/shared/constants.js`; only `src/shared/storage.js` reads or writes
 them. Changes are agreed first (`/feature-spec` Gate 0), and each row says
 which phase built it.
 
-| Key         | Area    | Type    | Default | Valid range    | Written by             | Read by        | Status             |
-| ----------- | ------- | ------- | ------- | -------------- | ---------------------- | -------------- | ------------------ |
-| `enabled`   | `local` | boolean | `true`  | `true`/`false` | popup                  | content, popup | _(Phase 5, built)_ |
-| `delaySec`  | `local` | integer | `0`     | 0–10           | popup                  | content, popup | _(Phase 5, built)_ |
-| `skipCount` | `local` | integer | `0`     | ≥ 0            | content, popup (reset) | popup          | _(Phase 3, built)_ |
+| Key              | Area    | Type    | Default | Valid range           | Written by             | Read by        | Status               |
+| ---------------- | ------- | ------- | ------- | --------------------- | ---------------------- | -------------- | -------------------- |
+| `enabled`        | `local` | boolean | `true`  | `true`/`false`        | popup                  | content, popup | _(Phase 5, built)_   |
+| `delaySec`       | `local` | integer | `0`     | 0–10                  | popup                  | content, popup | _(Phase 5, built)_   |
+| `skipCount`      | `local` | integer | `0`     | ≥ 0                   | content, popup (reset) | popup          | _(Phase 3, built)_   |
+| `ratePromptDone` | `local` | boolean | `false` | only `true` is "done" | popup                  | popup          | _(Phase 6, planned)_ |
 
 Rules:
 
@@ -83,6 +84,10 @@ Rules:
   rounded down; anything else reads as `0`). The increment is read, add 1,
   write, with no lock, so two tabs skipping at the same moment can lose one
   count.
+- _(Phase 6, planned)_ `ratePromptDone` lives in `local`: `true` once the
+  user rated or dismissed the rating prompt; anything else reads as `false`.
+  The popup shows the prompt when `skipCount` ≥ `RATE_PROMPT_THRESHOLD` (50)
+  and it is not done. Nothing else reads it.
 
 ## Decided in Phase 0
 

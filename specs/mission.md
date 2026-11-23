@@ -29,6 +29,9 @@ In scope:
 - A colleague installs the extension by following the README alone.
 - _(Phase 5)_ Anyone installs it from the **Chrome Web Store**, and can see,
   and check, that it **collects no data**.
+- _(Phase 6)_ A user who has skipped 50+ ads is asked once, in the popup, to
+  rate it on the store, and can always rate it or star the source from the
+  popup footer. Nothing is sent off the device.
 
 Out of scope for v1 (revisit later): "Don't skip this ad" button in the
 player, per-channel rules, countdown overlay with cancel, muting or speeding up

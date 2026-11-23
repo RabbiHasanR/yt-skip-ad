@@ -153,6 +153,24 @@ extension collects no data.
 - **Docs:** privacy policy with "check it yourself" steps and a never-sell
   pledge, a public README, store listing text, and store images.
 
+## Phase 6 — Store rating 🚧 In progress
+
+Spec: [2026-11-23-store-rating](2026-11-23-store-rating/requirements.md).
+Code written before the spec; the TDD record and the manual pass are
+pending. Planned as version 1.2.0.
+
+Helps the store listing grow through ratings, without touching the network.
+
+### Rating prompt
+
+- Acceptance test: with 50+ ads skipped, the popup asks once for a store
+  rating, linking to the reviews page.
+- Rating or dismissing it hides it for good (`ratePromptDone`, `local`).
+
+### Footer links
+
+- An always-on "Rate" link, and a ★ on "Source" inviting a GitHub star.
+
 ## Later (out of v1 scope)
 
 "Don't skip this ad" button in the player, per-channel rules, countdown
