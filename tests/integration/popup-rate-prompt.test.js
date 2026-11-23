@@ -93,6 +93,27 @@ describe('popup rating prompt', () => {
     expect(ratePrompt()?.hidden).toBe(true);
   });
 
+  it('stays gone after the counter is reset and climbs again', async () => {
+    // GIVEN the prompt was handled, and the popup is open
+    await seedStorage(
+      { skipCount: RATE_PROMPT_THRESHOLD, ratePromptDone: true },
+      'local',
+    );
+    const { count, reset } = await openPopup();
+    // WHEN the user resets the counter, and it climbs past the threshold again
+    reset?.click();
+    await vi.waitFor(() => expect(count?.value).toBe('0'));
+    await chrome.storage.local.set({ skipCount: RATE_PROMPT_THRESHOLD + 10 });
+    await vi.waitFor(() =>
+      expect(count?.value).toBe(String(RATE_PROMPT_THRESHOLD + 10)),
+    );
+    // THEN no rating is asked for, now or in a later popup
+    expect(ratePrompt()?.hidden).toBe(true);
+    expect(await chrome.storage.local.get({ ratePromptDone: null })).toEqual({
+      ratePromptDone: true,
+    });
+  });
+
   it.fails('asks for a rating at the threshold, naming it', async () => {
     // GIVEN the threshold of ads skipped
     await seedStorage({ skipCount: RATE_PROMPT_THRESHOLD }, 'local');
