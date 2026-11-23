@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   getSettings,
   incrementSkipCount,
+  isRatePromptDone,
   setSettings,
   watchSettings,
 } from '../../src/shared/storage.js';
@@ -129,5 +130,14 @@ describe('skip counter storage', () => {
     // THEN only this computer's storage changed; nothing went to Chrome Sync
     expect(chrome.storage.local.set).toHaveBeenCalledOnce();
     expect(chrome.storage.sync.set).not.toHaveBeenCalled();
+  });
+});
+
+describe('rating prompt storage', () => {
+  it('reads a fresh install as not done', async () => {
+    // GIVEN a fresh install
+    // WHEN the popup reads the prompt state
+    // THEN the prompt is not done yet
+    expect(await isRatePromptDone()).toBe(false);
   });
 });

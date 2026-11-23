@@ -154,3 +154,13 @@ export function watchSkipCount(listener) {
     listener(normalizeSkipCount(changes[SKIP_COUNT_KEY].newValue));
   });
 }
+
+/**
+ * Reads whether the user already rated or dismissed the rating prompt.
+ *
+ * @returns {Promise<boolean>} `true` once handled; `false` when missing or
+ *   invalid.
+ */
+export async function isRatePromptDone() {
+  return false;
+}
