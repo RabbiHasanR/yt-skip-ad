@@ -101,6 +101,42 @@ button {
   cursor: pointer;
 }
 
+.rate-prompt {
+  margin-top: 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--field-bg);
+}
+
+.rate-prompt[hidden] {
+  display: none;
+}
+
+.rate-prompt p {
+  margin: 0 0 8px;
+}
+
+.rate-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rate-link {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.rate-actions button {
+  padding: 0 8px;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1;
+}
+
 footer {
   display: flex;
   flex-wrap: wrap;

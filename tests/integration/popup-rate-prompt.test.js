@@ -33,6 +33,15 @@ describe('popup rating prompt', () => {
     vi.resetModules();
   });
 
+  it('stays hidden below the threshold', async () => {
+    // GIVEN fewer ads skipped than the threshold
+    await seedStorage({ skipCount: RATE_PROMPT_THRESHOLD - 1 }, 'local');
+    // WHEN the user opens the popup
+    await openPopup();
+    // THEN no rating is asked for
+    expect(ratePrompt()?.hidden).toBe(true);
+  });
+
   it.fails('asks for a rating at the threshold, naming it', async () => {
     // GIVEN the threshold of ads skipped
     await seedStorage({ skipCount: RATE_PROMPT_THRESHOLD }, 'local');

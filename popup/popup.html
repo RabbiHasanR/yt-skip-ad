@@ -34,6 +34,30 @@
         </div>
         <button id="reset-count" type="button">Reset counter</button>
       </section>
+      <aside
+        id="rate-prompt"
+        class="rate-prompt"
+        aria-label="Rating request"
+        hidden
+      >
+        <p>
+          <span id="rate-threshold"></span>+ ads skipped! A quick rating helps
+          others find this.
+        </p>
+        <div class="rate-actions">
+          <a
+            id="rate-link"
+            class="rate-link"
+            data-store-reviews
+            target="_blank"
+            rel="noopener"
+            >Rate it ★</a
+          >
+          <button id="rate-dismiss" type="button" aria-label="Dismiss">
+            ×
+          </button>
+        </div>
+      </aside>
     </main>
     <footer>
       <span>🔒 No data collected</span>
