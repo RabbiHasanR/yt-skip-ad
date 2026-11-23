@@ -30,11 +30,13 @@ Behaviours: B1–B7 · Branch: phase-6-store-rating
 | T6  | B1        | integration | tests/integration/popup-rate-prompt.test.js | stays hidden below the threshold                               | ✅     |
 | T7  | B3        | integration | tests/integration/popup-rate-prompt.test.js | appears while the popup is open, once the threshold is reached | ✅     |
 | T8  | B4        | integration | tests/integration/popup-rate-prompt.test.js | hides for good after the user clicks %s                        | ✅     |
-| T9  | B4        | integration | tests/integration/popup-rate-prompt.test.js | never comes back in a later popup once handled                 | ⬜     |
+| T9  | B4        | integration | tests/integration/popup-rate-prompt.test.js | never comes back in a later popup once handled                 | ✅     |
 | T10 | B5        | integration | tests/integration/popup-rate-prompt.test.js | stays gone after the counter is reset and climbs again         | ⬜     |
 
 Notes: the code was written before this spec (see `plan.md`). It was backed
 up, reset to `HEAD`, and brought back one test at a time: each test below
 was seen failing first. T4 passed when added (the T3 stub always read
 `false`); once T5 brought the real read, a naive `Boolean(stored)` read was
-shown to fail T4 for `1` and `"true"`.
+shown to fail T4 for `1` and `"true"`. T9 passed when added: T7's green
+already read the stored state on load, one step early. Ignoring that read
+was shown to fail T9.

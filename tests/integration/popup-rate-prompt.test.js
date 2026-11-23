@@ -81,6 +81,18 @@ describe('popup rating prompt', () => {
     },
   );
 
+  it('never comes back in a later popup once handled', async () => {
+    // GIVEN the user dismissed the prompt earlier
+    await seedStorage(
+      { skipCount: RATE_PROMPT_THRESHOLD * 2, ratePromptDone: true },
+      'local',
+    );
+    // WHEN they open the popup again
+    await openPopup();
+    // THEN no rating is asked for
+    expect(ratePrompt()?.hidden).toBe(true);
+  });
+
   it.fails('asks for a rating at the threshold, naming it', async () => {
     // GIVEN the threshold of ads skipped
     await seedStorage({ skipCount: RATE_PROMPT_THRESHOLD }, 'local');
