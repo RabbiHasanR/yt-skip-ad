@@ -42,6 +42,16 @@ describe('popup rating prompt', () => {
     expect(ratePrompt()?.hidden).toBe(true);
   });
 
+  it('appears while the popup is open, once the threshold is reached', async () => {
+    // GIVEN one ad short of the threshold, and the popup open
+    await seedStorage({ skipCount: RATE_PROMPT_THRESHOLD - 1 }, 'local');
+    await openPopup();
+    // WHEN a YouTube tab skips one more ad
+    await chrome.storage.local.set({ skipCount: RATE_PROMPT_THRESHOLD });
+    // THEN the prompt appears
+    await vi.waitFor(() => expect(ratePrompt()?.hidden).toBe(false));
+  });
+
   it.fails('asks for a rating at the threshold, naming it', async () => {
     // GIVEN the threshold of ads skipped
     await seedStorage({ skipCount: RATE_PROMPT_THRESHOLD }, 'local');

@@ -1,9 +1,11 @@
 // Popup wiring: shows the stored settings in the controls and saves changes.
 // The rules live in src/core/; storage access in src/shared/storage.js.
+import { shouldShowRatePrompt } from '../src/core/rate-prompt.js';
 import { parseDelayField } from '../src/core/settings.js';
 import {
   getSettings,
   getSkipCount,
+  isRatePromptDone,
   resetSkipCount,
   setSettings,
   watchSkipCount,
@@ -21,6 +23,11 @@ const countOutput = /** @type {HTMLOutputElement} */ (
 const resetButton = /** @type {HTMLButtonElement} */ (
   document.getElementById('reset-count')
 );
+const ratePrompt = /** @type {HTMLElement} */ (
+  document.getElementById('rate-prompt')
+);
+
+const ratePromptDone = await isRatePromptDone();
 
 /**
  * Shows a skip count in the counter.
@@ -29,6 +36,7 @@ const resetButton = /** @type {HTMLButtonElement} */ (
  */
 const showCount = (count) => {
   countOutput.value = count.toLocaleString();
+  ratePrompt.hidden = !shouldShowRatePrompt(count, ratePromptDone);
 };
 
 /**
