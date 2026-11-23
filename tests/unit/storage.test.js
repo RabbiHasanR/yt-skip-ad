@@ -140,4 +140,15 @@ describe('rating prompt storage', () => {
     // THEN the prompt is not done yet
     expect(await isRatePromptDone()).toBe(false);
   });
+
+  it.each([1, 'true', null])(
+    'reads an invalid stored state of %s as not done',
+    async (stored) => {
+      // GIVEN an invalid value in storage
+      await seedStorage({ ratePromptDone: stored }, 'local');
+      // WHEN the popup reads the prompt state
+      // THEN only a real `true` counts as done
+      expect(await isRatePromptDone()).toBe(false);
+    },
+  );
 });
