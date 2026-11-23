@@ -3,6 +3,10 @@
 import { shouldShowRatePrompt } from '../src/core/rate-prompt.js';
 import { parseDelayField } from '../src/core/settings.js';
 import {
+  RATE_PROMPT_THRESHOLD,
+  STORE_REVIEWS_URL,
+} from '../src/shared/constants.js';
+import {
   getSettings,
   getSkipCount,
   isRatePromptDone,
@@ -33,6 +37,14 @@ const rateLink = /** @type {HTMLAnchorElement} */ (
 const rateDismiss = /** @type {HTMLButtonElement} */ (
   document.getElementById('rate-dismiss')
 );
+
+// Store links and the threshold live in constants.js, filled in here.
+document.querySelectorAll('[data-store-reviews]').forEach((link) => {
+  /** @type {HTMLAnchorElement} */ (link).href = STORE_REVIEWS_URL;
+});
+/** @type {HTMLElement} */ (
+  document.getElementById('rate-threshold')
+).textContent = String(RATE_PROMPT_THRESHOLD);
 
 let ratePromptDone = await isRatePromptDone();
 

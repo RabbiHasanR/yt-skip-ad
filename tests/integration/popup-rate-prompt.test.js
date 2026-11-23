@@ -114,7 +114,7 @@ describe('popup rating prompt', () => {
     });
   });
 
-  it.fails('asks for a rating at the threshold, naming it', async () => {
+  it('asks for a rating at the threshold, naming it', async () => {
     // GIVEN the threshold of ads skipped
     await seedStorage({ skipCount: RATE_PROMPT_THRESHOLD }, 'local');
     // WHEN the user opens the popup
