@@ -28,6 +28,12 @@ function promptControl(name) {
   );
 }
 
+/** @returns {Promise<unknown>} The stored prompt state. */
+async function storedDone() {
+  return (await chrome.storage.local.get({ ratePromptDone: null }))
+    .ratePromptDone;
+}
+
 describe('popup rating prompt', () => {
   beforeEach(() => {
     vi.resetModules();
@@ -51,6 +57,29 @@ describe('popup rating prompt', () => {
     // THEN the prompt appears
     await vi.waitFor(() => expect(ratePrompt()?.hidden).toBe(false));
   });
+
+  it.each(['Rate it ★', 'Dismiss'])(
+    'hides for good after the user clicks %s',
+    async (name) => {
+      // GIVEN the prompt is showing
+      await seedStorage({ skipCount: RATE_PROMPT_THRESHOLD }, 'local');
+      await openPopup();
+      // WHEN the user clicks the control
+      promptControl(name)?.dispatchEvent(
+        new MouseEvent('click', { bubbles: true, cancelable: true }),
+      );
+      // THEN it hides now, is remembered, and stays hidden as the count grows
+      expect(ratePrompt()?.hidden).toBe(true);
+      await vi.waitFor(async () => expect(await storedDone()).toBe(true));
+      await chrome.storage.local.set({ skipCount: RATE_PROMPT_THRESHOLD + 1 });
+      await vi.waitFor(async () =>
+        expect(document.querySelector('output')?.value).toBe(
+          String(RATE_PROMPT_THRESHOLD + 1),
+        ),
+      );
+      expect(ratePrompt()?.hidden).toBe(true);
+    },
+  );
 
   it.fails('asks for a rating at the threshold, naming it', async () => {
     // GIVEN the threshold of ads skipped

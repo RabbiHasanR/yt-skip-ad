@@ -29,7 +29,7 @@ Behaviours: B1–B7 · Branch: phase-6-store-rating
 | T5  | B7        | unit        | tests/unit/storage.test.js                  | remembers the prompt as done, in local storage only            | ✅     |
 | T6  | B1        | integration | tests/integration/popup-rate-prompt.test.js | stays hidden below the threshold                               | ✅     |
 | T7  | B3        | integration | tests/integration/popup-rate-prompt.test.js | appears while the popup is open, once the threshold is reached | ✅     |
-| T8  | B4        | integration | tests/integration/popup-rate-prompt.test.js | hides for good after the user clicks %s                        | ⬜     |
+| T8  | B4        | integration | tests/integration/popup-rate-prompt.test.js | hides for good after the user clicks %s                        | ✅     |
 | T9  | B4        | integration | tests/integration/popup-rate-prompt.test.js | never comes back in a later popup once handled                 | ⬜     |
 | T10 | B5        | integration | tests/integration/popup-rate-prompt.test.js | stays gone after the counter is reset and climbs again         | ⬜     |
 

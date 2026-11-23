@@ -6,6 +6,7 @@ import {
   getSettings,
   getSkipCount,
   isRatePromptDone,
+  markRatePromptDone,
   resetSkipCount,
   setSettings,
   watchSkipCount,
@@ -26,8 +27,14 @@ const resetButton = /** @type {HTMLButtonElement} */ (
 const ratePrompt = /** @type {HTMLElement} */ (
   document.getElementById('rate-prompt')
 );
+const rateLink = /** @type {HTMLAnchorElement} */ (
+  document.getElementById('rate-link')
+);
+const rateDismiss = /** @type {HTMLButtonElement} */ (
+  document.getElementById('rate-dismiss')
+);
 
-const ratePromptDone = await isRatePromptDone();
+let ratePromptDone = await isRatePromptDone();
 
 /**
  * Shows a skip count in the counter.
@@ -37,6 +44,13 @@ const ratePromptDone = await isRatePromptDone();
 const showCount = (count) => {
   countOutput.value = count.toLocaleString();
   ratePrompt.hidden = !shouldShowRatePrompt(count, ratePromptDone);
+};
+
+/** Hides the rating prompt for good: this popup and every later one. */
+const finishRatePrompt = () => {
+  ratePromptDone = true;
+  ratePrompt.hidden = true;
+  markRatePromptDone();
 };
 
 /**
@@ -74,3 +88,7 @@ delayInput.addEventListener('change', async () => {
 resetButton.addEventListener('click', () => {
   resetSkipCount();
 });
+
+// The link still opens the reviews page; the prompt just never comes back.
+rateLink.addEventListener('click', finishRatePrompt);
+rateDismiss.addEventListener('click', finishRatePrompt);
