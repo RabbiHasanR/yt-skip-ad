@@ -51,12 +51,14 @@ in `src/shared/constants.js`; only `src/shared/storage.js` reads or writes
 them. Changes are agreed first (`/feature-spec` Gate 0), and each row says
 which phase built it.
 
-| Key              | Area    | Type    | Default | Valid range           | Written by             | Read by        | Status             |
-| ---------------- | ------- | ------- | ------- | --------------------- | ---------------------- | -------------- | ------------------ |
-| `enabled`        | `local` | boolean | `true`  | `true`/`false`        | popup                  | content, popup | _(Phase 5, built)_ |
-| `delaySec`       | `local` | integer | `0`     | 0–10                  | popup                  | content, popup | _(Phase 5, built)_ |
-| `skipCount`      | `local` | integer | `0`     | ≥ 0                   | content, popup (reset) | popup          | _(Phase 3, built)_ |
-| `ratePromptDone` | `local` | boolean | `false` | only `true` is "done" | popup                  | popup          | _(Phase 6, built)_ |
+| Key              | Area    | Type    | Default | Valid range            | Written by             | Read by        | Status                                        |
+| ---------------- | ------- | ------- | ------- | ---------------------- | ---------------------- | -------------- | --------------------------------------------- |
+| `enabled`        | `local` | boolean | `true`  | `true`/`false`         | popup                  | content, popup | _(Phase 5, built)_                            |
+| `delaySec`       | `local` | integer | `0`     | 0–10                   | popup                  | content, popup | _(Phase 5, built)_                            |
+| `skipCount`      | `local` | integer | `0`     | ≥ 0                    | content, popup (reset) | popup          | _(Phase 3, built)_                            |
+| `ratePromptDone` | `local` | boolean | `false` | only `true` is "done"  | popup                  | popup          | _(Phase 6, built; Phase 7, planned: removed)_ |
+| `rateNextAskAt`  | `local` | integer | `50`    | whole number ≥ 0       | popup                  | popup, worker  | _(Phase 7, planned)_                          |
+| `rateNeverAsk`   | `local` | boolean | `false` | only `true` is "never" | popup                  | popup, worker  | _(Phase 7, planned)_                          |
 
 Rules:
 
@@ -88,6 +90,13 @@ Rules:
   user rated or dismissed the rating prompt; anything else reads as `false`.
   The popup shows the prompt when `skipCount` ≥ `RATE_PROMPT_THRESHOLD` (50)
   and it is not done. Nothing else reads it.
+- _(Phase 7, planned)_ `ratePromptDone` is replaced by `rateNextAskAt` (the
+  skip count from which the prompt is due again; anything but a whole number
+  ≥ 0 reads as 50) and `rateNeverAsk` (only `true` stops every ask). A
+  one-time move turns `ratePromptDone: true` into
+  `rateNextAskAt = skipCount + 100` and removes it. Only the popup writes
+  them; the service worker reads them. See
+  [the Phase 7 spec](2026-11-24-auto-rate-popup/requirements.md#storage-and-selectors).
 
 ## Decided in Phase 0
 

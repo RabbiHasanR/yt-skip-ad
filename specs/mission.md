@@ -32,6 +32,9 @@ In scope:
 - _(Phase 6)_ A user who has skipped 50+ ads is asked once, in the popup, to
   rate it on the store, and can always rate it or star the source from the
   popup footer. Nothing is sent off the device.
+- _(Phase 7)_ The popup opens by itself at 50 ads skipped, then every 100
+  more, to ask for a rating, until the user clicks "Don't ask again". Never
+  in fullscreen; a ★ badge on the icon instead.
 
 Out of scope for v1 (revisit later): "Don't skip this ad" button in the
 player, per-channel rules, countdown overlay with cancel, muting or speeding up

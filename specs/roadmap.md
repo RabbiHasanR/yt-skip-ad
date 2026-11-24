@@ -173,7 +173,10 @@ Helps the store listing grow through ratings, without touching the network.
 
 - An always-on "Rate" link, and a ★ on "Source" inviting a GitHub star.
 
-## Phase 7 — Auto-open rating popup ⏳ Not started
+## Phase 7 — Auto-open rating popup 🚧 In progress
+
+Spec: [2026-11-24-auto-rate-popup](2026-11-24-auto-rate-popup/requirements.md).
+Planned as version 1.3.0.
 
 Open the extension's popup by itself with `chrome.action.openPopup()`
 (Chrome 127+), so users see the rating prompt without clicking the icon.
