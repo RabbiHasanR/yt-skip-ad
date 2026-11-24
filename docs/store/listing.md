@@ -143,5 +143,6 @@ npx playwright screenshot --viewport-size=440,280 "file://$PWD/promo-small.html"
 ```
 
 `src/popup-light.png` and `src/popup-dark.png` are screenshots of the real
-popup (at 2× scale, with 1,284 ads skipped), taken from the loaded
-extension. Retake them after any popup change.
+popup (at 2× scale, with 1,284 ads skipped and the rating prompt marked
+done, so it doesn't cover the controls), taken from the loaded extension.
+Retake them after any popup change.
