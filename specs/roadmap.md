@@ -174,18 +174,28 @@ Helps the store listing grow through ratings, without touching the network.
 
 ## Phase 7 — Auto-open rating popup ⏳ Not started
 
-When the 50th ad is skipped and the rating prompt is not done, open the
-extension's popup once with `chrome.action.openPopup()` (Chrome 127+), so
-users see the prompt without clicking the icon. Agreed approach (Rabbi,
-2026-11-24):
+Open the extension's popup by itself with `chrome.action.openPopup()`
+(Chrome 127+), so users see the rating prompt without clicking the icon.
+Agreed approach (Rabbi, 2026-11-24):
 
-- A background service worker, the extension's first, receives "threshold
-  reached" from the content script and opens the popup.
-- Guards: once only; right after the skip; never in fullscreen; if
-  `openPopup()` fails (Chrome not focused), a ★ badge on the toolbar icon
-  until the popup is opened.
-- To settle in its spec: fullscreen behaviour tested in real Chrome first,
-  the manifest change, and how to test a popup that opens by itself.
+- **When:** at 50 ads skipped, then every 100 more (150, 250, 350, …).
+- **Until:** the user clicks a new **"Don't ask again"** link. "Rate it ★"
+  does not stop later asks (the extension can't see whether a review was
+  written); × only closes the prompt until the next milestone. This
+  replaces Phase 6's "rated or dismissed is final".
+- **How:** a background service worker, the extension's first, receives
+  "milestone reached" from the content script and opens the popup.
+- **Guards:** right after the skip; never in fullscreen; if `openPopup()`
+  fails (Chrome not focused), a ★ badge on the toolbar icon until the popup
+  is opened.
+- **Store policy:** no reward for rating, no feature locked behind it, and
+  the store listing says the extension asks for a rating.
+- **To settle in its spec:** storage (Gate 0: replacing `ratePromptDone`
+  with the next milestone and a "never ask" state, migrating Phase 6
+  values), whether "Rate it ★" should pause asks for longer (risk: users
+  who already rated keep being asked), fullscreen behaviour tested in real
+  Chrome first, the manifest change, and how to test a popup that opens by
+  itself.
 
 ## Later (out of v1 scope)
 
