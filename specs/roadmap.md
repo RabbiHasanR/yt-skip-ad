@@ -153,11 +153,12 @@ extension collects no data.
 - **Docs:** privacy policy with "check it yourself" steps and a never-sell
   pledge, a public README, store listing text, and store images.
 
-## Phase 6 — Store rating 🚧 In progress
+## Phase 6 — Store rating 🔍 In review
 
 Spec: [2026-11-23-store-rating](2026-11-23-store-rating/requirements.md).
-Code written before the spec; the TDD record and the manual pass are
-pending. Planned as version 1.2.0.
+Automated checks pass (2026-11-24), as version 1.2.0; every test was seen
+failing first (see [tests.md](2026-11-23-store-rating/tests.md)). The
+manual pass in real Chrome is in progress.
 
 Helps the store listing grow through ratings, without touching the network.
 
@@ -170,6 +171,21 @@ Helps the store listing grow through ratings, without touching the network.
 ### Footer links
 
 - An always-on "Rate" link, and a ★ on "Source" inviting a GitHub star.
+
+## Phase 7 — Auto-open rating popup ⏳ Not started
+
+When the 50th ad is skipped and the rating prompt is not done, open the
+extension's popup once with `chrome.action.openPopup()` (Chrome 127+), so
+users see the prompt without clicking the icon. Agreed approach (Rabbi,
+2026-11-24):
+
+- A background service worker, the extension's first, receives "threshold
+  reached" from the content script and opens the popup.
+- Guards: once only; right after the skip; never in fullscreen; if
+  `openPopup()` fails (Chrome not focused), a ★ badge on the toolbar icon
+  until the popup is opened.
+- To settle in its spec: fullscreen behaviour tested in real Chrome first,
+  the manifest change, and how to test a popup that opens by itself.
 
 ## Later (out of v1 scope)
 

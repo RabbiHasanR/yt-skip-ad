@@ -52,6 +52,11 @@ Click the extension's toolbar icon to open the popup:
 - **Ads skipped:** how many ads the extension has skipped on this computer.
   It goes up while the popup is open. **Reset counter** sets it back to 0
   at once, with no confirmation.
+- **Rating request:** after 50 ads skipped, the popup asks once for a
+  rating on the Chrome Web Store. **Rate it ★** opens the reviews page;
+  **×** closes it. Either way, it never asks again.
+- **Footer:** links to the privacy policy, the source code (★ star it on
+  GitHub if you like it), and the store reviews (**Rate**).
 
 Changes apply straight away to open YouTube tabs; there's nothing to reload.
 

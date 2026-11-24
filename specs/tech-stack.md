@@ -31,18 +31,18 @@ Why no framework:
 
 ## Stack summary
 
-| Layer       | Choice                                                          |
-| ----------- | --------------------------------------------------------------- |
-| Language    | JavaScript (ES2020+), JSDoc types                               |
-| Framework   | None — Chrome Extension Manifest V3                             |
-| UI          | Popup: plain HTML + CSS                                         |
-| Backend     | None — content script on YouTube pages                          |
-| Data access | Thin adapter over `chrome.storage.local`                        |
-| Database    | `chrome.storage.local`: `enabled`, `delaySec`, `skipCount`      |
-| Lint/format | ESLint (flat config) + Prettier                                 |
-| Type checks | `tsc --noEmit` with `checkJs` over JSDoc types                  |
-| Tests       | Vitest + jsdom (fast); Playwright + Chromium (e2e)              |
-| Packaging   | `npm run package`: system `zip` over the source files, no build |
+| Layer       | Choice                                                                       |
+| ----------- | ---------------------------------------------------------------------------- |
+| Language    | JavaScript (ES2020+), JSDoc types                                            |
+| Framework   | None — Chrome Extension Manifest V3                                          |
+| UI          | Popup: plain HTML + CSS                                                      |
+| Backend     | None — content script on YouTube pages                                       |
+| Data access | Thin adapter over `chrome.storage.local`                                     |
+| Database    | `chrome.storage.local`: `enabled`, `delaySec`, `skipCount`, `ratePromptDone` |
+| Lint/format | ESLint (flat config) + Prettier                                              |
+| Type checks | `tsc --noEmit` with `checkJs` over JSDoc types                               |
+| Tests       | Vitest + jsdom (fast); Playwright + Chromium (e2e)                           |
+| Packaging   | `npm run package`: system `zip` over the source files, no build              |
 
 ## Storage schema
 
@@ -51,12 +51,12 @@ in `src/shared/constants.js`; only `src/shared/storage.js` reads or writes
 them. Changes are agreed first (`/feature-spec` Gate 0), and each row says
 which phase built it.
 
-| Key              | Area    | Type    | Default | Valid range           | Written by             | Read by        | Status               |
-| ---------------- | ------- | ------- | ------- | --------------------- | ---------------------- | -------------- | -------------------- |
-| `enabled`        | `local` | boolean | `true`  | `true`/`false`        | popup                  | content, popup | _(Phase 5, built)_   |
-| `delaySec`       | `local` | integer | `0`     | 0–10                  | popup                  | content, popup | _(Phase 5, built)_   |
-| `skipCount`      | `local` | integer | `0`     | ≥ 0                   | content, popup (reset) | popup          | _(Phase 3, built)_   |
-| `ratePromptDone` | `local` | boolean | `false` | only `true` is "done" | popup                  | popup          | _(Phase 6, planned)_ |
+| Key              | Area    | Type    | Default | Valid range           | Written by             | Read by        | Status             |
+| ---------------- | ------- | ------- | ------- | --------------------- | ---------------------- | -------------- | ------------------ |
+| `enabled`        | `local` | boolean | `true`  | `true`/`false`        | popup                  | content, popup | _(Phase 5, built)_ |
+| `delaySec`       | `local` | integer | `0`     | 0–10                  | popup                  | content, popup | _(Phase 5, built)_ |
+| `skipCount`      | `local` | integer | `0`     | ≥ 0                   | content, popup (reset) | popup          | _(Phase 3, built)_ |
+| `ratePromptDone` | `local` | boolean | `false` | only `true` is "done" | popup                  | popup          | _(Phase 6, built)_ |
 
 Rules:
 
@@ -84,7 +84,7 @@ Rules:
   rounded down; anything else reads as `0`). The increment is read, add 1,
   write, with no lock, so two tabs skipping at the same moment can lose one
   count.
-- _(Phase 6, planned)_ `ratePromptDone` lives in `local`: `true` once the
+- _(Phase 6, built)_ `ratePromptDone` lives in `local`: `true` once the
   user rated or dismissed the rating prompt; anything else reads as `false`.
   The popup shows the prompt when `skipCount` ≥ `RATE_PROMPT_THRESHOLD` (50)
   and it is not done. Nothing else reads it.
@@ -328,6 +328,29 @@ its [tests.md](2026-11-19-web-store/tests.md).
   package, the `[yt-skip-ad]` log prefix.
 - **Version:** `1.1.0`.
 
+## Decided in Phase 6
+
+See [the Phase 6 spec](2026-11-23-store-rating/requirements.md#decisions)
+and its [tests.md](2026-11-23-store-rating/tests.md).
+
+- **Rating prompt:** a card below the skip counter, shown by
+  `shouldShowRatePrompt` (`src/core/rate-prompt.js`) when `skipCount` ≥
+  `RATE_PROMPT_THRESHOLD` (50) and `ratePromptDone` is not `true`. "Rate it
+  ★" or "×" marks it done for good; there are no reminders. It lives only in
+  the popup, never on the YouTube page.
+- **One source for the store link:** `STORE_REVIEWS_URL` and the threshold
+  live in `src/shared/constants.js`; `popup.js` fills every
+  `data-store-reviews` link and the threshold text, so the HTML holds
+  neither.
+- **Footer:** two lines, "🔒 No data collected", then "Privacy · Source ★ ·
+  Rate". The ★ is `aria-hidden`; Source's tooltip invites a GitHub star.
+  GitHub's star button (an iframe with a live count) is not used: the
+  network lock would block it.
+- **Popup closing on Rate:** the docs don't say whether a `storage.set`
+  started in the click handler finishes once the popup closes; manual check
+  4 confirms it in real Chrome.
+- **Version:** `1.2.0`.
+
 ## Project conventions
 
 Every phase follows this layout. Update this section when a convention
@@ -451,6 +474,9 @@ responsive standard does not apply. Instead:
 - **Controls:** native `<input type="checkbox">`, `<input type="number">`, and
   `<button>`, each with a visible `<label>`.
 - **Keyboard:** every control reachable and usable with Tab, Space, Enter.
+- **Links:** _(Phase 5–6)_ open in a new tab with `rel="noopener"`, muted
+  12px footer text, the same focus ring; decorative symbols are
+  `aria-hidden`.
 - **Feedback:** changes are saved on `change` (a checkbox toggle, a
   spinner click, Enter, or leaving the field); no separate "Save" button.
 - **Verification:** checked by eye in light and dark mode on each phase with
@@ -534,6 +560,9 @@ regular (unmanaged) Chrome, so "Load unpacked" works.
   each computer counts its own skips; Chrome Sync doesn't merge them.
 - **Counts clicks made:** a skip is counted when the extension clicks Skip;
   whether YouTube accepted the click can't be seen.
+- **Rating prompt can come late:** it is driven by `skipCount`, so a user
+  who resets the counter before ever seeing the prompt sees it only when the
+  counter reaches 50 again.
 - **Open popup doesn't refresh:** if the settings change elsewhere (another
   popup window) while the popup is open, it shows the old values until
   reopened. The skip counter does update live.

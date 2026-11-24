@@ -3,6 +3,23 @@
 All notable changes to this project. Versions match `version` in
 `manifest.json`.
 
+## 1.2.0 — 2026-11-24
+
+Ratings help others find the extension
+([Phase 6 spec](specs/2026-11-23-store-rating/requirements.md)).
+
+### Added
+
+- After 50 ads skipped, the popup asks once for a rating on the Chrome Web
+  Store. **Rate it ★** opens the reviews page and **×** closes it; either
+  way it never asks again. Nothing is sent anywhere: it is only a link.
+- A **Rate** link in the popup footer, always there.
+
+### Changed
+
+- The footer is on two lines: "🔒 No data collected", then "Privacy ·
+  Source ★ · Rate". Source's ★ invites a GitHub star.
+
 ## 1.1.0 — 2026-11-19
 
 Ready for the Chrome Web Store
