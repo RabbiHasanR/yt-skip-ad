@@ -153,12 +153,13 @@ extension collects no data.
 - **Docs:** privacy policy with "check it yourself" steps and a never-sell
   pledge, a public README, store listing text, and store images.
 
-## Phase 6 — Store rating 🔍 In review
+## Phase 6 — Store rating ✅ Complete
 
 Spec: [2026-11-23-store-rating](2026-11-23-store-rating/requirements.md).
-Automated checks pass (2026-11-24), as version 1.2.0; every test was seen
-failing first (see [tests.md](2026-11-23-store-rating/tests.md)). The
-manual pass in real Chrome is in progress.
+Automated checks and the manual pass in real Chrome pass (2026-11-24), as
+version 1.2.0; every test was seen failing first (see
+[tests.md](2026-11-23-store-rating/tests.md) and the
+[manual pass record](2026-11-23-store-rating/validation.md#manual-pass-record)).
 
 Helps the store listing grow through ratings, without touching the network.
 

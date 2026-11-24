@@ -89,6 +89,28 @@ In real Chrome, with DevTools open on the popup (right-click → Inspect).
     popup: no requests (B11).
 11. Chrome's Task Manager: the extension's CPU use stays negligible.
 
+## Manual pass record
+
+Version 1.2.0, loaded unpacked in real Chrome, 2026-11-24. Rabbi ran the
+checks and reports all 11 pass.
+
+| Check | Result  | Notes                                                                                                                       |
+| ----- | ------- | --------------------------------------------------------------------------------------------------------------------------- |
+| 1     | ✅ pass | Loads with no errors.                                                                                                       |
+| 2     | ✅ pass | At 49, no prompt. Set from the popup's DevTools console (Inspect on the popup; a YouTube tab's console has no `storage`).   |
+| 3     | ✅ pass | At 49, a real ad skipped on YouTube took the counter to 50; the next popup showed the prompt. Live appearance also checked. |
+| 4     | ✅ pass | With DevTools closed: Rate it ★ opened the reviews page and closed the popup; reopened, no prompt.                          |
+| 5     | ✅ pass | × hid it for good, also after a counter reset and climbing back.                                                            |
+| 6     | ✅ pass | A stored `'true'` (text) still shows the prompt.                                                                            |
+| 7     | ✅ pass | Footer on two lines; each link opens the right page in a new tab.                                                           |
+| 8     | ✅ pass | Keyboard, focus ring, light and dark mode, fixed width.                                                                     |
+| 9     | ✅ pass | Phase 1–5 regression on real YouTube.                                                                                       |
+| 10    | ✅ pass | No network requests from the extension.                                                                                     |
+| 11    | ✅ pass | Negligible CPU use.                                                                                                         |
+
+Check 4 settles the one risk the docs left open: the `storage.set` started
+in the Rate click handler finishes even though the popup closes.
+
 ## Done means
 
 All checks above pass; `specs/tech-stack.md`, `specs/mission.md`,

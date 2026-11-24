@@ -348,7 +348,7 @@ and its [tests.md](2026-11-23-store-rating/tests.md).
   network lock would block it.
 - **Popup closing on Rate:** the docs don't say whether a `storage.set`
   started in the click handler finishes once the popup closes; manual check
-  4 confirms it in real Chrome.
+  4 showed it does, in real Chrome (2026-11-24).
 - **Version:** `1.2.0`.
 
 ## Project conventions
