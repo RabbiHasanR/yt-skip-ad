@@ -49,8 +49,8 @@ Behaviours: B8–B10 · Branch: phase-6-store-rating
 
 | #   | Behaviour | Level       | File                                    | Test name                                                   | Status |
 | --- | --------- | ----------- | --------------------------------------- | ----------------------------------------------------------- | ------ |
-| T11 | B8        | acceptance  | tests/integration/popup-privacy.test.js | links to the store reviews, so users can rate it            | 🔴     |
-| T12 | B8        | integration | tests/integration/popup-privacy.test.js | opens the %s link in a new tab, without giving it the popup | ⬜     |
+| T11 | B8        | acceptance  | tests/integration/popup-privacy.test.js | links to the store reviews, so users can rate it            | ✅     |
+| T12 | B8        | integration | tests/integration/popup-privacy.test.js | opens the %s link in a new tab, without giving it the popup | ✅     |
 | T13 | B9        | integration | tests/integration/popup-privacy.test.js | invites a GitHub star on the Source link, keeping its name  | ⬜     |
 | —   | B10       | manual      | validation.md → manual check 8          | keyboard, focus ring, width, light and dark mode            | ➖     |
 

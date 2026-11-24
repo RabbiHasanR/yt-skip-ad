@@ -39,7 +39,7 @@ describe('popup privacy line', () => {
     expect(linkNamed('Source')?.href).toBe(homepage());
   });
 
-  it.fails('links to the store reviews, so users can rate it', async () => {
+  it('links to the store reviews, so users can rate it', async () => {
     // GIVEN a user opens the popup
     await openPopup();
     // WHEN they read its footer
@@ -47,7 +47,7 @@ describe('popup privacy line', () => {
     expect(linkNamed('Rate')?.href).toBe(STORE_REVIEWS_URL);
   });
 
-  it.each(['Privacy', 'Source'])(
+  it.each(['Privacy', 'Source', 'Rate'])(
     'opens the %s link in a new tab, without giving it the popup',
     async (text) => {
       // GIVEN the popup is open
