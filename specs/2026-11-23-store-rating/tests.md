@@ -42,3 +42,18 @@ already read the stored state on load, one step early. Ignoring that read
 was shown to fail T9. T10 is a guard: no code clears the state, so it passed
 when added; a reset that also cleared `ratePromptDone` was shown to fail
 it.
+
+## 3. Footer links
+
+Behaviours: B8–B10 · Branch: phase-6-store-rating
+
+| #   | Behaviour | Level       | File                                    | Test name                                                   | Status |
+| --- | --------- | ----------- | --------------------------------------- | ----------------------------------------------------------- | ------ |
+| T11 | B8        | acceptance  | tests/integration/popup-privacy.test.js | links to the store reviews, so users can rate it            | 🔴     |
+| T12 | B8        | integration | tests/integration/popup-privacy.test.js | opens the %s link in a new tab, without giving it the popup | ⬜     |
+| T13 | B9        | integration | tests/integration/popup-privacy.test.js | invites a GitHub star on the Source link, keeping its name  | ⬜     |
+| —   | B10       | manual      | validation.md → manual check 8          | keyboard, focus ring, width, light and dark mode            | ➖     |
+
+Notes: B10 and the two-line layout (B8) are styling and Chrome's own
+keyboard handling; manual checks 7 and 8 cover them. The footer code was
+written before this spec and brought back one test at a time.

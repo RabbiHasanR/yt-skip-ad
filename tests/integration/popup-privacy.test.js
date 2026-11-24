@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { STORE_REVIEWS_URL } from '../../src/shared/constants.js';
 import { openPopup } from '../fixtures/popup.js';
 
 /** @returns {string} The source repo, as `manifest.json` names it. */
@@ -36,6 +37,14 @@ describe('popup privacy line', () => {
       `${homepage()}/blob/main/PRIVACY.md`,
     );
     expect(linkNamed('Source')?.href).toBe(homepage());
+  });
+
+  it.fails('links to the store reviews, so users can rate it', async () => {
+    // GIVEN a user opens the popup
+    await openPopup();
+    // WHEN they read its footer
+    // THEN a Rate link goes to the extension's reviews on the Chrome Web Store
+    expect(linkNamed('Rate')?.href).toBe(STORE_REVIEWS_URL);
   });
 
   it.each(['Privacy', 'Source'])(
