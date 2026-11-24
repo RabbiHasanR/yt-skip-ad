@@ -9,15 +9,20 @@ function homepage() {
 }
 
 /**
- * Finds a popup link by its visible text.
+ * Finds a footer link by its text, leaving out decorative `aria-hidden`
+ * parts such as the star after Source.
  *
  * @param {string} text The link text.
  * @returns {HTMLAnchorElement | undefined} The link, if there is one.
  */
 function linkNamed(text) {
-  return [...document.querySelectorAll('a')].find(
-    (link) => link.textContent?.trim() === text,
-  );
+  return [
+    ...(document.querySelector('footer')?.querySelectorAll('a') ?? []),
+  ].find((link) => {
+    const copy = /** @type {HTMLAnchorElement} */ (link.cloneNode(true));
+    copy.querySelectorAll('[aria-hidden="true"]').forEach((el) => el.remove());
+    return copy.textContent?.trim() === text;
+  });
 }
 
 describe('popup privacy line', () => {
@@ -45,6 +50,20 @@ describe('popup privacy line', () => {
     // WHEN they read its footer
     // THEN a Rate link goes to the extension's reviews on the Chrome Web Store
     expect(linkNamed('Rate')?.href).toBe(STORE_REVIEWS_URL);
+  });
+
+  it('invites a GitHub star on the Source link, keeping its name', async () => {
+    // GIVEN a user opens the popup
+    await openPopup();
+    // WHEN they look at the Source link
+    const source = linkNamed('Source');
+    // THEN it still goes to the source, with a decorative star screen readers
+    // skip, and a tooltip inviting a star
+    expect(source?.href).toBe(homepage());
+    expect(source?.querySelector('[aria-hidden="true"]')?.textContent).toBe(
+      '★',
+    );
+    expect(source?.title).toMatch(/star/i);
   });
 
   it.each(['Privacy', 'Source', 'Rate'])(
