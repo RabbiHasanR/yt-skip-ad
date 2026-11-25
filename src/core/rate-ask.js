@@ -23,6 +23,16 @@ export function isAskDue(skipCount, state) {
 }
 
 /**
+ * Where the next ask moves after the user closes the prompt or rates.
+ *
+ * @param {number} skipCount Ads skipped when the user handled the prompt.
+ * @returns {number} The skip count from which the prompt is due again.
+ */
+export function nextAskAfter(skipCount) {
+  return skipCount + RATE_ASK_EVERY;
+}
+
+/**
  * Cleans up the ask state read from storage. A missing or invalid value is
  * never an error; it becomes the default.
  *

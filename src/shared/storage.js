@@ -2,7 +2,7 @@
 // and follows the settings, the skip counter, and the rating prompt state in
 // the `local` area, each cleaned up by its rules in src/core/. Nothing is
 // kept in `sync`, so Chrome Sync never copies anything off the device.
-import { normalizeRateAsk } from '../core/rate-ask.js';
+import { nextAskAfter, normalizeRateAsk } from '../core/rate-ask.js';
 import { normalizeSettings } from '../core/settings.js';
 import { normalizeSkipCount } from '../core/skip-count.js';
 import {
@@ -197,4 +197,26 @@ export async function getRateAsk() {
     nextAskAt: stored[RATE_NEXT_ASK_AT_KEY],
     neverAsk: stored[RATE_NEVER_ASK_KEY],
   });
+}
+
+/**
+ * Postpones the rating ask by 100 skips, after the user closed the prompt or
+ * rated.
+ *
+ * @param {number} skipCount Ads skipped when the user handled the prompt.
+ * @returns {Promise<void>} Resolves once stored.
+ */
+export async function postponeRateAsk(skipCount) {
+  await chrome.storage.local.set({
+    [RATE_NEXT_ASK_AT_KEY]: nextAskAfter(skipCount),
+  });
+}
+
+/**
+ * Stops every rating ask for good, after "Don't ask again".
+ *
+ * @returns {Promise<void>} Resolves once stored.
+ */
+export async function stopRateAsk() {
+  await chrome.storage.local.set({ [RATE_NEVER_ASK_KEY]: true });
 }

@@ -3,12 +3,17 @@ import {
   getRateAsk,
   getSettings,
   incrementSkipCount,
+  postponeRateAsk,
   isRatePromptDone,
   markRatePromptDone,
   setSettings,
+  stopRateAsk,
   watchSettings,
 } from '../../src/shared/storage.js';
-import { RATE_FIRST_ASK_AT } from '../../src/shared/constants.js';
+import {
+  RATE_ASK_EVERY,
+  RATE_FIRST_ASK_AT,
+} from '../../src/shared/constants.js';
 import { seedStorage } from '../setup/storage.js';
 
 describe('settings storage', () => {
@@ -174,5 +179,21 @@ describe('rating ask storage', () => {
     expect(ask).toEqual({ nextAskAt: RATE_FIRST_ASK_AT, neverAsk: false });
     expect(chrome.storage.local.set).not.toHaveBeenCalled();
     expect(chrome.storage.local.remove).not.toHaveBeenCalled();
+  });
+
+  it('saves a postponed ask and "don\'t ask again" in local storage only', async () => {
+    // GIVEN a fresh install
+    // WHEN the user closes the prompt at 173 skips
+    await postponeRateAsk(173);
+    // THEN it is due again 100 skips later
+    expect(await getRateAsk()).toEqual({
+      nextAskAt: 173 + RATE_ASK_EVERY,
+      neverAsk: false,
+    });
+    // WHEN the user says "Don't ask again"
+    await stopRateAsk();
+    // THEN it is never asked again, and Chrome Sync never gets a copy
+    expect((await getRateAsk()).neverAsk).toBe(true);
+    expect(chrome.storage.sync.set).not.toHaveBeenCalled();
   });
 });
