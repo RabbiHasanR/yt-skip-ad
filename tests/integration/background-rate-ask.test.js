@@ -68,4 +68,33 @@ describe('background rating auto-open', () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(chrome.action.openPopup).not.toHaveBeenCalled();
   });
+
+  it.each(
+    /** @type {{ change: string, before: Record<string, unknown>, after: Record<string, unknown> }[]} */ ([
+      {
+        change: 'a skip between milestones',
+        before: { skipCount: RATE_FIRST_ASK_AT },
+        after: { skipCount: RATE_FIRST_ASK_AT + 1 },
+      },
+      {
+        change: 'a counter reset',
+        before: { skipCount: 120 },
+        after: { skipCount: 0 },
+      },
+      {
+        change: 'a settings save',
+        before: { skipCount: RATE_FIRST_ASK_AT - 1 },
+        after: { enabled: false },
+      },
+    ]),
+  )("doesn't open the popup for $change", async ({ before, after }) => {
+    // GIVEN the prompt unanswered, and the worker running
+    await seedStorage(before, 'local');
+    await startWorker();
+    // WHEN storage changes without crossing a milestone
+    await chrome.storage.local.set(after);
+    // THEN the popup doesn't open
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(chrome.action.openPopup).not.toHaveBeenCalled();
+  });
 });
