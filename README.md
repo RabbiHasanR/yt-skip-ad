@@ -2,6 +2,10 @@
 
 **Skips the ad for you. Collects nothing.**
 
+[![Available in the Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-Install-4285F4?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/kdembckigpophgcgjfmbenkgnnkdoofe)
+
+![An ad is skipped, then the popup shows the skip counter](docs/demo.gif)
+
 A Chrome extension that clicks YouTube's **Skip** button the moment an ad
 becomes skippable. It is **not an ad blocker**: ads still start, and
 unskippable ads play to the end. It just saves you from watching the corner
@@ -15,7 +19,7 @@ of the screen.
 
 ## Install
 
-- **Chrome Web Store:** _link added once the listing is approved._
+- **Chrome Web Store:** [install Skip Ad for YouTube](https://chromewebstore.google.com/detail/kdembckigpophgcgjfmbenkgnnkdoofe).
 - **Manually, from a zip:** see the [User Guide](USER-GUIDE.md).
 
 Then open any YouTube video. Click the toolbar icon to turn auto-skip off,
