@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { isAskDue, promptCount } from '../../src/core/rate-ask.js';
+import {
+  crossedMilestone,
+  isAskDue,
+  promptCount,
+} from '../../src/core/rate-ask.js';
 import { RATE_FIRST_ASK_AT } from '../../src/shared/constants.js';
 
 describe('rating ask rules', () => {
@@ -33,4 +37,24 @@ describe('rating ask rules', () => {
     // THEN it names the last milestone at or below it, so it stays true
     expect(promptCount(count)).toBe(shown);
   });
+
+  it.each([
+    { from: 49, to: 50, expected: true },
+    { from: 149, to: 150, expected: true },
+    { from: 0, to: 1, expected: false },
+    { from: 48, to: 49, expected: false },
+    { from: 50, to: 51, expected: false },
+    { from: 100, to: 149, expected: false },
+    { from: 0, to: 200, expected: true },
+    { from: 150, to: 149, expected: false },
+    { from: 200, to: 0, expected: false },
+  ])(
+    'from $from to $to skips, crosses a milestone: $expected',
+    ({ from, to, expected }) => {
+      // GIVEN the skip count before and after a storage change
+      // WHEN the worker checks for an auto-open milestone (50, 150, 250, …)
+      // THEN it crosses one only when a milestone lies in (from, to]
+      expect(crossedMilestone(from, to)).toBe(expected);
+    },
+  );
 });

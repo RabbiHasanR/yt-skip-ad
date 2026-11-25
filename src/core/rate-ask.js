@@ -28,3 +28,20 @@ export function promptCount(skipCount) {
   );
   return RATE_FIRST_ASK_AT + Math.max(0, stepsPast) * RATE_ASK_EVERY;
 }
+
+/**
+ * Decides whether a change of the skip count crosses an auto-open milestone
+ * (50, 150, 250, …): one lies after the old count and at or below the new
+ * one. A reset, or a skip between milestones, crosses none.
+ *
+ * @param {number} oldCount Ads skipped before the change.
+ * @param {number} newCount Ads skipped after it.
+ * @returns {boolean} `true` when the popup should open by itself.
+ */
+export function crossedMilestone(oldCount, newCount) {
+  const nextMilestone =
+    oldCount < RATE_FIRST_ASK_AT
+      ? RATE_FIRST_ASK_AT
+      : promptCount(oldCount) + RATE_ASK_EVERY;
+  return newCount >= nextMilestone;
+}
