@@ -143,4 +143,21 @@ describe('background rating auto-open', () => {
     );
     expect(chrome.action.openPopup).not.toHaveBeenCalled();
   });
+
+  it('shows a badge when Chrome refuses to open the popup', async () => {
+    // GIVEN 49 ads skipped, and a window Chrome still won't open the popup in
+    await seedStorage({ skipCount: RATE_FIRST_ASK_AT - 1 }, 'local');
+    /** @type {import('vitest').Mock} */ (
+      chrome.action.openPopup
+    ).mockRejectedValue(new Error('Could not find an active browser window.'));
+    await startWorker();
+    // WHEN a YouTube tab skips the 50th ad
+    await skipTo(RATE_FIRST_ASK_AT);
+    // THEN a ★ badge waits on the icon instead
+    await vi.waitFor(() =>
+      expect(chrome.action.setBadgeText).toHaveBeenCalledWith({
+        text: RATE_BADGE_TEXT,
+      }),
+    );
+  });
 });
