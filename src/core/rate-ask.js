@@ -1,6 +1,7 @@
 // Rating ask rules: when the popup asks the user for a store rating, and
 // when a skip opens the popup by itself. Asked at 50 ads skipped, then again
 // every 100 more until the user says "Don't ask again".
+import { RATE_FIRST_ASK_AT } from '../shared/constants.js';
 
 /**
  * The stored state of the rating ask.
@@ -19,4 +20,23 @@
  */
 export function isAskDue(skipCount, state) {
   return !state.neverAsk && skipCount >= state.nextAskAt;
+}
+
+/**
+ * Cleans up the ask state read from storage. A missing or invalid value is
+ * never an error; it becomes the default.
+ *
+ * @param {{ nextAskAt?: unknown, neverAsk?: unknown }} raw The stored values;
+ *   may be missing or invalid.
+ * @returns {RateAsk} A valid ask state.
+ */
+export function normalizeRateAsk(raw) {
+  const { nextAskAt } = raw;
+  return {
+    nextAskAt:
+      Number.isInteger(nextAskAt) && /** @type {number} */ (nextAskAt) >= 0
+        ? /** @type {number} */ (nextAskAt)
+        : RATE_FIRST_ASK_AT,
+    neverAsk: false,
+  };
 }

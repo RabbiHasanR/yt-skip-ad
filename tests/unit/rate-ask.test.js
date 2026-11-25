@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { isAskDue } from '../../src/core/rate-ask.js';
+import { isAskDue, normalizeRateAsk } from '../../src/core/rate-ask.js';
+import { RATE_FIRST_ASK_AT } from '../../src/shared/constants.js';
 
 describe('rating ask rules', () => {
   it.each([
@@ -18,6 +19,25 @@ describe('rating ask rules', () => {
       const due = isAskDue(count, { nextAskAt, neverAsk });
       // THEN it asks from the next ask on, and never after "Don't ask again"
       expect(due).toBe(expected);
+    },
+  );
+
+  it.each([
+    { stored: 0, expected: 0 },
+    { stored: 273, expected: 273 },
+    ...[undefined, null, -1, 1.5, NaN, Infinity, '200', true].map((stored) => ({
+      stored,
+      expected: RATE_FIRST_ASK_AT,
+    })),
+  ])(
+    'reads a stored next ask of $stored as $expected',
+    ({ stored, expected }) => {
+      // GIVEN a next ask in storage, maybe missing or invalid
+      // WHEN the ask state is cleaned up
+      const { nextAskAt } = normalizeRateAsk({ nextAskAt: stored });
+      // THEN a whole number of 0 or more is kept; anything else is the first
+      // ask
+      expect(nextAskAt).toBe(expected);
     },
   );
 });
