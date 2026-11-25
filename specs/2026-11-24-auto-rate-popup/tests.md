@@ -215,3 +215,17 @@ normal unfocused → no. B17's lint half (the network ban covers
 `src/background/`) is already in `eslint.config.js`; T40 is its runtime
 half. B18 was added to `validation.md` at this Gate 2: `requirements.md`
 asked for logged worker errors, but no behaviour covered it.
+
+Notes: T32 turned green with T34, since both are the same window check
+(`canOpenPopupIn`). T35's red also showed the rejected `openPopup()`
+escaping as an unhandled rejection; the `.catch` that shows the badge fixed
+both. T36 passed when written (the answered check already ran first); a
+worker checking the window before the answer was shown to fail it. T37 made
+the listener body `askForRating`, with the listener logging any failure.
+T39 passed when written, as the code existed: headless Chromium reported
+the window as `{ state: 'fullscreen', focused: true }`, so the badge comes
+from the guard, not from a refused `openPopup()`, and a worker that never
+sets the badge was shown to fail it. T40 passed when written; a manifest
+policy allowing `connect-src https:` was shown to fail it. The e2e
+`extensionId` fixture's comment no longer says the extension has no
+service worker.
