@@ -165,4 +165,23 @@ describe('popup rating prompt', () => {
       expect(ratePrompt()?.textContent).toContain('150+ ads skipped'),
     );
   });
+
+  it('hides after a reset before answering, until the counter is back at 50', async () => {
+    // GIVEN the prompt is showing at 120 skips, unanswered, in an open popup
+    await seedStorage({ skipCount: 120 }, 'local');
+    const { count, reset } = await openPopup();
+    expect(ratePrompt()?.hidden).toBe(false);
+    // WHEN the user resets the counter
+    reset?.click();
+    // THEN the prompt hides until the counter climbs back to 50
+    await vi.waitFor(() => expect(count?.value).toBe('0'));
+    expect(ratePrompt()?.hidden).toBe(true);
+    await chrome.storage.local.set({ skipCount: RATE_FIRST_ASK_AT - 1 });
+    await vi.waitFor(() =>
+      expect(count?.value).toBe(String(RATE_FIRST_ASK_AT - 1)),
+    );
+    expect(ratePrompt()?.hidden).toBe(true);
+    await chrome.storage.local.set({ skipCount: RATE_FIRST_ASK_AT });
+    await vi.waitFor(() => expect(ratePrompt()?.hidden).toBe(false));
+  });
 });
