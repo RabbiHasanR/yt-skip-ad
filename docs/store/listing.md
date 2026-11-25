@@ -52,6 +52,7 @@ Don't take our word for it: the privacy policy has a two-minute "check it yourse
 • Optional delay of 0–10 seconds, if you like to glance at the ad first.
 • On/off switch in the toolbar popup.
 • Counter of ads skipped, kept only on this computer.
+• Asks for a rating: after 50 ads skipped, the popup opens by itself to ask for a store rating, again every 100 ads until you answer. "Rate it" or × and it never asks again. Never in fullscreen; nothing is sent.
 • Light and dark mode.
 
 ℹ️ WHAT IT DOESN'T DO
