@@ -112,22 +112,35 @@ describe('background rating auto-open', () => {
     expect(chrome.action.openPopup).not.toHaveBeenCalled();
   });
 
-  it.fails(
-    'shows a badge instead of opening the popup in a fullscreen window',
-    async () => {
-      // GIVEN 49 ads skipped, the prompt unanswered, and a fullscreen video
-      await seedStorage({ skipCount: RATE_FIRST_ASK_AT - 1 }, 'local');
-      lastFocusedWindow({ state: 'fullscreen', focused: true });
-      await startWorker();
-      // WHEN a YouTube tab skips the 50th ad
-      await skipTo(RATE_FIRST_ASK_AT);
-      // THEN the popup stays closed, and a ★ badge on the icon waits instead
-      await vi.waitFor(() =>
-        expect(chrome.action.setBadgeText).toHaveBeenCalledWith({
-          text: RATE_BADGE_TEXT,
-        }),
-      );
-      expect(chrome.action.openPopup).not.toHaveBeenCalled();
-    },
-  );
+  it('shows a badge instead of opening the popup in a fullscreen window', async () => {
+    // GIVEN 49 ads skipped, the prompt unanswered, and a fullscreen video
+    await seedStorage({ skipCount: RATE_FIRST_ASK_AT - 1 }, 'local');
+    lastFocusedWindow({ state: 'fullscreen', focused: true });
+    await startWorker();
+    // WHEN a YouTube tab skips the 50th ad
+    await skipTo(RATE_FIRST_ASK_AT);
+    // THEN the popup stays closed, and a ★ badge on the icon waits instead
+    await vi.waitFor(() =>
+      expect(chrome.action.setBadgeText).toHaveBeenCalledWith({
+        text: RATE_BADGE_TEXT,
+      }),
+    );
+    expect(chrome.action.openPopup).not.toHaveBeenCalled();
+  });
+
+  it("shows a badge when Chrome isn't the focused app", async () => {
+    // GIVEN 49 ads skipped, and another app in front of Chrome
+    await seedStorage({ skipCount: RATE_FIRST_ASK_AT - 1 }, 'local');
+    lastFocusedWindow({ state: 'maximized', focused: false });
+    await startWorker();
+    // WHEN a background YouTube tab skips the 50th ad
+    await skipTo(RATE_FIRST_ASK_AT);
+    // THEN Chrome isn't pulled to the front; a ★ badge waits on the icon
+    await vi.waitFor(() =>
+      expect(chrome.action.setBadgeText).toHaveBeenCalledWith({
+        text: RATE_BADGE_TEXT,
+      }),
+    );
+    expect(chrome.action.openPopup).not.toHaveBeenCalled();
+  });
 });
