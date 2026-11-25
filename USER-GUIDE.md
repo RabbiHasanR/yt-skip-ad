@@ -52,9 +52,13 @@ Click the extension's toolbar icon to open the popup:
 - **Ads skipped:** how many ads the extension has skipped on this computer.
   It goes up while the popup is open. **Reset counter** sets it back to 0
   at once, with no confirmation.
-- **Rating request:** after 50 ads skipped, the popup asks once for a
-  rating on the Chrome Web Store. **Rate it ★** opens the reviews page;
-  **×** closes it. Either way, it never asks again.
+- **Rating request:** at 50 ads skipped, the popup opens by itself and asks
+  for a rating on the Chrome Web Store; the video keeps playing. **Rate it
+  ★** opens the reviews page; **×** closes the request. Either way, it never
+  asks again. If you just close the popup, it asks again at 150, 250, and
+  so on. While a video is fullscreen, or another app is in front, it
+  doesn't open; a **★** on the toolbar icon shows instead, and goes away
+  when you open the popup.
 - **Footer:** links to the privacy policy, the source code (★ star it on
   GitHub if you like it), and the store reviews (**Rate**).
 
