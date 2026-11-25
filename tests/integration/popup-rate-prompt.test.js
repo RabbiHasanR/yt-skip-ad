@@ -120,4 +120,14 @@ describe('popup rating prompt', () => {
     await reopenPopupAt(5000);
     expect(ratePrompt()?.hidden).toBe(true);
   });
+
+  it('keeps a 1.2.0 answer: never asks again', async () => {
+    // GIVEN a 1.2.0 install whose user answered the prompt, at 70 skips
+    await seedStorage({ skipCount: 70, ratePromptDone: true }, 'local');
+    // WHEN they open the updated popup
+    await openPopup();
+    // THEN no rating is asked for, and the answer is kept
+    expect(ratePrompt()?.hidden).toBe(true);
+    expect(await storedDone()).toBe(true);
+  });
 });
