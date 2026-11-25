@@ -114,3 +114,34 @@ T10's green already refreshed the prompt on live count changes; a popup
 whose live updates only refresh the counter was shown to fail it. The
 replaced Phase 6 code (`src/core/rate-prompt.js`, `isRatePromptDone`,
 `markRatePromptDone`) and tests were removed once nothing used them.
+
+## 2. Prompt (rebuild)
+
+Behaviours: B1–B9 · Branch: phase-7-auto-rate-popup
+
+| #   | Behaviour | Level       | File                                        | Test name                                                             | Status |
+| --- | --------- | ----------- | ------------------------------------------- | --------------------------------------------------------------------- | ------ |
+| T15 | B3        | acceptance  | tests/integration/popup-rate-prompt.test.js | never asks again after the user closes the prompt                     | 🔴     |
+| T16 | B8        | unit        | tests/unit/storage.test.js                  | reads a stored prompt state of $stored as answered: $expected         | ⬜     |
+| T17 | B3, B4    | unit        | tests/unit/storage.test.js                  | remembers the answer, in local storage only                           | ⬜     |
+| T18 | B4        | integration | tests/integration/popup-rate-prompt.test.js | opens the reviews page and never asks again after Rate it ★           | ⬜     |
+| T19 | B2        | integration | tests/integration/popup-rate-prompt.test.js | asks for a rating once due, naming the count, with Rate it ★ and ×    | ⬜     |
+| T20 | B9        | integration | tests/integration/popup-rate-prompt.test.js | keeps a 1.2.0 answer: never asks again                                | ⬜     |
+| T21 | B5        | integration | tests/integration/popup-rate-prompt.test.js | stays gone after the counter is reset, once answered                  | ⬜     |
+| T22 | B6        | integration | tests/integration/popup-rate-prompt.test.js | appears while the popup is open at 50, its number following the count | ⬜     |
+| T23 | B7        | integration | tests/integration/popup-rate-prompt.test.js | hides after a reset before answering, until the counter is back at 50 | ⬜     |
+
+Kept from the first run: T5 (`promptCount`, B2) and Phase 6's "stays hidden
+below the threshold" (B1). T2 (`isAskDue`, B1) is kept, its signature going
+back to `(skipCount, done)` in T18's refactor.
+
+Removed, with what replaces them:
+
+- At T18's green, when the popup switches to `ratePromptDone`: first-run T1
+  (→ T15), T11 (→ T18), T12 "Don't ask again" (behaviour dropped), T13
+  (→ T22), T14 (→ T23).
+- At T19: T10 (→ T19), and the "Don't ask again" button.
+- Final refactor, once nothing uses them: T3, T4, T6–T9, with
+  `normalizeRateAsk`, `nextAskAfter`, `getRateAsk`, `postponeRateAsk`,
+  `stopRateAsk`, the one-time move, `RATE_NEXT_ASK_AT_KEY`, and
+  `RATE_NEVER_ASK_KEY`.

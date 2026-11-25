@@ -40,6 +40,12 @@ function clickPromptControl(name) {
   );
 }
 
+/** @returns {Promise<unknown>} The stored answer to the prompt. */
+async function storedDone() {
+  return (await chrome.storage.local.get({ ratePromptDone: null }))
+    .ratePromptDone;
+}
+
 /** @returns {Promise<unknown>} The stored skip count of the next ask. */
 async function storedNextAsk() {
   return (await chrome.storage.local.get({ rateNextAskAt: null }))
@@ -178,5 +184,22 @@ describe('popup rating prompt', () => {
     expect(ratePrompt()?.hidden).toBe(true);
     await reopenPopupAt(nextAsk);
     expect(ratePrompt()?.hidden).toBe(false);
+  });
+
+  it.fails('never asks again after the user closes the prompt', async () => {
+    // GIVEN the prompt is showing at 50 skips, and the popup is open
+    await seedStorage({ skipCount: RATE_FIRST_ASK_AT }, 'local');
+    const { count } = await openPopup();
+    // WHEN the user closes it
+    clickPromptControl('Dismiss');
+    // THEN it hides now, is remembered, and never comes back: not as the
+    // count grows, not in a later popup
+    expect(ratePrompt()?.hidden).toBe(true);
+    await vi.waitFor(async () => expect(await storedDone()).toBe(true));
+    await chrome.storage.local.set({ skipCount: 5000 });
+    await vi.waitFor(() => expect(count?.value).toBe((5000).toLocaleString()));
+    expect(ratePrompt()?.hidden).toBe(true);
+    await reopenPopupAt(5000);
+    expect(ratePrompt()?.hidden).toBe(true);
   });
 });
