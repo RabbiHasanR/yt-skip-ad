@@ -163,7 +163,7 @@ Behaviours: B10–B13 · Branch: phase-7-auto-rate-popup
 
 | #   | Behaviour | Level       | File                                          | Test name                                                                | Status |
 | --- | --------- | ----------- | --------------------------------------------- | ------------------------------------------------------------------------ | ------ |
-| T24 | B10       | acceptance  | tests/integration/background-rate-ask.test.js | opens the popup when the 50th ad is skipped                              | ⬜     |
+| T24 | B10       | acceptance  | tests/integration/background-rate-ask.test.js | opens the popup when the 50th ad is skipped                              | 🔴     |
 | T25 | B11, B12  | unit        | tests/unit/rate-ask.test.js                   | from $from to $to skips, crosses a milestone: $expected                  | ⬜     |
 | T26 | B11       | integration | tests/integration/background-rate-ask.test.js | opens the popup again at 150 and 250 while the prompt is unanswered      | ⬜     |
 | T27 | B11       | integration | tests/integration/background-rate-ask.test.js | never opens the popup once the prompt is answered                        | ⬜     |
