@@ -216,4 +216,16 @@ describe('rating ask storage', () => {
       rateNextAskAt: 70 + RATE_ASK_EVERY,
     });
   });
+
+  it("removes a 1.2.0 prompt state that wasn't true, keeping the first ask at 50", async () => {
+    // GIVEN a 1.2.0 install with an invalid prompt state
+    await seedStorage({ skipCount: 70, ratePromptDone: 'true' }, 'local');
+    // WHEN the popup reads the ask state
+    const ask = await getRateAsk();
+    // THEN the first ask still applies, and the old state is gone
+    expect(ask.nextAskAt).toBe(RATE_FIRST_ASK_AT);
+    expect(
+      await chrome.storage.local.get(['rateNextAskAt', 'ratePromptDone']),
+    ).toEqual({});
+  });
 });

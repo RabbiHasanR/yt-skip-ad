@@ -202,15 +202,17 @@ export async function getRateAsk() {
 
 /**
  * Moves 1.2.0's rating prompt state to the next ask: a user who had closed
- * or rated the prompt is asked again 100 skips after the update. Runs once;
- * the old state is removed.
+ * or rated the prompt is asked again 100 skips after the update; any other
+ * stored value keeps the first ask. Runs once; the old state is removed.
  *
  * @returns {Promise<void>} Resolves once no 1.2.0 state is left.
  */
 async function moveRatePromptDone() {
   const stored = await chrome.storage.local.get([RATE_PROMPT_DONE_KEY]);
-  if (stored[RATE_PROMPT_DONE_KEY] !== true) return;
-  await postponeRateAsk(await getSkipCount());
+  if (!(RATE_PROMPT_DONE_KEY in stored)) return;
+  if (stored[RATE_PROMPT_DONE_KEY] === true) {
+    await postponeRateAsk(await getSkipCount());
+  }
   await chrome.storage.local.remove(RATE_PROMPT_DONE_KEY);
 }
 

@@ -71,7 +71,7 @@ Behaviours: B1–B9 · Branch: phase-7-auto-rate-popup
 | T6  | B1        | unit        | tests/unit/storage.test.js                  | reads a fresh install as a first ask at 50, writing nothing                | ✅     |
 | T7  | B3, B5    | unit        | tests/unit/storage.test.js                  | saves a postponed ask and "don't ask again" in local storage only          | ✅     |
 | T8  | B9        | unit        | tests/unit/storage.test.js                  | moves a handled 1.2.0 prompt to ask again 100 skips later                  | ✅     |
-| T9  | B9        | unit        | tests/unit/storage.test.js                  | removes a 1.2.0 prompt state that wasn't true, keeping the first ask at 50 | ⬜     |
+| T9  | B9        | unit        | tests/unit/storage.test.js                  | removes a 1.2.0 prompt state that wasn't true, keeping the first ask at 50 | ✅     |
 | T10 | B2        | integration | tests/integration/popup-rate-prompt.test.js | asks for a rating once due, naming the count and offering three choices    | ⬜     |
 | T11 | B4        | integration | tests/integration/popup-rate-prompt.test.js | opens the reviews page and asks again 100 skips later after Rate it ★      | ⬜     |
 | T12 | B5        | integration | tests/integration/popup-rate-prompt.test.js | never asks again after "Don't ask again", even after a counter reset       | ⬜     |
