@@ -39,7 +39,7 @@ youtube.com" is a real reason to pick this one.
 | 8   | **GitHub repo topics:** `chrome-extension`, `youtube`, `privacy`, `manifest-v3`, `ad-skipper`          | ✅     | Topics, description, and website set on GitHub (2026-11-25).                                                                                                              |
 | 9   | **Edge Add-ons:** submit the same store zip; no code change, less competition, no developer fee        | ⬜     |                                                                                                                                                                           |
 | 10  | **Awesome lists:** PRs to add it to awesome-chrome-extensions and awesome-privacy lists                | ⬜     | Read each list's rules first (some want a star count or age).                                                                                                             |
-| 11  | **"It stopped working" issue template** (`.github/ISSUE_TEMPLATE/`), so breakages are reported quickly | ⬜     | YouTube changes its page often; fast fixes protect the rating more than any marketing.                                                                                    |
+| 11  | **"It stopped working" issue template** (`.github/ISSUE_TEMPLATE/`), so breakages are reported quickly | ✅     | `.github/ISSUE_TEMPLATE/`: a "stopped working" form, an idea form, and links to the privacy policy and store reviews (2026-11-25).                                        |
 
 ## In 2–4 weeks
 

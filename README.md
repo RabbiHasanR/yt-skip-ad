@@ -47,8 +47,8 @@ Full policy: **[PRIVACY.md](PRIVACY.md)**. In short:
 
 - **Ads aren't skipped any more.** Check that **Auto-skip ads** is ticked in
   the popup. If it is, YouTube has most likely changed its page:
-  [open an issue](https://github.com/RabbiHasanR/yt-skip-ad/issues), and the
-  fix will come as an update.
+  [report it](https://github.com/RabbiHasanR/yt-skip-ad/issues/new?template=stopped-working.yml),
+  and the fix will come as an update.
 - **Turn other ad extensions off** to test: an ad blocker hides the ad before
   there's a Skip button to click.
 

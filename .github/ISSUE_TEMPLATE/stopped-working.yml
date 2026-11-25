@@ -1,0 +1,83 @@
+name: Ads aren't skipped any more
+description: The extension stopped clicking Skip, clicks late, or the popup misbehaves.
+title: '[Stopped working] '
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! YouTube changes its page from time to time, and
+        reports like this are how the fix comes quickly.
+
+        **Please don't paste anything personal** (account names, emails,
+        private video links). Nothing here is needed to fix it.
+  - type: checkboxes
+    id: first-checks
+    attributes:
+      label: First checks
+      description: These fix most problems. Please try them before reporting.
+      options:
+        - label: "**Auto-skip ads** is ticked in the extension's popup."
+          required: true
+        - label: Other ad extensions (ad blockers) are turned off.
+          required: true
+        - label: I reloaded the YouTube tab, and it still happens.
+          required: true
+  - type: input
+    id: version
+    attributes:
+      label: Extension version
+      description: In `chrome://extensions`, on the Skip Ad for YouTube card.
+      placeholder: '1.3.0'
+    validations:
+      required: true
+  - type: dropdown
+    id: installed-from
+    attributes:
+      label: Installed from
+      options:
+        - Chrome Web Store
+        - A zip file (Load unpacked)
+    validations:
+      required: true
+  - type: input
+    id: chrome-version
+    attributes:
+      label: Chrome version
+      description: In `chrome://settings/help`.
+      placeholder: '131.0.6778.85'
+  - type: dropdown
+    id: what-happens
+    attributes:
+      label: What happens?
+      options:
+        - The Skip button shows, but it isn't clicked
+        - It's clicked, but later than expected
+        - The popup has a problem
+        - Something else
+    validations:
+      required: true
+  - type: dropdown
+    id: which-ad
+    attributes:
+      label: Which ad?
+      options:
+        - Before the video
+        - In the middle of the video
+        - Two ads in a row
+        - Not sure
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: What did you expect, and what happened instead? How often does it happen?
+    validations:
+      required: true
+  - type: textarea
+    id: console
+    attributes:
+      label: Console lines (optional)
+      description: |
+        On the YouTube tab, press F12, open **Console**, type `yt-skip-ad`
+        in the filter box, and copy the lines shown.
+      render: text
