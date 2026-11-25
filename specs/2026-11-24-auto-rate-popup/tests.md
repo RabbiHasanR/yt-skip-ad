@@ -145,3 +145,14 @@ Removed, with what replaces them:
   `normalizeRateAsk`, `nextAskAfter`, `getRateAsk`, `postponeRateAsk`,
   `stopRateAsk`, the one-time move, `RATE_NEXT_ASK_AT_KEY`, and
   `RATE_NEVER_ASK_KEY`.
+
+Notes: T18 was the switching step. Its green moved the popup to
+`ratePromptDone` and made × final too, so T15 turned green with it; the
+first-run tests T1, T11, T12, T13, and T14 failed at that step, as listed,
+and were removed. T18's refactor took `isAskDue` back to `(skipCount, done)`
+and T2's table with it. T20–T23 passed when written, since the Phase 6 rule
+was back after T18; each was shown failing against a mutation: the popup
+ignoring the stored answer (T20), a reset that also clears it (T21), live
+updates that skip the prompt (T22), and a prompt that never hides once shown
+(T23). The final refactor removed the first run's state, its move, its two
+keys, and T3, T4, T6–T9.
