@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  RATE_ASK_EVERY,
   RATE_FIRST_ASK_AT,
   STORE_REVIEWS_URL,
 } from '../../src/shared/constants.js';
@@ -26,6 +27,34 @@ function promptControl(name) {
     (el) =>
       el.getAttribute('aria-label') === name || el.textContent?.trim() === name,
   );
+}
+
+/**
+ * Clicks a control inside the rating prompt.
+ *
+ * @param {string} name Visible text or `aria-label`.
+ */
+function clickPromptControl(name) {
+  promptControl(name)?.dispatchEvent(
+    new MouseEvent('click', { bubbles: true, cancelable: true }),
+  );
+}
+
+/** @returns {Promise<unknown>} The stored skip count of the next ask. */
+async function storedNextAsk() {
+  return (await chrome.storage.local.get({ rateNextAskAt: null }))
+    .rateNextAskAt;
+}
+
+/**
+ * Closes the popup and opens it again once the skip counter is at a value.
+ *
+ * @param {number} skipCount Ads skipped by then.
+ */
+async function reopenPopupAt(skipCount) {
+  await chrome.storage.local.set({ skipCount });
+  vi.resetModules();
+  await openPopup();
 }
 
 /** @returns {Promise<unknown>} The stored prompt state. */
@@ -128,4 +157,24 @@ describe('popup rating prompt', () => {
     expect(link.target).toBe('_blank');
     expect(link.relList.contains('noopener')).toBe(true);
   });
+
+  it.fails(
+    'asks again 100 skips after the user closes the prompt',
+    async () => {
+      // GIVEN the prompt is showing at the first ask
+      await seedStorage({ skipCount: RATE_FIRST_ASK_AT }, 'local');
+      await openPopup();
+      // WHEN the user closes it
+      clickPromptControl('Dismiss');
+      // THEN it hides now, stays hidden in later popups until 100 more ads are
+      // skipped, and then asks again
+      expect(ratePrompt()?.hidden).toBe(true);
+      const nextAsk = RATE_FIRST_ASK_AT + RATE_ASK_EVERY;
+      await vi.waitFor(async () => expect(await storedNextAsk()).toBe(nextAsk));
+      await reopenPopupAt(nextAsk - 1);
+      expect(ratePrompt()?.hidden).toBe(true);
+      await reopenPopupAt(nextAsk);
+      expect(ratePrompt()?.hidden).toBe(false);
+    },
+  );
 });

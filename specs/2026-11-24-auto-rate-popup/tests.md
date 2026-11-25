@@ -63,7 +63,7 @@ Behaviours: B1–B9 · Branch: phase-7-auto-rate-popup
 
 | #   | Behaviour | Level       | File                                        | Test name                                                                  | Status |
 | --- | --------- | ----------- | ------------------------------------------- | -------------------------------------------------------------------------- | ------ |
-| T1  | B3        | acceptance  | tests/integration/popup-rate-prompt.test.js | asks again 100 skips after the user closes the prompt                      | ⬜     |
+| T1  | B3        | acceptance  | tests/integration/popup-rate-prompt.test.js | asks again 100 skips after the user closes the prompt                      | 🔴     |
 | T2  | B1, B5    | unit        | tests/unit/rate-ask.test.js                 | with $count skipped, next ask $nextAskAt, never $neverAsk: due $expected   | ⬜     |
 | T3  | B8        | unit        | tests/unit/rate-ask.test.js                 | reads a stored next ask of %s as 50                                        | ⬜     |
 | T4  | B8        | unit        | tests/unit/rate-ask.test.js                 | reads a stored "never ask" of %s as asking                                 | ⬜     |
