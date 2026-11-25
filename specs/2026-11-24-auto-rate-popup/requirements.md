@@ -72,8 +72,8 @@ does not, since the extension can't see whether a review was written.
 - **Counter reset:** does not touch `rateNextAskAt`; after a reset, the next
   ask waits until the counter climbs back to it.
 - **Text:** "<count>+ ads skipped! A quick rating helps others find this.",
-  the number being the current skip count rounded down to the hundred
-  (50 below 100), so it stays true at 150, 250, …
+  the number being the last milestone at or below the current skip count:
+  50, 150, 250, … (50 below 150), so the 150th skip says "150+".
 
 ### Auto-open
 
@@ -155,7 +155,7 @@ milestone.
 | Trigger         | `chrome.storage.onChanged` on `skipCount`, crossing a milestone     | No content-script change; one storage change per milestone gives one auto-open                |
 | Fullscreen      | `getLastFocused()`: open only if focused and `normal`/`maximized`   | Rabbi's choice; trial confirmed fullscreen is reported; our rule, not Chrome's error, decides |
 | Storage         | `rateNextAskAt`, `rateNeverAsk`; `ratePromptDone` moved and removed | Gate 0, approved by Rabbi                                                                     |
-| Prompt text     | Count rounded down to the hundred (50 below 100)                    | "50+ ads skipped" stays true at 150, 250, …                                                   |
+| Prompt text     | Count rounded down to the last milestone: 50, 150, 250, …           | Rabbi's choice; matches the auto-open points, and stays true                                  |
 | Don't ask again | A `<button>` in the prompt                                          | An action, not navigation; keyboard and screen readers treat it as one                        |
 | Slicing         | Popup first, then worker, then guards                               | Rabbi's choice; each group ships something usable                                             |
 | Validation      | Gate, manual pass in real Chrome, and an e2e test of the worker     | Rabbi's choice; the worker is the phase's new moving part                                     |

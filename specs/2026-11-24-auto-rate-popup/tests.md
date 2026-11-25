@@ -56,3 +56,45 @@ removes it. Used by the tests in groups 2–4.
 `action.setBadgeText` (resolve), `windows.getLastFocused` (resolves a
 focused `'normal'` window, the "safe to open" case; group 4 tests override
 it). `storage.local.remove` was already there.
+
+## 2. Repeat asks
+
+Behaviours: B1–B9 · Branch: phase-7-auto-rate-popup
+
+| #   | Behaviour | Level       | File                                        | Test name                                                                  | Status |
+| --- | --------- | ----------- | ------------------------------------------- | -------------------------------------------------------------------------- | ------ |
+| T1  | B3        | acceptance  | tests/integration/popup-rate-prompt.test.js | asks again 100 skips after the user closes the prompt                      | ⬜     |
+| T2  | B1, B5    | unit        | tests/unit/rate-ask.test.js                 | with $count skipped, next ask $nextAskAt, never $neverAsk: due $expected   | ⬜     |
+| T3  | B8        | unit        | tests/unit/rate-ask.test.js                 | reads a stored next ask of %s as 50                                        | ⬜     |
+| T4  | B8        | unit        | tests/unit/rate-ask.test.js                 | reads a stored "never ask" of %s as asking                                 | ⬜     |
+| T5  | B2        | unit        | tests/unit/rate-ask.test.js                 | names $count skips as "$shown+"                                            | ⬜     |
+| T6  | B1        | unit        | tests/unit/storage.test.js                  | reads a fresh install as a first ask at 50, writing nothing                | ⬜     |
+| T7  | B3, B5    | unit        | tests/unit/storage.test.js                  | saves a postponed ask and "don't ask again" in local storage only          | ⬜     |
+| T8  | B9        | unit        | tests/unit/storage.test.js                  | moves a handled 1.2.0 prompt to ask again 100 skips later                  | ⬜     |
+| T9  | B9        | unit        | tests/unit/storage.test.js                  | removes a 1.2.0 prompt state that wasn't true, keeping the first ask at 50 | ⬜     |
+| T10 | B2        | integration | tests/integration/popup-rate-prompt.test.js | asks for a rating once due, naming the count and offering three choices    | ⬜     |
+| T11 | B4        | integration | tests/integration/popup-rate-prompt.test.js | opens the reviews page and asks again 100 skips later after Rate it ★      | ⬜     |
+| T12 | B5        | integration | tests/integration/popup-rate-prompt.test.js | never asks again after "Don't ask again", even after a counter reset       | ⬜     |
+| T13 | B6        | integration | tests/integration/popup-rate-prompt.test.js | appears while the popup is open, once the next ask is reached              | ⬜     |
+| T14 | B7        | integration | tests/integration/popup-rate-prompt.test.js | doesn't come back early after the counter is reset                         | ⬜     |
+
+Phase 6 tests changed on purpose (× and Rate were final; now they postpone):
+
+- `tests/unit/rate-prompt.test.js` is replaced by T2 (`src/core/rate-prompt.js`
+  becomes `rate-ask.js`).
+- storage "rating prompt storage" (3 tests) is replaced by T6–T9
+  (`isRatePromptDone` / `markRatePromptDone` become `getRateAsk`,
+  `postponeRateAsk`, `stopRateAsk`).
+- popup "asks for a rating at the threshold, naming it" becomes T10.
+- popup "hides for good after the user clicks %s" becomes T1 (×) and T11
+  (Rate it ★).
+- popup "never comes back in a later popup once handled" is replaced by T1,
+  which reopens the popup before and at the next ask.
+- popup "appears while the popup is open…" becomes T13; "stays gone after the
+  counter is reset…" becomes T14.
+- popup "stays hidden below the threshold" is unchanged (B1).
+
+Gate 2 decisions: the prompt names the last milestone at or below the count
+(50, 150, 250, …; Rabbi's choice, requirements.md updated). The ask state is
+cleaned up by `normalizeRateAsk` in `src/core/rate-ask.js`; the one-time move
+runs inside `getRateAsk()` and never overwrites a stored `rateNextAskAt`.
