@@ -117,6 +117,43 @@ the popup must open or close by itself.
 13. Chrome's Task Manager: the extension's CPU use stays negligible, the
     worker idle between skips.
 
+## Run record
+
+### Automated checks
+
+Branch `phase-7-auto-rate-popup` at `d75d955`, 2026-11-25.
+
+| Check      | Result  | Notes                                                                                                           |
+| ---------- | ------- | --------------------------------------------------------------------------------------------------------------- |
+| Fast tests | ✅ pass | 22 files, 211 tests                                                                                             |
+| All tests  | ✅ pass | Fast tests plus 7 e2e, `rate-ask.spec.js` and the worker network lock                                           |
+| Lint       | ✅ pass | No errors or warnings                                                                                           |
+| Type check | ✅ pass | No errors                                                                                                       |
+| Format     | ✅ pass | No files need formatting                                                                                        |
+| Coverage   | ✅ pass | 96.11% statements                                                                                               |
+| Dist zips  | ✅ pass | Extension files only, `src/background/service-worker.js` and `rate-ask.js` included; the store zip has no `key` |
+
+### Manual pass
+
+Loaded unpacked in real Chrome 158 (Linux), 2026-11-25. Rabbi ran the
+checks and reports all 13 pass.
+
+| Check | Result  | Notes                                                                      |
+| ----- | ------- | -------------------------------------------------------------------------- |
+| 1     | ✅ pass | Loads with no errors; the service worker inspects clean; same permissions. |
+| 2     | ✅ pass | A 1.2.0 user who answered is never asked: no prompt, popup, or badge.      |
+| 3     | ✅ pass | At 49, a real skip opened the popup by itself; the video kept playing.     |
+| 4     | ✅ pass | Closed by clicking the page, it opened again at 150.                       |
+| 5     | ✅ pass | "Rate it ★" opened the reviews page and ended the asks.                    |
+| 6     | ✅ pass | × ended the asks, also after a counter reset and climbing back.            |
+| 7     | ✅ pass | Two YouTube tabs: the popup opened once.                                   |
+| 8     | ✅ pass | Fullscreen: no popup, ★ badge; opening the popup cleared it.               |
+| 9     | ✅ pass | Chrome not focused: ★ badge, not pulled to the front.                      |
+| 10    | ✅ pass | Light and dark mode, fixed width, keyboard and focus ring.                 |
+| 11    | ✅ pass | Phase 1–6 regression on real YouTube.                                      |
+| 12    | ✅ pass | No network requests from the popup or the service worker.                  |
+| 13    | ✅ pass | Negligible CPU use; the worker idles between skips.                        |
+
 ## Done means
 
 All checks above pass; `specs/tech-stack.md`, `specs/mission.md`,
