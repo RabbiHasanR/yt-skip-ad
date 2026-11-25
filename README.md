@@ -117,3 +117,12 @@ The selectors live in one place, `src/core/selectors.js`.
 
 Work follows test-driven development; see
 [specs/tech-stack.md](specs/tech-stack.md#development-workflow-tdd).
+
+## Contributing
+
+Bug reports and pull requests are welcome; start with
+[CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+[MIT](LICENSE)
