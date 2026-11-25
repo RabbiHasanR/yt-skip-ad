@@ -71,14 +71,16 @@ describe('popup rating prompt', () => {
     expect(ratePrompt()?.hidden).toBe(true);
   });
 
-  it('appears while the popup is open, once the threshold is reached', async () => {
-    // GIVEN one ad short of the threshold, and the popup open
-    await seedStorage({ skipCount: RATE_FIRST_ASK_AT - 1 }, 'local');
+  it('appears while the popup is open, once the next ask is reached', async () => {
+    // GIVEN one ad short of a next ask at 250, and the popup open
+    await seedStorage({ skipCount: 249, rateNextAskAt: 250 }, 'local');
     await openPopup();
+    expect(ratePrompt()?.hidden).toBe(true);
     // WHEN a YouTube tab skips one more ad
-    await chrome.storage.local.set({ skipCount: RATE_FIRST_ASK_AT });
-    // THEN the prompt appears
+    await chrome.storage.local.set({ skipCount: 250 });
+    // THEN the prompt appears, naming the new milestone
     await vi.waitFor(() => expect(ratePrompt()?.hidden).toBe(false));
+    expect(ratePrompt()?.textContent).toContain('250+ ads skipped');
   });
 
   it('opens the reviews page and asks again 100 skips later after Rate it ★', async () => {
