@@ -2,6 +2,7 @@
 
 **Skips the ad for you. Collects nothing.**
 
+[![CI](https://github.com/RabbiHasanR/yt-skip-ad/actions/workflows/ci.yml/badge.svg)](https://github.com/RabbiHasanR/yt-skip-ad/actions/workflows/ci.yml)
 [![Available in the Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-Install-4285F4?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/kdembckigpophgcgjfmbenkgnnkdoofe)
 
 ![An ad is skipped, then the popup shows the skip counter](docs/demo.gif)

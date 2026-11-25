@@ -44,6 +44,7 @@ Why no framework:
 | Type checks | `tsc --noEmit` with `checkJs` over JSDoc types                               |
 | Tests       | Vitest + jsdom (fast); Playwright + Chromium (e2e)                           |
 | Packaging   | `npm run package`: system `zip` over the source files, no build              |
+| CI          | GitHub Actions: `checks` and `e2e` on pull requests and pushes to `main`     |
 
 ## Storage schema
 
@@ -458,7 +459,26 @@ pass.
   manual pass on youtube.com: pre-roll, mid-roll, two-ad pod, unskippable ad,
   toggle off, delay 3 s, 5+ navigations, home page and Shorts, logged in and
   out, popup reopen.
-- CI is deferred (see [Deferred decisions](#deferred-decisions)).
+- **CI** _(decided 2026-11-25)_: GitHub Actions, `.github/workflows/ci.yml`,
+  on every pull request to `main` and every push to `main`. Two jobs on
+  Ubuntu with Node 24: `checks` (`npm ci`, lint, typecheck, format check,
+  `npm test`, `npm run package`) and `e2e` (Chromium installed, then
+  `npm run test:e2e`; the Playwright results are uploaded on failure).
+  A `changes` job first runs `git diff`: when every changed file is docs
+  (`*.md`, `LICENSE`, `docs/`, `specs/`, `.claude/`,
+  `.github/ISSUE_TEMPLATE/`), `checks` runs only the format check and `e2e`
+  is skipped; anything else, or a diff that fails, runs everything. No
+  `paths-ignore` or `[skip ci]`: GitHub leaves a required check "Pending"
+  when the whole workflow is skipped, while a skipped job counts as passed.
+  CI only reads the repo (`permissions: contents: read`); fork PRs get no
+  secrets, and a first-time contributor's run needs approval. Coverage is
+  not a gate. The `protect main` ruleset requires `checks` and `e2e` to
+  pass before a pull request merges.
+- **Branch flow:** changes reach `main` through pull requests, the
+  maintainer's included (Rabbi, 2026-11-25). The ruleset blocks force
+  pushes and deletion, and requires a pull request (0 approvals); the
+  repository admin can bypass it, for emergencies only. Pull requests are
+  squash-merged, so history stays linear.
 
 ## Development workflow (TDD)
 
@@ -624,9 +644,6 @@ regular (unmanaged) Chrome, so "Load unpacked" works.
 
 ## Deferred decisions
 
-- **CI:** lint, format check, type check, and tests on every push. The repo
-  now has a remote, but it is a self-hosted git server, not GitHub, so
-  GitHub Actions needs a compatible runner there; still to decide.
 - **One ID for store and zip builds:** after the first upload, the store's
   public key (dashboard → Package → View public key) could replace the local
   `key`, so unpacked builds share the store ID. Not needed yet.
