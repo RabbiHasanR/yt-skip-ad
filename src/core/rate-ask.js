@@ -31,12 +31,12 @@ export function isAskDue(skipCount, state) {
  * @returns {RateAsk} A valid ask state.
  */
 export function normalizeRateAsk(raw) {
-  const { nextAskAt } = raw;
+  const { nextAskAt, neverAsk } = raw;
   return {
     nextAskAt:
       Number.isInteger(nextAskAt) && /** @type {number} */ (nextAskAt) >= 0
         ? /** @type {number} */ (nextAskAt)
         : RATE_FIRST_ASK_AT,
-    neverAsk: false,
+    neverAsk: neverAsk === true,
   };
 }

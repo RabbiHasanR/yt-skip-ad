@@ -40,4 +40,21 @@ describe('rating ask rules', () => {
       expect(nextAskAt).toBe(expected);
     },
   );
+
+  it.each([
+    { stored: true, expected: true },
+    ...[undefined, null, false, 'true', 1].map((stored) => ({
+      stored,
+      expected: false,
+    })),
+  ])(
+    'reads a stored "never ask" of $stored as $expected',
+    ({ stored, expected }) => {
+      // GIVEN a "never ask" in storage, maybe missing or invalid
+      // WHEN the ask state is cleaned up
+      const { neverAsk } = normalizeRateAsk({ neverAsk: stored });
+      // THEN only a real `true` stops the asks
+      expect(neverAsk).toBe(expected);
+    },
+  );
 });
