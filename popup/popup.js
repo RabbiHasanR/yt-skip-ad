@@ -39,6 +39,10 @@ const rateCount = /** @type {HTMLElement} */ (
   document.getElementById('rate-count')
 );
 
+// Opening the popup answers the ★ badge the worker set when it couldn't
+// open by itself.
+chrome.action.setBadgeText({ text: '' });
+
 // Store links live in constants.js, filled in here.
 document.querySelectorAll('[data-store-reviews]').forEach((link) => {
   /** @type {HTMLAnchorElement} */ (link).href = STORE_REVIEWS_URL;

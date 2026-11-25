@@ -184,4 +184,14 @@ describe('popup rating prompt', () => {
     await chrome.storage.local.set({ skipCount: RATE_FIRST_ASK_AT });
     await vi.waitFor(() => expect(ratePrompt()?.hidden).toBe(false));
   });
+
+  it('clears the ★ badge when the popup opens', async () => {
+    // GIVEN the worker showed the ★ badge while the popup couldn't open
+    await seedStorage({ skipCount: RATE_FIRST_ASK_AT }, 'local');
+    // WHEN the user opens the popup
+    await openPopup();
+    // THEN the badge is cleared, and the prompt it pointed to is shown
+    expect(chrome.action.setBadgeText).toHaveBeenCalledWith({ text: '' });
+    expect(ratePrompt()?.hidden).toBe(false);
+  });
 });
