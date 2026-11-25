@@ -3,9 +3,11 @@
 // src/shared/storage.js. Listeners are added at the top level, so Chrome
 // finds them when a storage change wakes the worker.
 import { crossedMilestone } from '../core/rate-ask.js';
-import { watchSkipCountChange } from '../shared/storage.js';
+import { isRatePromptDone, watchSkipCountChange } from '../shared/storage.js';
 
-watchSkipCountChange((oldCount, newCount) => {
+watchSkipCountChange(async (oldCount, newCount) => {
   if (!crossedMilestone(oldCount, newCount)) return;
-  chrome.action.openPopup();
+  // An answered prompt ("Rate it ★" or ×) is never asked again.
+  if (await isRatePromptDone()) return;
+  await chrome.action.openPopup();
 });

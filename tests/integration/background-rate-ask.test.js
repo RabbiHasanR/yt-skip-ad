@@ -52,4 +52,20 @@ describe('background rating auto-open', () => {
       expect(chrome.action.openPopup).toHaveBeenCalledTimes(2),
     );
   });
+
+  it('never opens the popup once the prompt is answered', async () => {
+    // GIVEN the user answered the prompt at 49 skips, and the worker is running
+    await seedStorage(
+      { skipCount: RATE_FIRST_ASK_AT - 1, ratePromptDone: true },
+      'local',
+    );
+    await startWorker();
+    // WHEN skipping goes on past 50 and 150
+    for (let count = RATE_FIRST_ASK_AT; count <= 150; count += 1) {
+      await skipTo(count);
+    }
+    // THEN the popup never opens by itself
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(chrome.action.openPopup).not.toHaveBeenCalled();
+  });
 });
