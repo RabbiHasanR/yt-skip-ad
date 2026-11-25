@@ -3,7 +3,7 @@
 import { shouldShowRatePrompt } from '../src/core/rate-prompt.js';
 import { parseDelayField } from '../src/core/settings.js';
 import {
-  RATE_PROMPT_THRESHOLD,
+  RATE_FIRST_ASK_AT,
   STORE_REVIEWS_URL,
 } from '../src/shared/constants.js';
 import {
@@ -44,7 +44,7 @@ document.querySelectorAll('[data-store-reviews]').forEach((link) => {
 });
 /** @type {HTMLElement} */ (
   document.getElementById('rate-threshold')
-).textContent = String(RATE_PROMPT_THRESHOLD);
+).textContent = String(RATE_FIRST_ASK_AT);
 
 let ratePromptDone = await isRatePromptDone();
 

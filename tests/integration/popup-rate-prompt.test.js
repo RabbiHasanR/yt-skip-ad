@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  RATE_PROMPT_THRESHOLD,
+  RATE_FIRST_ASK_AT,
   STORE_REVIEWS_URL,
 } from '../../src/shared/constants.js';
 import { openPopup } from '../fixtures/popup.js';
@@ -41,7 +41,7 @@ describe('popup rating prompt', () => {
 
   it('stays hidden below the threshold', async () => {
     // GIVEN fewer ads skipped than the threshold
-    await seedStorage({ skipCount: RATE_PROMPT_THRESHOLD - 1 }, 'local');
+    await seedStorage({ skipCount: RATE_FIRST_ASK_AT - 1 }, 'local');
     // WHEN the user opens the popup
     await openPopup();
     // THEN no rating is asked for
@@ -50,10 +50,10 @@ describe('popup rating prompt', () => {
 
   it('appears while the popup is open, once the threshold is reached', async () => {
     // GIVEN one ad short of the threshold, and the popup open
-    await seedStorage({ skipCount: RATE_PROMPT_THRESHOLD - 1 }, 'local');
+    await seedStorage({ skipCount: RATE_FIRST_ASK_AT - 1 }, 'local');
     await openPopup();
     // WHEN a YouTube tab skips one more ad
-    await chrome.storage.local.set({ skipCount: RATE_PROMPT_THRESHOLD });
+    await chrome.storage.local.set({ skipCount: RATE_FIRST_ASK_AT });
     // THEN the prompt appears
     await vi.waitFor(() => expect(ratePrompt()?.hidden).toBe(false));
   });
@@ -62,7 +62,7 @@ describe('popup rating prompt', () => {
     'hides for good after the user clicks %s',
     async (name) => {
       // GIVEN the prompt is showing
-      await seedStorage({ skipCount: RATE_PROMPT_THRESHOLD }, 'local');
+      await seedStorage({ skipCount: RATE_FIRST_ASK_AT }, 'local');
       await openPopup();
       // WHEN the user clicks the control
       promptControl(name)?.dispatchEvent(
@@ -71,10 +71,10 @@ describe('popup rating prompt', () => {
       // THEN it hides now, is remembered, and stays hidden as the count grows
       expect(ratePrompt()?.hidden).toBe(true);
       await vi.waitFor(async () => expect(await storedDone()).toBe(true));
-      await chrome.storage.local.set({ skipCount: RATE_PROMPT_THRESHOLD + 1 });
+      await chrome.storage.local.set({ skipCount: RATE_FIRST_ASK_AT + 1 });
       await vi.waitFor(async () =>
         expect(document.querySelector('output')?.value).toBe(
-          String(RATE_PROMPT_THRESHOLD + 1),
+          String(RATE_FIRST_ASK_AT + 1),
         ),
       );
       expect(ratePrompt()?.hidden).toBe(true);
@@ -84,7 +84,7 @@ describe('popup rating prompt', () => {
   it('never comes back in a later popup once handled', async () => {
     // GIVEN the user dismissed the prompt earlier
     await seedStorage(
-      { skipCount: RATE_PROMPT_THRESHOLD * 2, ratePromptDone: true },
+      { skipCount: RATE_FIRST_ASK_AT * 2, ratePromptDone: true },
       'local',
     );
     // WHEN they open the popup again
@@ -96,16 +96,16 @@ describe('popup rating prompt', () => {
   it('stays gone after the counter is reset and climbs again', async () => {
     // GIVEN the prompt was handled, and the popup is open
     await seedStorage(
-      { skipCount: RATE_PROMPT_THRESHOLD, ratePromptDone: true },
+      { skipCount: RATE_FIRST_ASK_AT, ratePromptDone: true },
       'local',
     );
     const { count, reset } = await openPopup();
     // WHEN the user resets the counter, and it climbs past the threshold again
     reset?.click();
     await vi.waitFor(() => expect(count?.value).toBe('0'));
-    await chrome.storage.local.set({ skipCount: RATE_PROMPT_THRESHOLD + 10 });
+    await chrome.storage.local.set({ skipCount: RATE_FIRST_ASK_AT + 10 });
     await vi.waitFor(() =>
-      expect(count?.value).toBe(String(RATE_PROMPT_THRESHOLD + 10)),
+      expect(count?.value).toBe(String(RATE_FIRST_ASK_AT + 10)),
     );
     // THEN no rating is asked for, now or in a later popup
     expect(ratePrompt()?.hidden).toBe(true);
@@ -116,13 +116,13 @@ describe('popup rating prompt', () => {
 
   it('asks for a rating at the threshold, naming it', async () => {
     // GIVEN the threshold of ads skipped
-    await seedStorage({ skipCount: RATE_PROMPT_THRESHOLD }, 'local');
+    await seedStorage({ skipCount: RATE_FIRST_ASK_AT }, 'local');
     // WHEN the user opens the popup
     await openPopup();
     // THEN it asks for a rating, links to the store reviews in a new tab,
     // and says how many ads were skipped
     expect(ratePrompt()?.hidden).toBe(false);
-    expect(ratePrompt()?.textContent).toContain(`${RATE_PROMPT_THRESHOLD}+`);
+    expect(ratePrompt()?.textContent).toContain(`${RATE_FIRST_ASK_AT}+`);
     const link = /** @type {HTMLAnchorElement} */ (promptControl('Rate it ★'));
     expect(link.href).toBe(STORE_REVIEWS_URL);
     expect(link.target).toBe('_blank');

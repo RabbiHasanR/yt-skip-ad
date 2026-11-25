@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { shouldShowRatePrompt } from '../../src/core/rate-prompt.js';
-import { RATE_PROMPT_THRESHOLD } from '../../src/shared/constants.js';
+import { RATE_FIRST_ASK_AT } from '../../src/shared/constants.js';
 
 describe('rating prompt rules', () => {
   it.each([
     { count: 0, done: false, expected: false },
-    { count: RATE_PROMPT_THRESHOLD - 1, done: false, expected: false },
-    { count: RATE_PROMPT_THRESHOLD, done: false, expected: true },
-    { count: RATE_PROMPT_THRESHOLD * 10, done: false, expected: true },
-    { count: RATE_PROMPT_THRESHOLD, done: true, expected: false },
+    { count: RATE_FIRST_ASK_AT - 1, done: false, expected: false },
+    { count: RATE_FIRST_ASK_AT, done: false, expected: true },
+    { count: RATE_FIRST_ASK_AT * 10, done: false, expected: true },
+    { count: RATE_FIRST_ASK_AT, done: true, expected: false },
   ])(
     'with $count ads skipped and done=$done, shows it: $expected',
     ({ count, done, expected }) => {

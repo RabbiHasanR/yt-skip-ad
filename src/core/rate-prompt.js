@@ -1,7 +1,7 @@
 // Rating prompt rules: when the popup asks the user for a store rating.
 // Asked once, after the extension has proven itself; never again after the
 // user rates or dismisses it.
-import { RATE_PROMPT_THRESHOLD } from '../shared/constants.js';
+import { RATE_FIRST_ASK_AT } from '../shared/constants.js';
 
 /**
  * Decides whether the popup shows the rating prompt.
@@ -11,5 +11,5 @@ import { RATE_PROMPT_THRESHOLD } from '../shared/constants.js';
  * @returns {boolean} `true` when the prompt should be shown.
  */
 export function shouldShowRatePrompt(skipCount, done) {
-  return !done && skipCount >= RATE_PROMPT_THRESHOLD;
+  return !done && skipCount >= RATE_FIRST_ASK_AT;
 }

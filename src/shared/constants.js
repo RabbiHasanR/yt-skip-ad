@@ -49,8 +49,11 @@ export const DEFAULT_SKIP_COUNT = 0;
 export const STORE_REVIEWS_URL =
   'https://chromewebstore.google.com/detail/kdembckigpophgcgjfmbenkgnnkdoofe/reviews';
 
-/** Ads skipped before the popup asks for a rating. */
-export const RATE_PROMPT_THRESHOLD = 50;
+/**
+ * Ads skipped before the popup first asks for a rating; a fresh install's
+ * next ask.
+ */
+export const RATE_FIRST_ASK_AT = 50;
 
 /**
  * Storage key of the rating prompt's state, in `chrome.storage.local`: `true`
