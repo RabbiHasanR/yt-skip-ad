@@ -13,6 +13,18 @@ const EXTENSION_ORIGIN = 'chrome-extension://test-id/';
 function createChromeMock() {
   const onChanged = createEvent();
   return {
+    action: {
+      openPopup: vi.fn(async () => {}),
+      setBadgeText: vi.fn(async () => {}),
+    },
+    windows: {
+      // The "safe to open" case by default; guard tests override it.
+      getLastFocused: vi.fn(async () => ({
+        id: 1,
+        focused: true,
+        state: 'normal',
+      })),
+    },
     runtime: {
       getURL: vi.fn(
         (/** @type {string} */ path) => `${EXTENSION_ORIGIN}${path}`,
