@@ -100,3 +100,13 @@ cleaned up by `normalizeRateAsk` in `src/core/rate-ask.js`; the one-time move
 runs inside `getRateAsk()`. It sets the next ask even if one is stored: both
 can only exist together after a downgrade to 1.2.0 and back, and asking 100
 skips later is then still right.
+
+Notes: T14 was built before T10. Switching the popup to `getRateAsk()` runs
+the one-time move, which removes `ratePromptDone`, so the Phase 6 reset test
+it replaces broke at that step. T3 and T4 became tables of stored and
+expected values: "always 50" would otherwise pass T3. T1 turned green with
+T11, since × and Rate share one handler. T13 passed when written, because
+T10's green already refreshed the prompt on live count changes; a popup
+whose live updates only refresh the counter was shown to fail it. The
+replaced Phase 6 code (`src/core/rate-prompt.js`, `isRatePromptDone`,
+`markRatePromptDone`) and tests were removed once nothing used them.
