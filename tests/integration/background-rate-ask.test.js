@@ -160,4 +160,20 @@ describe('background rating auto-open', () => {
       }),
     );
   });
+
+  it('never shows the badge once the prompt is answered', async () => {
+    // GIVEN the prompt answered at 49 skips, and a fullscreen video
+    await seedStorage(
+      { skipCount: RATE_FIRST_ASK_AT - 1, ratePromptDone: true },
+      'local',
+    );
+    lastFocusedWindow({ state: 'fullscreen', focused: true });
+    await startWorker();
+    // WHEN a YouTube tab skips the 50th ad
+    await skipTo(RATE_FIRST_ASK_AT);
+    // THEN no badge appears, and the popup stays closed
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(chrome.action.setBadgeText).not.toHaveBeenCalled();
+    expect(chrome.action.openPopup).not.toHaveBeenCalled();
+  });
 });
