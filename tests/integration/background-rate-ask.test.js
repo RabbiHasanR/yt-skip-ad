@@ -27,7 +27,7 @@ describe('background rating auto-open', () => {
     vi.resetModules();
   });
 
-  it.fails('opens the popup when the 50th ad is skipped', async () => {
+  it('opens the popup when the 50th ad is skipped', async () => {
     // GIVEN 49 ads skipped, the prompt unanswered, and the worker running
     await seedStorage({ skipCount: RATE_FIRST_ASK_AT - 1 }, 'local');
     await startWorker();
@@ -36,6 +36,20 @@ describe('background rating auto-open', () => {
     // THEN the popup opens by itself, once
     await vi.waitFor(() =>
       expect(chrome.action.openPopup).toHaveBeenCalledTimes(1),
+    );
+  });
+
+  it('opens the popup again at 150 and 250 while the prompt is unanswered', async () => {
+    // GIVEN the popup opened at 50, but the user closed it without answering
+    await seedStorage({ skipCount: RATE_FIRST_ASK_AT }, 'local');
+    await startWorker();
+    // WHEN skipping goes on past 150 and 250
+    for (let count = RATE_FIRST_ASK_AT + 1; count <= 250; count += 1) {
+      await skipTo(count);
+    }
+    // THEN the popup opens by itself once at each of them
+    await vi.waitFor(() =>
+      expect(chrome.action.openPopup).toHaveBeenCalledTimes(2),
     );
   });
 });

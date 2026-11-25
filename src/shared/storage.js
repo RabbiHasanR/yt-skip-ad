@@ -149,10 +149,23 @@ export async function resetSkipCount() {
  * @param {(count: number) => void} listener Gets the cleaned-up count.
  */
 export function watchSkipCount(listener) {
+  watchSkipCountChange((_oldCount, newCount) => listener(newCount));
+}
+
+/**
+ * Calls `listener` with the skip count before and after each change in
+ * storage. Adds its `chrome.storage.onChanged` listener at once, so a service
+ * worker calling it at the top level hears the change that woke it.
+ *
+ * @param {(oldCount: number, newCount: number) => void} listener Gets both
+ *   counts, cleaned up; a first count has an old count of 0.
+ */
+export function watchSkipCountChange(listener) {
   chrome.storage.onChanged.addListener((changes, areaName) => {
     // A settings save says nothing about the count.
     if (areaName !== 'local' || !(SKIP_COUNT_KEY in changes)) return;
-    listener(normalizeSkipCount(changes[SKIP_COUNT_KEY].newValue));
+    const { oldValue, newValue } = changes[SKIP_COUNT_KEY];
+    listener(normalizeSkipCount(oldValue), normalizeSkipCount(newValue));
   });
 }
 
