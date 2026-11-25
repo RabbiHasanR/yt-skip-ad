@@ -1,15 +1,15 @@
 // Popup wiring: shows the stored settings in the controls and saves changes.
 // The rules live in src/core/; storage access in src/shared/storage.js.
-import { shouldShowRatePrompt } from '../src/core/rate-prompt.js';
+import { isAskDue } from '../src/core/rate-ask.js';
 import { parseDelayField } from '../src/core/settings.js';
 import {
   RATE_FIRST_ASK_AT,
   STORE_REVIEWS_URL,
 } from '../src/shared/constants.js';
 import {
+  getRateAsk,
   getSettings,
   getSkipCount,
-  isRatePromptDone,
   markRatePromptDone,
   resetSkipCount,
   setSettings,
@@ -46,7 +46,8 @@ document.querySelectorAll('[data-store-reviews]').forEach((link) => {
   document.getElementById('rate-threshold')
 ).textContent = String(RATE_FIRST_ASK_AT);
 
-let ratePromptDone = await isRatePromptDone();
+const rateAsk = await getRateAsk();
+let ratePromptDone = false;
 
 /**
  * Shows a skip count in the counter.
@@ -55,7 +56,7 @@ let ratePromptDone = await isRatePromptDone();
  */
 const showCount = (count) => {
   countOutput.value = count.toLocaleString();
-  ratePrompt.hidden = !shouldShowRatePrompt(count, ratePromptDone);
+  ratePrompt.hidden = ratePromptDone || !isAskDue(count, rateAsk);
 };
 
 /** Hides the rating prompt for good: this popup and every later one. */

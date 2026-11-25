@@ -76,7 +76,7 @@ Behaviours: B1–B9 · Branch: phase-7-auto-rate-popup
 | T11 | B4        | integration | tests/integration/popup-rate-prompt.test.js | opens the reviews page and asks again 100 skips later after Rate it ★      | ⬜     |
 | T12 | B5        | integration | tests/integration/popup-rate-prompt.test.js | never asks again after "Don't ask again", even after a counter reset       | ⬜     |
 | T13 | B6        | integration | tests/integration/popup-rate-prompt.test.js | appears while the popup is open, once the next ask is reached              | ⬜     |
-| T14 | B7        | integration | tests/integration/popup-rate-prompt.test.js | doesn't come back early after the counter is reset                         | ⬜     |
+| T14 | B7        | integration | tests/integration/popup-rate-prompt.test.js | doesn't come back early after the counter is reset                         | ✅     |
 
 Phase 6 tests changed on purpose (× and Rate were final; now they postpone):
 
