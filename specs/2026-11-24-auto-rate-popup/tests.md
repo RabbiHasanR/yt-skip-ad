@@ -205,7 +205,7 @@ Behaviours: B14–B18 · Branch: phase-7-auto-rate-popup
 | T34 | B15       | integration | tests/integration/background-rate-ask.test.js | shows a badge when Chrome isn't the focused app                               | ✅     |
 | T35 | B15       | integration | tests/integration/background-rate-ask.test.js | shows a badge when Chrome refuses to open the popup                           | ✅     |
 | T36 | B16       | integration | tests/integration/background-rate-ask.test.js | never shows the badge once the prompt is answered                             | ✅     |
-| T37 | B18       | integration | tests/integration/background-rate-ask.test.js | logs a failed check with [yt-skip-ad] and still opens at the next milestone   | ⬜     |
+| T37 | B18       | integration | tests/integration/background-rate-ask.test.js | logs a failed check with [yt-skip-ad] and still opens at the next milestone   | ✅     |
 | T38 | B16       | integration | tests/integration/popup-rate-prompt.test.js   | clears the ★ badge when the popup opens                                       | ⬜     |
 | T39 | B13, B14  | e2e         | tests/e2e/rate-ask.spec.js                    | the real worker shows a ★ badge when a skip crosses 50 in a fullscreen window | ⬜     |
 | T40 | B17       | e2e         | tests/e2e/network-lock.spec.js                | Chrome blocks a network request from the extension's service worker           | ⬜     |

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  LOG_PREFIX,
   RATE_BADGE_TEXT,
   RATE_FIRST_ASK_AT,
 } from '../../src/shared/constants.js';
@@ -175,5 +176,29 @@ describe('background rating auto-open', () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(chrome.action.setBadgeText).not.toHaveBeenCalled();
     expect(chrome.action.openPopup).not.toHaveBeenCalled();
+  });
+
+  it('logs a failed check with [yt-skip-ad] and still opens at the next milestone', async () => {
+    // GIVEN 49 ads skipped, and Chrome failing once to report its window
+    await seedStorage({ skipCount: RATE_FIRST_ASK_AT - 1 }, 'local');
+    const failure = new Error('No window');
+    /** @type {import('vitest').Mock} */ (
+      chrome.windows.getLastFocused
+    ).mockRejectedValueOnce(failure);
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {});
+    await startWorker();
+    // WHEN the 50th ad is skipped, and later the 150th
+    await skipTo(RATE_FIRST_ASK_AT);
+    // THEN the failure is logged with the prefix, and the worker keeps going
+    await vi.waitFor(() =>
+      expect(logged).toHaveBeenCalledWith(
+        `${LOG_PREFIX} rating auto-open failed`,
+        failure,
+      ),
+    );
+    await skipTo(150);
+    await vi.waitFor(() =>
+      expect(chrome.action.openPopup).toHaveBeenCalledTimes(1),
+    );
   });
 });
