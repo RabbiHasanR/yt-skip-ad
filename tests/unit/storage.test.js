@@ -3,6 +3,7 @@ import {
   getRateAsk,
   getSettings,
   incrementSkipCount,
+  isRatePromptDone,
   postponeRateAsk,
   setSettings,
   stopRateAsk,
@@ -197,4 +198,26 @@ describe('rating ask storage', () => {
       await chrome.storage.local.get(['rateNextAskAt', 'ratePromptDone']),
     ).toEqual({});
   });
+});
+
+describe('rating prompt answer storage', () => {
+  it.each([
+    { stored: undefined, expected: false },
+    { stored: true, expected: true },
+    { stored: false, expected: false },
+    { stored: 1, expected: false },
+    { stored: 'true', expected: false },
+    { stored: null, expected: false },
+  ])(
+    'reads a stored prompt state of $stored as answered: $expected',
+    async ({ stored, expected }) => {
+      // GIVEN a prompt state in storage, maybe missing or invalid
+      if (stored !== undefined) {
+        await seedStorage({ ratePromptDone: stored }, 'local');
+      }
+      // WHEN the popup reads it
+      // THEN only a real `true` means the user answered
+      expect(await isRatePromptDone()).toBe(expected);
+    },
+  );
 });

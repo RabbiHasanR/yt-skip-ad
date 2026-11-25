@@ -214,3 +214,16 @@ export async function postponeRateAsk(skipCount) {
 export async function stopRateAsk() {
   await chrome.storage.local.set({ [RATE_NEVER_ASK_KEY]: true });
 }
+
+/**
+ * Reads whether the user answered the rating prompt ("Rate it ★" or ×).
+ *
+ * @returns {Promise<boolean>} `true` once answered; `false` when missing or
+ *   invalid.
+ */
+export async function isRatePromptDone() {
+  const stored = await chrome.storage.local.get({
+    [RATE_PROMPT_DONE_KEY]: false,
+  });
+  return stored[RATE_PROMPT_DONE_KEY] === true;
+}

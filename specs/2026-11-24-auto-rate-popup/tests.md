@@ -122,7 +122,7 @@ Behaviours: B1–B9 · Branch: phase-7-auto-rate-popup
 | #   | Behaviour | Level       | File                                        | Test name                                                             | Status |
 | --- | --------- | ----------- | ------------------------------------------- | --------------------------------------------------------------------- | ------ |
 | T15 | B3        | acceptance  | tests/integration/popup-rate-prompt.test.js | never asks again after the user closes the prompt                     | 🔴     |
-| T16 | B8        | unit        | tests/unit/storage.test.js                  | reads a stored prompt state of $stored as answered: $expected         | ⬜     |
+| T16 | B8        | unit        | tests/unit/storage.test.js                  | reads a stored prompt state of $stored as answered: $expected         | ✅     |
 | T17 | B3, B4    | unit        | tests/unit/storage.test.js                  | remembers the answer, in local storage only                           | ⬜     |
 | T18 | B4        | integration | tests/integration/popup-rate-prompt.test.js | opens the reviews page and never asks again after Rate it ★           | ⬜     |
 | T19 | B2        | integration | tests/integration/popup-rate-prompt.test.js | asks for a rating once due, naming the count, with Rate it ★ and ×    | ⬜     |
