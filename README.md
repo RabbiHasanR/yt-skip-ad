@@ -29,8 +29,9 @@ Full policy: **[PRIVACY.md](PRIVACY.md)**. In short:
   check fails if any is added), and the manifest's Content Security Policy
   (`connect-src 'none'`) makes Chrome itself block the popup from
   connecting anywhere.
-- **What it stores:** your two settings (on/off, delay) and the skip counter,
-  in Chrome's local extension storage. Not synced, not sent.
+- **What it stores:** your two settings (on/off, delay), the skip counter,
+  and whether you answered the rating request, in Chrome's local extension
+  storage. Not synced, not sent.
 - **Why it needs youtube.com:** to see the ad's Skip button and click it.
   Chrome words this as "read and change your data on youtube.com"; it is the
   permission every extension needs to run on a site.
@@ -91,20 +92,21 @@ commit a `.pem` file.
 
 ### Layout
 
-| Path            | What                                                                  |
-| --------------- | --------------------------------------------------------------------- |
-| `manifest.json` | Extension manifest (MV3)                                              |
-| `src/core/`     | Rules: selectors, ad detection, skipper, settings, skip count, timing |
-| `src/shared/`   | Constants, settings defaults, and the storage adapter                 |
-| `src/content/`  | `loader.js` imports `main.js`; `trusted-click.js`                     |
-| `popup/`        | Toolbar popup: auto-skip toggle, delay, skip counter                  |
-| `icons/`        | 16/48/128 px icons                                                    |
-| `USER-GUIDE.md` | Install, use, update, uninstall (also in the zip)                     |
-| `PRIVACY.md`    | Privacy policy, linked from the popup and the store listing           |
-| `docs/store/`   | Store listing text, privacy-practices answers, and images             |
-| `scripts/`      | Dev tooling: `package.js` builds the dist zip                         |
-| `tests/`        | `unit/`, `integration/`, `e2e/`, `fixtures/`, `setup/`                |
-| `specs/`        | Mission, roadmap, tech stack, and per-phase specs                     |
+| Path              | What                                                                              |
+| ----------------- | --------------------------------------------------------------------------------- |
+| `manifest.json`   | Extension manifest (MV3)                                                          |
+| `src/core/`       | Rules: selectors, ad detection, skipper, settings, skip count, timing, rating ask |
+| `src/shared/`     | Constants, settings defaults, and the storage adapter                             |
+| `src/content/`    | `loader.js` imports `main.js`; `trusted-click.js`                                 |
+| `src/background/` | Service worker: opens the popup at rating milestones                              |
+| `popup/`          | Toolbar popup: auto-skip toggle, delay, skip counter, rating request              |
+| `icons/`          | 16/48/128 px icons                                                                |
+| `USER-GUIDE.md`   | Install, use, update, uninstall (also in the zip)                                 |
+| `PRIVACY.md`      | Privacy policy, linked from the popup and the store listing                       |
+| `docs/store/`     | Store listing text, privacy-practices answers, and images                         |
+| `scripts/`        | Dev tooling: `package.js` builds the dist zip                                     |
+| `tests/`          | `unit/`, `integration/`, `e2e/`, `fixtures/`, `setup/`                            |
+| `specs/`          | Mission, roadmap, tech stack, and per-phase specs                                 |
 
 **When skipping stops working**, YouTube has most likely renamed a class.
 The selectors live in one place, `src/core/selectors.js`.

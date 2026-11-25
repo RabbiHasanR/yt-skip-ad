@@ -1,6 +1,6 @@
 # Privacy Policy — Skip Ad for YouTube
 
-_Last updated: 19 November 2026 · Applies to version 1.1.0 and later_
+_Last updated: 25 November 2026 · Applies to version 1.1.0 and later_
 
 **Short version: Skip Ad for YouTube collects nothing.** No personal data, no browsing
 history, no analytics, no crash reports, no identifiers. It has no account,
@@ -8,14 +8,15 @@ no server, and makes no network requests.
 
 ## What the extension stores, and where
 
-Three values, kept **only on your computer**, in Chrome's own extension
+Four values, kept **only on your computer**, in Chrome's own extension
 storage (`chrome.storage.local`):
 
-| Value       | What it is                                     |
-| ----------- | ---------------------------------------------- |
-| `enabled`   | Whether auto-skip is on                        |
-| `delaySec`  | Seconds to wait before clicking Skip (0–10)    |
-| `skipCount` | How many ads the extension has skipped for you |
+| Value            | What it is                                            |
+| ---------------- | ----------------------------------------------------- |
+| `enabled`        | Whether auto-skip is on                               |
+| `delaySec`       | Seconds to wait before clicking Skip (0–10)           |
+| `skipCount`      | How many ads the extension has skipped for you        |
+| `ratePromptDone` | Whether you answered the rating request (since 1.2.0) |
 
 These values are never sent anywhere, and Chrome Sync doesn't copy them to
 your other devices. Removing the extension deletes them.
@@ -34,7 +35,7 @@ search, or type, and it does nothing on any other website.
 
 | Permission                                   | Why                                                                                                                                   |
 | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| **Storage**                                  | To remember your two settings and the skip counter, on your computer                                                                  |
+| **Storage**                                  | To remember your two settings, the skip counter, and whether you answered the rating request, on your computer                        |
 | **Read and change your data on youtube.com** | To see when an ad's Skip button appears and click it. This is how Chrome words the permission every extension needs to run on a site. |
 
 That's all. No access to other sites, tabs, history, downloads, or cookies.
@@ -53,7 +54,7 @@ You don't have to take our word for it:
    Policy error: the extension's manifest forbids its pages from connecting
    to anything.
 4. **Storage:** in the popup console, `await chrome.storage.local.get(null)`
-   shows everything the extension keeps: the three values above.
+   shows everything the extension keeps: the four values above.
 5. **Source code:** every line is public at
    <https://github.com/RabbiHasanR/yt-skip-ad>. It is not minified and has no
    build step, so the code in the repo is the code Chrome runs.
