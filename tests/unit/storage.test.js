@@ -4,6 +4,7 @@ import {
   getSettings,
   incrementSkipCount,
   isRatePromptDone,
+  markRatePromptDone,
   postponeRateAsk,
   setSettings,
   stopRateAsk,
@@ -220,4 +221,13 @@ describe('rating prompt answer storage', () => {
       expect(await isRatePromptDone()).toBe(expected);
     },
   );
+
+  it('remembers the answer, in local storage only', async () => {
+    // GIVEN a fresh install
+    // WHEN the user rates or closes the prompt
+    await markRatePromptDone();
+    // THEN it is answered from now on, and Chrome Sync never gets a copy
+    expect(await isRatePromptDone()).toBe(true);
+    expect(chrome.storage.sync.set).not.toHaveBeenCalled();
+  });
 });

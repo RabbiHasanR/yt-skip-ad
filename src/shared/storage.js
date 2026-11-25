@@ -227,3 +227,13 @@ export async function isRatePromptDone() {
   });
   return stored[RATE_PROMPT_DONE_KEY] === true;
 }
+
+/**
+ * Remembers that the user answered the rating prompt, so it is never shown
+ * again and the popup never opens by itself for it.
+ *
+ * @returns {Promise<void>} Resolves once stored.
+ */
+export async function markRatePromptDone() {
+  await chrome.storage.local.set({ [RATE_PROMPT_DONE_KEY]: true });
+}
