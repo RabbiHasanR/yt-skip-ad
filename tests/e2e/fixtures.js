@@ -116,8 +116,8 @@ export const test = base.extend({
     await context.close();
   },
   extensionId: async ({ extensionDir }, use) => {
-    // With no service worker, Playwright can't read the ID; the manifest's
-    // key fixes it instead, whatever folder Chromium loads.
+    // The manifest's key fixes the ID, whatever folder Chromium loads, so
+    // no test has to wait for the service worker to read it from its URL.
     const manifestPath = join(extensionDir, 'manifest.json');
     const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
     await use(extensionIdFromKey(manifest.key));
