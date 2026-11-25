@@ -130,4 +130,23 @@ describe('popup rating prompt', () => {
     expect(ratePrompt()?.hidden).toBe(true);
     expect(await storedDone()).toBe(true);
   });
+
+  it('stays gone after the counter is reset, once answered', async () => {
+    // GIVEN the prompt was answered, and the popup is open at 50 skips
+    await seedStorage(
+      { skipCount: RATE_FIRST_ASK_AT, ratePromptDone: true },
+      'local',
+    );
+    const { count, reset } = await openPopup();
+    // WHEN the user resets the counter, and it climbs past 50 again
+    reset?.click();
+    await vi.waitFor(() => expect(count?.value).toBe('0'));
+    await chrome.storage.local.set({ skipCount: RATE_FIRST_ASK_AT + 10 });
+    await vi.waitFor(() =>
+      expect(count?.value).toBe(String(RATE_FIRST_ASK_AT + 10)),
+    );
+    // THEN no rating is asked for, now or in a later popup
+    expect(ratePrompt()?.hidden).toBe(true);
+    expect(await storedDone()).toBe(true);
+  });
 });
