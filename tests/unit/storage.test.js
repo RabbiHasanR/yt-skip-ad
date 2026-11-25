@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
+  getRateAsk,
   getSettings,
   incrementSkipCount,
   isRatePromptDone,
@@ -7,6 +8,7 @@ import {
   setSettings,
   watchSettings,
 } from '../../src/shared/storage.js';
+import { RATE_FIRST_ASK_AT } from '../../src/shared/constants.js';
 import { seedStorage } from '../setup/storage.js';
 
 describe('settings storage', () => {
@@ -160,5 +162,17 @@ describe('rating prompt storage', () => {
     // THEN it is done from now on, and Chrome Sync never gets a copy
     expect(await isRatePromptDone()).toBe(true);
     expect(chrome.storage.sync.set).not.toHaveBeenCalled();
+  });
+});
+
+describe('rating ask storage', () => {
+  it('reads a fresh install as a first ask at 50, writing nothing', async () => {
+    // GIVEN a fresh install
+    // WHEN the popup reads the ask state
+    const ask = await getRateAsk();
+    // THEN the first ask is at 50, asks are on, and nothing is stored
+    expect(ask).toEqual({ nextAskAt: RATE_FIRST_ASK_AT, neverAsk: false });
+    expect(chrome.storage.local.set).not.toHaveBeenCalled();
+    expect(chrome.storage.local.remove).not.toHaveBeenCalled();
   });
 });

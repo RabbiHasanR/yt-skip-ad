@@ -2,11 +2,14 @@
 // and follows the settings, the skip counter, and the rating prompt state in
 // the `local` area, each cleaned up by its rules in src/core/. Nothing is
 // kept in `sync`, so Chrome Sync never copies anything off the device.
+import { normalizeRateAsk } from '../core/rate-ask.js';
 import { normalizeSettings } from '../core/settings.js';
 import { normalizeSkipCount } from '../core/skip-count.js';
 import {
   DEFAULT_SETTINGS,
   DEFAULT_SKIP_COUNT,
+  RATE_NEVER_ASK_KEY,
+  RATE_NEXT_ASK_AT_KEY,
   RATE_PROMPT_DONE_KEY,
   SETTING_KEYS,
   SKIP_COUNT_KEY,
@@ -177,4 +180,21 @@ export async function isRatePromptDone() {
  */
 export async function markRatePromptDone() {
   await chrome.storage.local.set({ [RATE_PROMPT_DONE_KEY]: true });
+}
+
+/**
+ * Reads the rating ask state.
+ *
+ * @returns {Promise<import('../core/rate-ask.js').RateAsk>} The stored state,
+ *   with defaults for missing or invalid values.
+ */
+export async function getRateAsk() {
+  const stored = await chrome.storage.local.get([
+    RATE_NEXT_ASK_AT_KEY,
+    RATE_NEVER_ASK_KEY,
+  ]);
+  return normalizeRateAsk({
+    nextAskAt: stored[RATE_NEXT_ASK_AT_KEY],
+    neverAsk: stored[RATE_NEVER_ASK_KEY],
+  });
 }
