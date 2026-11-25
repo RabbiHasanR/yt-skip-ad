@@ -173,10 +173,13 @@ Helps the store listing grow through ratings, without touching the network.
 
 - An always-on "Rate" link, and a ★ on "Source" inviting a GitHub star.
 
-## Phase 7 — Auto-open rating popup 🚧 In progress
+## Phase 7 — Auto-open rating popup ✅ Complete
 
 Spec: [2026-11-24-auto-rate-popup](2026-11-24-auto-rate-popup/requirements.md).
-Planned as version 1.3.0.
+Automated checks and the manual pass in real Chrome pass (2026-11-25), as
+version 1.3.0; every test was seen failing first (see
+[tests.md](2026-11-24-auto-rate-popup/tests.md) and the
+[run record](2026-11-24-auto-rate-popup/validation.md#run-record)).
 
 Open the extension's popup by itself with `chrome.action.openPopup()`
 (Chrome 127+), so users see the rating prompt without clicking the icon.
@@ -187,19 +190,18 @@ Agreed approach (Rabbi, 2026-11-24):
   good, as in Phase 6 (Rabbi, revised 2026-11-25; a first plan with a
   "Don't ask again" link and × / Rate postponing 100 skips was dropped).
   Only users who ignore the prompt are asked again.
-- **How:** a background service worker, the extension's first, receives
-  "milestone reached" from the content script and opens the popup.
-- **Guards:** right after the skip; never in fullscreen; if `openPopup()`
-  fails (Chrome not focused), a ★ badge on the toolbar icon until the popup
+- **How:** a background service worker, the extension's first, follows
+  `skipCount` through `chrome.storage.onChanged` and opens the popup when
+  a milestone is crossed; the content script is unchanged.
+- **Guards:** only when Chrome's focused window is normal or maximized,
+  so never over a fullscreen video or in front of another app; otherwise,
+  or if `openPopup()` fails, a ★ badge on the toolbar icon until the popup
   is opened.
 - **Store policy:** no reward for rating, no feature locked behind it, and
   the store listing says the extension asks for a rating.
-- **To settle in its spec:** storage (Gate 0: replacing `ratePromptDone`
-  with the next milestone and a "never ask" state, migrating Phase 6
-  values), whether "Rate it ★" should pause asks for longer (risk: users
-  who already rated keep being asked), fullscreen behaviour tested in real
-  Chrome first, the manifest change, and how to test a popup that opens by
-  itself.
+- **Settled in its spec:** no new storage key (`ratePromptDone` reused),
+  the fullscreen behaviour tried in real Chrome first, the worker in the
+  manifest, and the worker tested with the `chrome` mock and an e2e test.
 
 ## Later (out of v1 scope)
 
