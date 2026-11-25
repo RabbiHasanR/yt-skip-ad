@@ -34,9 +34,6 @@ const rateLink = /** @type {HTMLAnchorElement} */ (
 const rateDismiss = /** @type {HTMLButtonElement} */ (
   document.getElementById('rate-dismiss')
 );
-const rateNever = /** @type {HTMLButtonElement} */ (
-  document.getElementById('rate-never')
-);
 
 const rateCount = /** @type {HTMLElement} */ (
   document.getElementById('rate-count')
@@ -113,4 +110,3 @@ resetButton.addEventListener('click', () => {
 // The link still opens the reviews page; either answer ends the asks.
 rateLink.addEventListener('click', answerRatePrompt);
 rateDismiss.addEventListener('click', answerRatePrompt);
-rateNever.addEventListener('click', answerRatePrompt);

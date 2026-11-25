@@ -134,12 +134,6 @@ button {
   color: var(--muted);
 }
 
-.rate-never {
-  padding: 0;
-  font-size: 12px;
-  text-decoration: underline;
-}
-
 .rate-dismiss {
   margin-left: auto;
   padding: 0 8px;
