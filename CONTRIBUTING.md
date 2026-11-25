@@ -15,7 +15,8 @@ that needs either can't be merged, however useful. Also never merged:
 
 ## How a change gets in
 
-Only the maintainer can push to `main` or merge. Everyone else works in a
+Only the maintainer can merge, and `main` takes changes only through pull
+requests. Everyone else works in a
 fork and opens a pull request.
 
 1. **Open an issue first** for anything bigger than a typo, so we agree on
@@ -43,6 +44,10 @@ fork and opens a pull request.
 6. **Try it in real Chrome:** load the folder with "Load unpacked" in
    `chrome://extensions` and check your change on youtube.com.
 7. **Open a pull request** to `main` and fill in its checklist.
+8. **CI must pass.** GitHub Actions runs the same checks (`checks`) and the
+   end-to-end tests (`e2e`) on your pull request; it can be merged only
+   when both are green. A first-time contributor's run starts once the
+   maintainer approves it.
 
 ## Where things live
 
