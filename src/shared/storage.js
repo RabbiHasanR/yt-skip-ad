@@ -1,15 +1,12 @@
 // Storage adapter: the only file that touches `chrome.storage`. Reads, saves,
-// and follows the settings, the skip counter, and the rating ask state in
+// and follows the settings, the skip counter, and the rating prompt answer in
 // the `local` area, each cleaned up by its rules in src/core/. Nothing is
 // kept in `sync`, so Chrome Sync never copies anything off the device.
-import { nextAskAfter, normalizeRateAsk } from '../core/rate-ask.js';
 import { normalizeSettings } from '../core/settings.js';
 import { normalizeSkipCount } from '../core/skip-count.js';
 import {
   DEFAULT_SETTINGS,
   DEFAULT_SKIP_COUNT,
-  RATE_NEVER_ASK_KEY,
-  RATE_NEXT_ASK_AT_KEY,
   RATE_PROMPT_DONE_KEY,
   SETTING_KEYS,
   SKIP_COUNT_KEY,
@@ -157,62 +154,6 @@ export function watchSkipCount(listener) {
     if (areaName !== 'local' || !(SKIP_COUNT_KEY in changes)) return;
     listener(normalizeSkipCount(changes[SKIP_COUNT_KEY].newValue));
   });
-}
-
-/**
- * Reads the rating ask state.
- *
- * @returns {Promise<import('../core/rate-ask.js').RateAsk>} The stored state,
- *   with defaults for missing or invalid values.
- */
-export async function getRateAsk() {
-  await moveRatePromptDone();
-  const stored = await chrome.storage.local.get([
-    RATE_NEXT_ASK_AT_KEY,
-    RATE_NEVER_ASK_KEY,
-  ]);
-  return normalizeRateAsk({
-    nextAskAt: stored[RATE_NEXT_ASK_AT_KEY],
-    neverAsk: stored[RATE_NEVER_ASK_KEY],
-  });
-}
-
-/**
- * Moves 1.2.0's rating prompt state to the next ask: a user who had closed
- * or rated the prompt is asked again 100 skips after the update; any other
- * stored value keeps the first ask. Runs once; the old state is removed.
- *
- * @returns {Promise<void>} Resolves once no 1.2.0 state is left.
- */
-async function moveRatePromptDone() {
-  const stored = await chrome.storage.local.get([RATE_PROMPT_DONE_KEY]);
-  if (!(RATE_PROMPT_DONE_KEY in stored)) return;
-  if (stored[RATE_PROMPT_DONE_KEY] === true) {
-    await postponeRateAsk(await getSkipCount());
-  }
-  await chrome.storage.local.remove(RATE_PROMPT_DONE_KEY);
-}
-
-/**
- * Postpones the rating ask by 100 skips, after the user closed the prompt or
- * rated.
- *
- * @param {number} skipCount Ads skipped when the user handled the prompt.
- * @returns {Promise<void>} Resolves once stored.
- */
-export async function postponeRateAsk(skipCount) {
-  await chrome.storage.local.set({
-    [RATE_NEXT_ASK_AT_KEY]: nextAskAfter(skipCount),
-  });
-}
-
-/**
- * Stops every rating ask for good, after "Don't ask again".
- *
- * @returns {Promise<void>} Resolves once stored.
- */
-export async function stopRateAsk() {
-  await chrome.storage.local.set({ [RATE_NEVER_ASK_KEY]: true });
 }
 
 /**

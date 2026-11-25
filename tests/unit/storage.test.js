@@ -1,19 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
-  getRateAsk,
   getSettings,
   incrementSkipCount,
   isRatePromptDone,
   markRatePromptDone,
-  postponeRateAsk,
   setSettings,
-  stopRateAsk,
   watchSettings,
 } from '../../src/shared/storage.js';
-import {
-  RATE_ASK_EVERY,
-  RATE_FIRST_ASK_AT,
-} from '../../src/shared/constants.js';
 import { seedStorage } from '../setup/storage.js';
 
 describe('settings storage', () => {
@@ -138,66 +131,6 @@ describe('skip counter storage', () => {
     // THEN only this computer's storage changed; nothing went to Chrome Sync
     expect(chrome.storage.local.set).toHaveBeenCalledOnce();
     expect(chrome.storage.sync.set).not.toHaveBeenCalled();
-  });
-});
-
-describe('rating ask storage', () => {
-  it('reads a fresh install as a first ask at 50, writing nothing', async () => {
-    // GIVEN a fresh install
-    // WHEN the popup reads the ask state
-    const ask = await getRateAsk();
-    // THEN the first ask is at 50, asks are on, and nothing is stored
-    expect(ask).toEqual({ nextAskAt: RATE_FIRST_ASK_AT, neverAsk: false });
-    expect(chrome.storage.local.set).not.toHaveBeenCalled();
-    expect(chrome.storage.local.remove).not.toHaveBeenCalled();
-  });
-
-  it('saves a postponed ask and "don\'t ask again" in local storage only', async () => {
-    // GIVEN a fresh install
-    // WHEN the user closes the prompt at 173 skips
-    await postponeRateAsk(173);
-    // THEN it is due again 100 skips later
-    expect(await getRateAsk()).toEqual({
-      nextAskAt: 173 + RATE_ASK_EVERY,
-      neverAsk: false,
-    });
-    // WHEN the user says "Don't ask again"
-    await stopRateAsk();
-    // THEN it is never asked again, and Chrome Sync never gets a copy
-    expect((await getRateAsk()).neverAsk).toBe(true);
-    expect(chrome.storage.sync.set).not.toHaveBeenCalled();
-  });
-
-  it('moves a handled 1.2.0 prompt to ask again 100 skips later', async () => {
-    // GIVEN a 1.2.0 install whose user closed or rated the prompt, at 70 skips
-    await seedStorage({ skipCount: 70, ratePromptDone: true }, 'local');
-    // WHEN the popup reads the ask state
-    const ask = await getRateAsk();
-    // THEN the next ask is 100 skips away, kept for later popups, and the old
-    // state is gone
-    expect(ask.nextAskAt).toBe(70 + RATE_ASK_EVERY);
-    expect(
-      await chrome.storage.local.get([
-        'skipCount',
-        'rateNextAskAt',
-        'ratePromptDone',
-      ]),
-    ).toEqual({
-      skipCount: 70,
-      rateNextAskAt: 70 + RATE_ASK_EVERY,
-    });
-  });
-
-  it("removes a 1.2.0 prompt state that wasn't true, keeping the first ask at 50", async () => {
-    // GIVEN a 1.2.0 install with an invalid prompt state
-    await seedStorage({ skipCount: 70, ratePromptDone: 'true' }, 'local');
-    // WHEN the popup reads the ask state
-    const ask = await getRateAsk();
-    // THEN the first ask still applies, and the old state is gone
-    expect(ask.nextAskAt).toBe(RATE_FIRST_ASK_AT);
-    expect(
-      await chrome.storage.local.get(['rateNextAskAt', 'ratePromptDone']),
-    ).toEqual({});
   });
 });
 

@@ -1,6 +1,6 @@
 // Shared constants: the log prefix, timing, the settings' storage keys,
 // defaults, and limits, the skip counter's key and default, and the rating
-// ask's cadence, keys, and badge. Storage keys and defaults are defined only
+// ask's cadence, key, and badge. Storage keys and defaults are defined only
 // here.
 
 /** Prefix for every console line the extension writes; easy to filter. */
@@ -51,35 +51,22 @@ export const STORE_REVIEWS_URL =
   'https://chromewebstore.google.com/detail/kdembckigpophgcgjfmbenkgnnkdoofe/reviews';
 
 /**
- * Ads skipped before the popup first asks for a rating; a fresh install's
- * next ask.
+ * Ads skipped before the popup first asks for a rating; the first auto-open
+ * milestone.
  */
 export const RATE_FIRST_ASK_AT = 50;
 
 /**
- * Ads skipped between rating asks: after × or "Rate it ★", and between
- * auto-open milestones while the prompt stays unhandled.
+ * Ads skipped between auto-open milestones (50, 150, 250, …) while the
+ * rating prompt stays unanswered.
  */
 export const RATE_ASK_EVERY = 100;
-
-/**
- * Storage key of the skip count from which the rating prompt is due again,
- * in `chrome.storage.local`.
- */
-export const RATE_NEXT_ASK_AT_KEY = 'rateNextAskAt';
-
-/**
- * Storage key of "Don't ask again", in `chrome.storage.local`: only `true`
- * stops every rating ask, auto-open, and badge.
- */
-export const RATE_NEVER_ASK_KEY = 'rateNeverAsk';
 
 /** Text of the toolbar badge shown when the popup could not open itself. */
 export const RATE_BADGE_TEXT = '★';
 
 /**
- * Storage key of Phase 6's rating prompt state, in `chrome.storage.local`:
- * `true` once the user rated or dismissed it. Read once by the move to
- * {@link RATE_NEXT_ASK_AT_KEY}, then removed.
+ * Storage key of the rating prompt's answer, in `chrome.storage.local`:
+ * `true` once the user rated or closed it, so it is never asked again.
  */
 export const RATE_PROMPT_DONE_KEY = 'ratePromptDone';
