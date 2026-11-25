@@ -2,45 +2,41 @@
 
 From a clean checkout: run `npm ci` and `npx playwright install chromium`,
 then load the folder with "Load unpacked" in `chrome://extensions`. A user
-who updates from 1.2.0 keeps their auto-skip and delay settings and their
-skip counter; if they had closed the rating prompt, it comes back 100 ads
-later.
+who updates from 1.2.0 keeps their auto-skip and delay settings, their skip
+counter, and their answer to the rating prompt.
 
 ## Behaviours
 
-### Repeat asks
+### Prompt
 
-- B1 — With fewer than 50 ads skipped on a fresh install, the popup shows no
-  rating prompt. [core] [popup]
+- B1 — With fewer than 50 ads skipped, the popup shows no rating prompt.
+  [core] [popup]
 - B2 — With 50 or more ads skipped, the popup shows the prompt with "Rate it
-  ★", "×", and "Don't ask again", and says "50+ ads skipped" (150+, 250+, …
-  as the count grows). [core] [popup]
-- B3 — Clicking × hides the prompt; it comes back once 100 more ads are
-  skipped. [core] [popup]
+  ★" and "×", and says "50+ ads skipped" (150+, 250+, … as the count
+  grows). [core] [popup]
+- B3 — Clicking × hides the prompt for good: it never shows again, in this
+  popup or a later one, however high the counter goes. [core] [popup]
 - B4 — Clicking "Rate it ★" opens the store's reviews page in a new tab and
-  hides the prompt; it comes back once 100 more ads are skipped. [core]
-  [popup]
-- B5 — Clicking "Don't ask again" hides the prompt for good: it never shows
-  again, however high the counter goes, even after a counter reset. [core]
-  [popup]
-- B6 — In an open popup, the prompt appears when the count reaches the next
-  ask, without reopening. [popup]
-- B7 — Resetting the counter never brings the prompt back early: the next
-  ask waits until the counter climbs back to it. [core] [popup]
-- B8 — Invalid stored values fall back: a bad next-ask count reads as 50,
-  and only a stored `true` means "never ask". [core]
-- B9 — Updating from 1.2.0: a user who had closed or rated the prompt is
-  asked again 100 ads after the update, and the old Phase 6 state is gone
-  from storage. [core]
+  hides the prompt for good, like ×. [core] [popup]
+- B5 — Resetting the counter after the prompt was answered never brings it
+  back. [core] [popup]
+- B6 — In an open popup, the prompt appears when the count reaches 50, and
+  its number follows the count, without reopening. [popup]
+- B7 — Resetting the counter before answering hides the prompt until the
+  counter is back at 50. [core] [popup]
+- B8 — A missing or invalid stored prompt state reads as not answered; only
+  a stored `true` ends the asks. [core]
+- B9 — Updating from 1.2.0 keeps the prompt state: a user who had answered
+  the prompt is never asked again. [core]
 
 ### Auto-open
 
 - B10 — When the 50th ad is skipped, the popup opens by itself, showing the
   prompt, without the video being paused or the page changed. [core]
   [background]
-- B11 — While the prompt stays unhandled, the popup opens by itself again
-  every 100 ads (150, 250, …); after × or Rate, at the new next ask. [core]
-  [background]
+- B11 — While the prompt stays unanswered (the popup was closed by clicking
+  elsewhere), the popup opens by itself again every 100 ads (150, 250, …).
+  [core] [background]
 - B12 — Each milestone opens the popup at most once, even with several
   YouTube tabs skipping; skips between milestones and a counter reset never
   open it. [core] [background]
@@ -53,8 +49,9 @@ later.
   the toolbar icon instead. [background]
 - B15 — If Chrome can't open the popup (for example, Chrome is not the
   focused window), a ★ badge appears instead. [background]
-- B16 — Opening the popup clears the ★ badge; after "Don't ask again", no
-  badge and no auto-open ever appear. [background] [popup]
+- B16 — Opening the popup clears the ★ badge; once the prompt was answered
+  (× or "Rate it ★"), no badge and no auto-open ever appear. [background]
+  [popup]
 
 ### Privacy
 
@@ -90,25 +87,25 @@ the popup must open or close by itself.
    service worker ("Inspect views: service worker"); permissions still only
    storage and YouTube (B13).
 2. Upgrade over 1.2.0 with `ratePromptDone: true` and 70 skips: after
-   reloading the card, `chrome.storage.local.get(null)` has no
-   `ratePromptDone` and `rateNextAskAt` 170 (B9).
+   reloading the card, the popup shows no prompt; set the count to 149 and
+   skip a real ad: no popup, no badge (B9, B16).
 3. Fresh state at 49 skips, play a YouTube video with a skippable ad: when
    it is skipped, the popup opens by itself with the prompt; the video keeps
    playing (B10, B2).
-4. Click ×: the popup stays open, the prompt hides. Set the count to 149,
-   skip a real ad: the popup opens by itself again (B3, B11).
-5. Click "Rate it ★": the reviews page opens. Reopen the popup: no prompt
-   until 100 more skips (B4).
-6. Click "Don't ask again". Set the count past several milestones and skip
-   a real ad: no popup, no badge; reset the counter and climb again: still
-   nothing (B5, B16).
+4. Close that popup by clicking the page (not ×). Set the count to 149,
+   skip a real ad: the popup opens by itself again (B11).
+5. Click "Rate it ★": the reviews page opens. Set the count to 249 and skip
+   a real ad: no popup, no badge; reopen the popup: no prompt (B4, B16).
+6. Remove `ratePromptDone`, reopen, click ×: the prompt hides. Set the count
+   past several milestones and skip a real ad: no popup, no badge; reset the
+   counter and climb again: still nothing (B3, B5, B16).
 7. Two YouTube tabs, both near a milestone: the popup opens once (B12).
 8. Fullscreen video crossing a milestone: no popup; ★ badge on the icon.
    Leave fullscreen, open the popup: prompt shown, badge gone (B14, B16).
 9. Chrome not focused (another app in front) while a background tab skips
    across a milestone: ★ badge; opening the popup clears it (B15, B16).
 10. Popup: light and dark mode, about 280px wide, no horizontal scroll;
-    keyboard reaches "Rate it ★", "×", "Don't ask again", and every footer
+    keyboard reaches "Rate it ★", "×", and every footer
     link with visible focus (B2).
 11. Phase 1–6 regression on real YouTube: pre-roll skipped with delay 0;
     delay and toggle apply live; counter goes up and resets.

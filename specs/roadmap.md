@@ -183,10 +183,10 @@ Open the extension's popup by itself with `chrome.action.openPopup()`
 Agreed approach (Rabbi, 2026-11-24):
 
 - **When:** at 50 ads skipped, then every 100 more (150, 250, 350, …).
-- **Until:** the user clicks a new **"Don't ask again"** link. "Rate it ★"
-  does not stop later asks (the extension can't see whether a review was
-  written); × only closes the prompt until the next milestone. This
-  replaces Phase 6's "rated or dismissed is final".
+- **Until:** the user answers the prompt: "Rate it ★" or × ends it for
+  good, as in Phase 6 (Rabbi, revised 2026-11-25; a first plan with a
+  "Don't ask again" link and × / Rate postponing 100 skips was dropped).
+  Only users who ignore the prompt are asked again.
 - **How:** a background service worker, the extension's first, receives
   "milestone reached" from the content script and opens the popup.
 - **Guards:** right after the skip; never in fullscreen; if `openPopup()`

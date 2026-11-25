@@ -57,7 +57,11 @@ removes it. Used by the tests in groups 2–4.
 focused `'normal'` window, the "safe to open" case; group 4 tests override
 it). `storage.local.remove` was already there.
 
-## 2. Repeat asks
+## 2. Repeat asks (first run, superseded)
+
+Superseded on 2026-11-25: Rabbi revised the rule so × and "Rate it ★"
+end the asks for good. This run is kept as the record of what was built;
+the rebuild to the revised rule follows in its own section.
 
 Behaviours: B1–B9 · Branch: phase-7-auto-rate-popup
 

@@ -10,9 +10,11 @@ one test at a time. Per-behaviour gate: `npm test`, `npm run lint`,
 `npm run typecheck`, and `npm run format:check` are green, then a
 conventional commit with no Co-Authored-By or AI attribution lines.
 
-Phase 6 tests whose behaviour this phase changes on purpose (× and Rate were
-final; now they postpone) are rewritten to the new behaviour inside the
-group that changes it, each change named in `tests.md`.
+Group 2 was first built with repeat asks (× and Rate postponing 100 skips,
+a "Don't ask again" button, `rateNextAskAt` / `rateNeverAsk`). Rabbi
+revised the rule on 2026-11-25: × and Rate end the asks for good. Group 2 is
+rebuilt test-first to the revised rule; its `tests.md` section records both
+runs.
 
 ## 1. Groundwork
 
@@ -25,32 +27,31 @@ group that changes it, each change named in `tests.md`.
   `state: 'fullscreen'`? What does `openPopup()` do with Chrome unfocused
   and in fullscreen? If fullscreen isn't reported, stop and ask Rabbi.
 - `src/shared/constants.js`: `RATE_FIRST_ASK_AT` (50, renamed from
-  `RATE_PROMPT_THRESHOLD`), `RATE_ASK_EVERY` (100), `RATE_NEXT_ASK_AT_KEY`,
-  `RATE_NEVER_ASK_KEY`, `RATE_BADGE_TEXT` ("★").
+  `RATE_PROMPT_THRESHOLD`), `RATE_ASK_EVERY` (100), `RATE_BADGE_TEXT` ("★").
+  (`RATE_NEXT_ASK_AT_KEY` and `RATE_NEVER_ASK_KEY` were added, then removed
+  by the 2026-11-25 revision.)
 - `tests/setup/chrome.js`: `chrome.action` (`openPopup`, `setBadgeText`),
   `chrome.windows.getLastFocused`, and `storage.local.remove`, with only
   what the code calls.
 
-## 2. Repeat asks (slice 1)
+## 2. Prompt (slice 1)
 
 - **Behaviours:** B1–B9.
-- **Acceptance:** `tests/integration/popup-rate-prompt.test.js` → "asks
-  again 100 skips after the user closes the prompt".
-- **Storage:** `rateNextAskAt`, `rateNeverAsk`; the one-time move from
-  `ratePromptDone`.
+- **Acceptance:** `tests/integration/popup-rate-prompt.test.js` → "never
+  asks again after the user closes the prompt".
+- **Storage:** none; Phase 6's `ratePromptDone` is kept. The first run's
+  `rateNextAskAt`, `rateNeverAsk`, and one-time move are removed.
 
 Tasks, in build order:
 
-- **Core:** `src/core/rate-ask.js` → `isAskDue(skipCount, state)`,
-  `nextAskAfter(skipCount)`, `promptCount(skipCount)` and the state
-  clean-up; replaces `src/core/rate-prompt.js`. Tests in
-  `tests/unit/rate-ask.test.js` (replacing `tests/unit/rate-prompt.test.js`).
-- **Core:** `src/shared/storage.js` → `getRateAsk()` (with the one-time
-  move), `postponeRateAsk(skipCount)`, `stopRateAsk()`; replaces
-  `isRatePromptDone` / `markRatePromptDone`. Tests in
+- **Core:** `src/core/rate-ask.js` → `isAskDue(skipCount, done)` and
+  `promptCount(skipCount)`; replaces `src/core/rate-prompt.js`. Tests in
+  `tests/unit/rate-ask.test.js`.
+- **Core:** `src/shared/storage.js` → `isRatePromptDone`,
+  `markRatePromptDone` (Phase 6's, brought back); tests in
   `tests/unit/storage.test.js`.
-- **Popup:** `popup/popup.{html,css,js}`: the "Don't ask again" button, ×
-  and Rate postponing, the rounded count text, live updates. Tests in
+- **Popup:** `popup/popup.{html,css,js}`: no "Don't ask again" button; × and
+  Rate mark the prompt done; the milestone count text, live. Tests in
   `tests/integration/popup-rate-prompt.test.js`.
 
 ## 3. Auto-open (slice 2)
@@ -62,8 +63,8 @@ Tasks, in build order:
 
 Tasks:
 
-- **Core:** `src/core/rate-ask.js` → `crossedMilestone(oldCount, newCount,
-state)`; tests in `tests/unit/rate-ask.test.js`.
+- **Core:** `src/core/rate-ask.js` → `crossedMilestone(oldCount, newCount)`;
+  tests in `tests/unit/rate-ask.test.js`.
 - **Background:** `src/background/service-worker.js`: the top-level
   `storage.onChanged` listener, reading the ask state, calling
   `openPopup()`. Tests in `tests/integration/background-rate-ask.test.js`
@@ -82,7 +83,7 @@ state)`; tests in `tests/unit/rate-ask.test.js`.
 Tasks:
 
 - **Background:** fullscreen check, badge on a skipped or failed open, no
-  badge after "Don't ask again", errors logged. Tests in
+  badge once the prompt was answered, errors logged. Tests in
   `tests/integration/background-rate-ask.test.js`.
 - **Popup:** clear the badge on open; tests in
   `tests/integration/popup-rate-prompt.test.js`.
@@ -94,8 +95,8 @@ Tasks:
 ## 5. Verify and document
 
 - Run `validation.md`, including the manual pass.
-- `specs/tech-stack.md`: Storage schema rows from _planned_ to _built_
-  (`ratePromptDone` removed), Stack summary, Principles ("rate us" prompts
+- `specs/tech-stack.md`: Storage schema row from _planned_ to _built_
+  (`ratePromptDone`, read by the worker), Stack summary, Principles ("rate us" prompts
   no longer ruled out; the worker), test levels (background integration
   tests), **Decided in Phase 7**, **Known limitations** (ignored auto-opens,
   counter reset delays, fullscreen detection).
