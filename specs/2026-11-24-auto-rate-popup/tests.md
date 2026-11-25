@@ -70,7 +70,7 @@ Behaviours: B1–B9 · Branch: phase-7-auto-rate-popup
 | T5  | B2        | unit        | tests/unit/rate-ask.test.js                 | names $count skips as "$shown+"                                            | ✅     |
 | T6  | B1        | unit        | tests/unit/storage.test.js                  | reads a fresh install as a first ask at 50, writing nothing                | ✅     |
 | T7  | B3, B5    | unit        | tests/unit/storage.test.js                  | saves a postponed ask and "don't ask again" in local storage only          | ✅     |
-| T8  | B9        | unit        | tests/unit/storage.test.js                  | moves a handled 1.2.0 prompt to ask again 100 skips later                  | ⬜     |
+| T8  | B9        | unit        | tests/unit/storage.test.js                  | moves a handled 1.2.0 prompt to ask again 100 skips later                  | ✅     |
 | T9  | B9        | unit        | tests/unit/storage.test.js                  | removes a 1.2.0 prompt state that wasn't true, keeping the first ask at 50 | ⬜     |
 | T10 | B2        | integration | tests/integration/popup-rate-prompt.test.js | asks for a rating once due, naming the count and offering three choices    | ⬜     |
 | T11 | B4        | integration | tests/integration/popup-rate-prompt.test.js | opens the reviews page and asks again 100 skips later after Rate it ★      | ⬜     |
@@ -97,4 +97,6 @@ Phase 6 tests changed on purpose (× and Rate were final; now they postpone):
 Gate 2 decisions: the prompt names the last milestone at or below the count
 (50, 150, 250, …; Rabbi's choice, requirements.md updated). The ask state is
 cleaned up by `normalizeRateAsk` in `src/core/rate-ask.js`; the one-time move
-runs inside `getRateAsk()` and never overwrites a stored `rateNextAskAt`.
+runs inside `getRateAsk()`. It sets the next ask even if one is stored: both
+can only exist together after a downgrade to 1.2.0 and back, and asking 100
+skips later is then still right.

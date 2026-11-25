@@ -196,4 +196,24 @@ describe('rating ask storage', () => {
     expect((await getRateAsk()).neverAsk).toBe(true);
     expect(chrome.storage.sync.set).not.toHaveBeenCalled();
   });
+
+  it('moves a handled 1.2.0 prompt to ask again 100 skips later', async () => {
+    // GIVEN a 1.2.0 install whose user closed or rated the prompt, at 70 skips
+    await seedStorage({ skipCount: 70, ratePromptDone: true }, 'local');
+    // WHEN the popup reads the ask state
+    const ask = await getRateAsk();
+    // THEN the next ask is 100 skips away, kept for later popups, and the old
+    // state is gone
+    expect(ask.nextAskAt).toBe(70 + RATE_ASK_EVERY);
+    expect(
+      await chrome.storage.local.get([
+        'skipCount',
+        'rateNextAskAt',
+        'ratePromptDone',
+      ]),
+    ).toEqual({
+      skipCount: 70,
+      rateNextAskAt: 70 + RATE_ASK_EVERY,
+    });
+  });
 });
