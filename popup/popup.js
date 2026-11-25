@@ -10,6 +10,7 @@ import {
   postponeRateAsk,
   resetSkipCount,
   setSettings,
+  stopRateAsk,
   watchSkipCount,
 } from '../src/shared/storage.js';
 
@@ -33,6 +34,9 @@ const rateLink = /** @type {HTMLAnchorElement} */ (
 );
 const rateDismiss = /** @type {HTMLButtonElement} */ (
   document.getElementById('rate-dismiss')
+);
+const rateNever = /** @type {HTMLButtonElement} */ (
+  document.getElementById('rate-never')
 );
 
 const rateCount = /** @type {HTMLElement} */ (
@@ -69,6 +73,13 @@ const postponeRatePrompt = () => {
   rateAsk = { ...rateAsk, nextAskAt: nextAskAfter(skipCount) };
   showRatePrompt();
   postponeRateAsk(skipCount);
+};
+
+/** Hides the rating prompt for good: this popup and every later one. */
+const stopRatePrompt = () => {
+  rateAsk = { ...rateAsk, neverAsk: true };
+  showRatePrompt();
+  stopRateAsk();
 };
 
 /**
@@ -111,3 +122,4 @@ resetButton.addEventListener('click', () => {
 // review was written, so Rate postpones like ×.
 rateLink.addEventListener('click', postponeRatePrompt);
 rateDismiss.addEventListener('click', postponeRatePrompt);
+rateNever.addEventListener('click', stopRatePrompt);

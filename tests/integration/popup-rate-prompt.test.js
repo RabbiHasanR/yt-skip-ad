@@ -117,6 +117,29 @@ describe('popup rating prompt', () => {
     expect(ratePrompt()?.hidden).toBe(true);
   });
 
+  it('never asks again after "Don\'t ask again", even after a counter reset', async () => {
+    // GIVEN the prompt is showing, and the popup is open
+    await seedStorage({ skipCount: RATE_FIRST_ASK_AT }, 'local');
+    const { count, reset } = await openPopup();
+    // WHEN the user says "Don't ask again"
+    clickPromptControl("Don't ask again");
+    // THEN it hides now, is remembered, and never comes back: not at any
+    // count, not after a reset, not in a later popup
+    expect(ratePrompt()?.hidden).toBe(true);
+    await vi.waitFor(async () =>
+      expect(
+        (await chrome.storage.local.get({ rateNeverAsk: null })).rateNeverAsk,
+      ).toBe(true),
+    );
+    await chrome.storage.local.set({ skipCount: 5000 });
+    await vi.waitFor(() => expect(count?.value).toBe((5000).toLocaleString()));
+    expect(ratePrompt()?.hidden).toBe(true);
+    reset?.click();
+    await vi.waitFor(() => expect(count?.value).toBe('0'));
+    await reopenPopupAt(RATE_FIRST_ASK_AT + RATE_ASK_EVERY);
+    expect(ratePrompt()?.hidden).toBe(true);
+  });
+
   it("doesn't come back early after the counter is reset", async () => {
     // GIVEN the next ask is at 220, and the popup is open at 120 skips
     await seedStorage({ skipCount: 120, rateNextAskAt: 220 }, 'local');
