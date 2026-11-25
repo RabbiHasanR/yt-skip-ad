@@ -9,11 +9,12 @@
 - **Test-driven** — every behaviour starts as a failing test (Rabbi's
   requirement). See [Development workflow (TDD)](#development-workflow-tdd).
 - **Logic out of the edges** — rules live in plain modules; the content
-  script and popup only wire the DOM and `chrome.*` to them.
+  script, popup, and service worker only wire the DOM and `chrome.*` to them.
 - **Nothing leaves the device** — no network requests, no analytics
   (colleagues' requirement). Since Phase 5 this is the public release's main
-  promise, so it also rules out an uninstall URL, "rate us" prompts, remote
-  config, and Chrome Sync storage; the extension pages' CSP blocks
+  promise, so it also rules out an uninstall URL, remote config, and Chrome
+  Sync storage. The rating prompt (Phases 6–7) is only a link to the store
+  page; it sends nothing; the extension pages' CSP blocks
   connections (`connect-src 'none'`).
 - Popular, well-supported, reliable tools (Rabbi's requirement).
 
@@ -36,7 +37,7 @@ Why no framework:
 | Language    | JavaScript (ES2020+), JSDoc types                                            |
 | Framework   | None — Chrome Extension Manifest V3                                          |
 | UI          | Popup: plain HTML + CSS                                                      |
-| Backend     | None — content script on YouTube pages                                       |
+| Backend     | None — content script on YouTube pages; a service worker (Phase 7)           |
 | Data access | Thin adapter over `chrome.storage.local`                                     |
 | Database    | `chrome.storage.local`: `enabled`, `delaySec`, `skipCount`, `ratePromptDone` |
 | Lint/format | ESLint (flat config) + Prettier                                              |
@@ -51,12 +52,12 @@ in `src/shared/constants.js`; only `src/shared/storage.js` reads or writes
 them. Changes are agreed first (`/feature-spec` Gate 0), and each row says
 which phase built it.
 
-| Key              | Area    | Type    | Default | Valid range           | Written by             | Read by        | Status                                                |
-| ---------------- | ------- | ------- | ------- | --------------------- | ---------------------- | -------------- | ----------------------------------------------------- |
-| `enabled`        | `local` | boolean | `true`  | `true`/`false`        | popup                  | content, popup | _(Phase 5, built)_                                    |
-| `delaySec`       | `local` | integer | `0`     | 0–10                  | popup                  | content, popup | _(Phase 5, built)_                                    |
-| `skipCount`      | `local` | integer | `0`     | ≥ 0                   | content, popup (reset) | popup          | _(Phase 3, built)_                                    |
-| `ratePromptDone` | `local` | boolean | `false` | only `true` is "done" | popup                  | popup, worker  | _(Phase 6, built; Phase 7, planned: worker reads it)_ |
+| Key              | Area    | Type    | Default | Valid range           | Written by             | Read by        | Status                                              |
+| ---------------- | ------- | ------- | ------- | --------------------- | ---------------------- | -------------- | --------------------------------------------------- |
+| `enabled`        | `local` | boolean | `true`  | `true`/`false`        | popup                  | content, popup | _(Phase 5, built)_                                  |
+| `delaySec`       | `local` | integer | `0`     | 0–10                  | popup                  | content, popup | _(Phase 5, built)_                                  |
+| `skipCount`      | `local` | integer | `0`     | ≥ 0                   | content, popup (reset) | popup, worker  | _(Phase 3, built)_                                  |
+| `ratePromptDone` | `local` | boolean | `false` | only `true` is "done" | popup                  | popup, worker  | _(Phase 6, built; Phase 7, built: worker reads it)_ |
 
 Rules:
 
@@ -87,11 +88,12 @@ Rules:
 - _(Phase 6, built)_ `ratePromptDone` lives in `local`: `true` once the
   user rated or dismissed the rating prompt; anything else reads as `false`.
   The popup shows the prompt when `skipCount` ≥ `RATE_PROMPT_THRESHOLD` (50)
-  and it is not done. Nothing else reads it.
-- _(Phase 7, planned)_ `ratePromptDone` keeps its meaning: "Rate it ★" or
+  and it is not done.
+- _(Phase 7, built)_ `ratePromptDone` keeps its meaning: "Rate it ★" or
   "×" ends every ask for good. The service worker also reads it, and opens
   the popup at 50, then every 100 more, while it is not `true`. No new key
-  and no migration. See
+  and no migration. The worker follows `skipCount` through
+  `watchSkipCountChange()`, which gives the old and new count. See
   [the Phase 7 spec](2026-11-24-auto-rate-popup/requirements.md#storage-and-selectors).
 
 ## Decided in Phase 0
@@ -356,6 +358,44 @@ and its [tests.md](2026-11-23-store-rating/tests.md).
   4 showed it does, in real Chrome (2026-11-24).
 - **Version:** `1.2.0`.
 
+## Decided in Phase 7
+
+See [the Phase 7 spec](2026-11-24-auto-rate-popup/requirements.md#decisions)
+and its [tests.md](2026-11-24-auto-rate-popup/tests.md).
+
+- **Auto-open:** the extension's first service worker,
+  `src/background/service-worker.js` (an ES module, `"type": "module"`),
+  calls `chrome.action.openPopup()` (Chrome 127+) when `skipCount` crosses
+  a milestone: 50, then every 100 more (`RATE_FIRST_ASK_AT`,
+  `RATE_ASK_EVERY`), while `ratePromptDone` is not `true`. The rules are in
+  `src/core/rate-ask.js` (`isAskDue`, `promptCount`, `crossedMilestone`,
+  `canOpenPopupIn`); it replaces Phase 6's `rate-prompt.js`.
+- **Trigger:** `chrome.storage.onChanged` on `skipCount`, added at the
+  worker's top level so the change that wakes it is heard. The content
+  script is unchanged. A reset or a skip between milestones crosses none.
+- **What ends it:** "Rate it ★" or ×, for good (Rabbi, 2026-11-25). A first
+  plan with a "Don't ask again" button, × and Rate postponing 100 skips, and
+  two new keys was dropped before release. 1.2.0 users who answered are never
+  asked.
+- **Prompt text:** names the last milestone at or below the count (50+,
+  150+, 250+), so it is always true.
+- **Guards:** the popup opens only when `chrome.windows.getLastFocused()`
+  is focused and `normal` or `maximized`. A trial in Chrome 158 (Linux)
+  showed YouTube fullscreen is reported as `fullscreen`, and that
+  `openPopup()` rejects in fullscreen ("Browser window has no toolbar.") and
+  when Chrome isn't focused, without pulling Chrome to the front. Otherwise,
+  or if `openPopup()` rejects anyway, a ★ badge (`RATE_BADGE_TEXT`) shows
+  on the icon. The badge isn't stored: the popup clears it on open. No badge
+  once answered.
+- **Errors:** a failure inside the worker is logged as
+  `[yt-skip-ad] rating auto-open failed`; the next milestone tries again.
+- **Network lock:** the `extension_pages` CSP (`connect-src 'none'`) also
+  covers the worker (e2e test); the ESLint network ban covers
+  `src/background/`.
+- **Store policy:** no reward and no feature locked behind rating; the
+  listing says the extension asks.
+- **Version:** `1.3.0`.
+
 ## Project conventions
 
 Every phase follows this layout. Update this section when a convention
@@ -445,29 +485,29 @@ Rules:
 
 Project settings:
 
-| Setting                   | Value                                                           |
-| ------------------------- | --------------------------------------------------------------- |
-| System type               | Browser extension (Chrome MV3)                                  |
-| Language and framework    | Vanilla JS (ES2020+), no framework                              |
-| Test framework            | Vitest + jsdom; Playwright for e2e                              |
-| Fast tests                | `npm test`                                                      |
-| All tests, including e2e  | `npm run test:all`                                              |
-| Coverage                  | `npm run coverage` (`@vitest/coverage-v8`)                      |
-| Lint and type checks      | `npm run lint && npm run typecheck`                             |
-| Fast-test time budget     | Under 10 seconds                                                |
-| Where tests live          | `tests/unit/`, `tests/integration/`, `tests/e2e/`               |
-| Slow-test marker          | Lives in `tests/e2e/`; excluded from `npm test`                 |
-| Expected-failure marker   | `it.fails(...)`                                                 |
-| Test environment          | jsdom + HTML fixtures + `chrome` mock in `tests/setup/`         |
-| External services to mock | `chrome.storage`, `chrome.runtime`, timers (`vi.useFakeTimers`) |
+| Setting                   | Value                                                                                              |
+| ------------------------- | -------------------------------------------------------------------------------------------------- |
+| System type               | Browser extension (Chrome MV3)                                                                     |
+| Language and framework    | Vanilla JS (ES2020+), no framework                                                                 |
+| Test framework            | Vitest + jsdom; Playwright for e2e                                                                 |
+| Fast tests                | `npm test`                                                                                         |
+| All tests, including e2e  | `npm run test:all`                                                                                 |
+| Coverage                  | `npm run coverage` (`@vitest/coverage-v8`)                                                         |
+| Lint and type checks      | `npm run lint && npm run typecheck`                                                                |
+| Fast-test time budget     | Under 10 seconds                                                                                   |
+| Where tests live          | `tests/unit/`, `tests/integration/`, `tests/e2e/`                                                  |
+| Slow-test marker          | Lives in `tests/e2e/`; excluded from `npm test`                                                    |
+| Expected-failure marker   | `it.fails(...)`                                                                                    |
+| Test environment          | jsdom + HTML fixtures + `chrome` mock in `tests/setup/`                                            |
+| External services to mock | `chrome.storage`, `chrome.runtime`, `chrome.action`, `chrome.windows`, timers (`vi.useFakeTimers`) |
 
 Test levels for this project:
 
-| Level       | What it checks                                                  |
-| ----------- | --------------------------------------------------------------- |
-| Unit        | `src/core/` and `src/shared/` logic, no DOM wiring              |
-| Integration | Content script or popup on a fixture DOM with the `chrome` mock |
-| End-to-end  | Real extension in Chromium on a local fixture page (slow)       |
+| Level       | What it checks                                                                                             |
+| ----------- | ---------------------------------------------------------------------------------------------------------- |
+| Unit        | `src/core/` and `src/shared/` logic, no DOM wiring                                                         |
+| Integration | Content script or popup on a fixture DOM with the `chrome` mock; the service worker with the `chrome` mock |
+| End-to-end  | Real extension in Chromium on a local fixture page (slow)                                                  |
 
 ## Popup UI standard
 
@@ -566,8 +606,18 @@ regular (unmanaged) Chrome, so "Load unpacked" works.
 - **Counts clicks made:** a skip is counted when the extension clicks Skip;
   whether YouTube accepted the click can't be seen.
 - **Rating prompt can come late:** it is driven by `skipCount`, so a user
-  who resets the counter before ever seeing the prompt sees it only when the
+  who resets the counter before answering is asked again only when the
   counter reaches 50 again.
+- **Answered means never again:** a user who clicks "Rate it ★" but leaves
+  without reviewing is never asked again (Phase 7).
+- **A milestone can be missed between tabs:** if two tabs lose a count right
+  at a milestone (see above), the count passes it without a storage change
+  at that number, so the popup doesn't open until the next milestone.
+- **Badge, then ignored:** a user who opens the popup from the ★ badge and
+  closes it without answering is asked again only at the next milestone.
+- **Auto-open needs Chrome 127+:** older Chrome is untested; there the
+  popup may not open by itself, and the prompt still shows when the user
+  opens it.
 - **Open popup doesn't refresh:** if the settings change elsewhere (another
   popup window) while the popup is open, it shows the old values until
   reopened. The skip counter does update live.
