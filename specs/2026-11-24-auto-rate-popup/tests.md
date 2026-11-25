@@ -200,7 +200,7 @@ Behaviours: B14–B18 · Branch: phase-7-auto-rate-popup
 
 | #   | Behaviour | Level       | File                                          | Test name                                                                     | Status |
 | --- | --------- | ----------- | --------------------------------------------- | ----------------------------------------------------------------------------- | ------ |
-| T32 | B14       | acceptance  | tests/integration/background-rate-ask.test.js | shows a badge instead of opening the popup in a fullscreen window             | ⬜     |
+| T32 | B14       | acceptance  | tests/integration/background-rate-ask.test.js | shows a badge instead of opening the popup in a fullscreen window             | 🔴     |
 | T33 | B14, B15  | unit        | tests/unit/rate-ask.test.js                   | in a $state window, focused $focused, can open the popup: $expected           | ⬜     |
 | T34 | B15       | integration | tests/integration/background-rate-ask.test.js | shows a badge when Chrome isn't the focused app                               | ⬜     |
 | T35 | B15       | integration | tests/integration/background-rate-ask.test.js | shows a badge when Chrome refuses to open the popup                           | ⬜     |

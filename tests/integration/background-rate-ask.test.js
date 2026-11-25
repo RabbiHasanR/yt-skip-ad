@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { RATE_FIRST_ASK_AT } from '../../src/shared/constants.js';
+import {
+  RATE_BADGE_TEXT,
+  RATE_FIRST_ASK_AT,
+} from '../../src/shared/constants.js';
 import { seedStorage } from '../setup/storage.js';
 
 /**
@@ -20,6 +23,17 @@ async function startWorker() {
  */
 async function skipTo(skipCount) {
   await chrome.storage.local.set({ skipCount });
+}
+
+/**
+ * Makes `chrome.windows.getLastFocused` report one window, as Chrome would.
+ *
+ * @param {{ state: string, focused: boolean }} window The window's state.
+ */
+function lastFocusedWindow(window) {
+  /** @type {import('vitest').Mock} */ (
+    chrome.windows.getLastFocused
+  ).mockResolvedValue({ id: 1, ...window });
 }
 
 describe('background rating auto-open', () => {
@@ -97,4 +111,23 @@ describe('background rating auto-open', () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(chrome.action.openPopup).not.toHaveBeenCalled();
   });
+
+  it.fails(
+    'shows a badge instead of opening the popup in a fullscreen window',
+    async () => {
+      // GIVEN 49 ads skipped, the prompt unanswered, and a fullscreen video
+      await seedStorage({ skipCount: RATE_FIRST_ASK_AT - 1 }, 'local');
+      lastFocusedWindow({ state: 'fullscreen', focused: true });
+      await startWorker();
+      // WHEN a YouTube tab skips the 50th ad
+      await skipTo(RATE_FIRST_ASK_AT);
+      // THEN the popup stays closed, and a ★ badge on the icon waits instead
+      await vi.waitFor(() =>
+        expect(chrome.action.setBadgeText).toHaveBeenCalledWith({
+          text: RATE_BADGE_TEXT,
+        }),
+      );
+      expect(chrome.action.openPopup).not.toHaveBeenCalled();
+    },
+  );
 });
