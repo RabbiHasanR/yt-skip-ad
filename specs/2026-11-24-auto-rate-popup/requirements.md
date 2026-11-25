@@ -37,9 +37,9 @@ does not, since the extension can't see whether a review was written.
   `src/background/service-worker.js`, follows `skipCount` through
   `chrome.storage.onChanged` and calls `chrome.action.openPopup()` when a
   skip crosses a milestone.
-- `[background]` **Guards:** no auto-open in a fullscreen window; a ★ badge
-  on the toolbar icon when the popup is not opened; the popup clears the
-  badge, meeting
+- `[background]` **Guards:** no auto-open unless the Chrome window is
+  focused and not fullscreen or minimized; a ★ badge on the toolbar icon
+  when the popup is not opened; the popup clears the badge, meeting
   [tech-stack.md → Popup UI standard](../tech-stack.md#popup-ui-standard).
 - `[manifest]` **Service worker:** `background.service_worker` as an ES
   module. No new permission.
@@ -94,12 +94,15 @@ does not, since the extension can't see whether a review was written.
 
 ### Guards
 
-- **Fullscreen:** if `chrome.windows.getLastFocused()` reports
-  `state: 'fullscreen'`, the worker does not open the popup and sets the ★
-  badge instead. Groundwork confirms in real Chrome that YouTube's video
-  fullscreen reports this state; if not, Rabbi decides the fallback.
-- **Open fails:** if `openPopup()` rejects (for example, no focused Chrome
-  window), the worker sets the ★ badge.
+- **Safe to open:** the worker calls `openPopup()` only when
+  `chrome.windows.getLastFocused()` reports `focused: true` and `state`
+  `'normal'` or `'maximized'`. Otherwise (fullscreen, minimized, or Chrome
+  not the active app) it sets the ★ badge instead. The real-Chrome trial
+  ([tests.md](tests.md#real-chrome-trial-2026-11-25)) showed YouTube's video
+  fullscreen reports `'fullscreen'`.
+- **Open fails:** if `openPopup()` still rejects, the worker sets the ★
+  badge. In the trial, Chrome itself rejected in fullscreen and with another
+  app in front, so this is the backup, not the rule.
 - **Badge:** text "★"; not stored. Opening the popup clears it. It is never
   set after "Don't ask again".
 - A worker error is logged with the `[yt-skip-ad]` prefix and never breaks
@@ -143,22 +146,22 @@ milestone.
 
 ## Decisions
 
-| Decision        | Choice                                                              | Why                                                                                 |
-| --------------- | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| Scope           | Repeat asks, auto-open, guards                                      | Rabbi's choice; the longer pause after Rate was not chosen                          |
-| Cadence         | 50, then every 100 more                                             | Rabbi's choice                                                                      |
-| What stops it   | Only "Don't ask again"                                              | Rabbi: the extension can't see whether a review was written                         |
-| Delivery        | `chrome.action.openPopup()` from a service worker                   | Shows the prompt without a click and without drawing on YouTube's page; Chrome 127+ |
-| Trigger         | `chrome.storage.onChanged` on `skipCount`, crossing a milestone     | No content-script change; one storage change per milestone gives one auto-open      |
-| Fullscreen      | `chrome.windows.getLastFocused().state`                             | Rabbi's choice; no messaging, no permission; checked in real Chrome first           |
-| Storage         | `rateNextAskAt`, `rateNeverAsk`; `ratePromptDone` moved and removed | Gate 0, approved by Rabbi                                                           |
-| Prompt text     | Count rounded down to the hundred (50 below 100)                    | "50+ ads skipped" stays true at 150, 250, …                                         |
-| Don't ask again | A `<button>` in the prompt                                          | An action, not navigation; keyboard and screen readers treat it as one              |
-| Slicing         | Popup first, then worker, then guards                               | Rabbi's choice; each group ships something usable                                   |
-| Validation      | Gate, manual pass in real Chrome, and an e2e test of the worker     | Rabbi's choice; the worker is the phase's new moving part                           |
-| Store policy    | No reward, no feature locked behind rating; listing says it asks    | Chrome Web Store spam policy; documented, not hidden                                |
-| Principle       | "Nothing leaves the device" no longer lists "rate us" prompts       | Phase 6 added one; a link sends nothing, so the promise holds                       |
-| Version         | `1.3.0`                                                             | New user-visible behaviour, nothing breaking                                        |
+| Decision        | Choice                                                              | Why                                                                                           |
+| --------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Scope           | Repeat asks, auto-open, guards                                      | Rabbi's choice; the longer pause after Rate was not chosen                                    |
+| Cadence         | 50, then every 100 more                                             | Rabbi's choice                                                                                |
+| What stops it   | Only "Don't ask again"                                              | Rabbi: the extension can't see whether a review was written                                   |
+| Delivery        | `chrome.action.openPopup()` from a service worker                   | Shows the prompt without a click and without drawing on YouTube's page; Chrome 127+           |
+| Trigger         | `chrome.storage.onChanged` on `skipCount`, crossing a milestone     | No content-script change; one storage change per milestone gives one auto-open                |
+| Fullscreen      | `getLastFocused()`: open only if focused and `normal`/`maximized`   | Rabbi's choice; trial confirmed fullscreen is reported; our rule, not Chrome's error, decides |
+| Storage         | `rateNextAskAt`, `rateNeverAsk`; `ratePromptDone` moved and removed | Gate 0, approved by Rabbi                                                                     |
+| Prompt text     | Count rounded down to the hundred (50 below 100)                    | "50+ ads skipped" stays true at 150, 250, …                                                   |
+| Don't ask again | A `<button>` in the prompt                                          | An action, not navigation; keyboard and screen readers treat it as one                        |
+| Slicing         | Popup first, then worker, then guards                               | Rabbi's choice; each group ships something usable                                             |
+| Validation      | Gate, manual pass in real Chrome, and an e2e test of the worker     | Rabbi's choice; the worker is the phase's new moving part                                     |
+| Store policy    | No reward, no feature locked behind rating; listing says it asks    | Chrome Web Store spam policy; documented, not hidden                                          |
+| Principle       | "Nothing leaves the device" no longer lists "rate us" prompts       | Phase 6 added one; a link sends nothing, so the promise holds                                 |
+| Version         | `1.3.0`                                                             | New user-visible behaviour, nothing breaking                                                  |
 
 ## Constraints
 
