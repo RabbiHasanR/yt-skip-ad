@@ -113,6 +113,7 @@ describe('npm run package', () => {
         'README.md',
         'USER-GUIDE.md',
         'src/content/loader.js',
+        'src/background/service-worker.js',
         'popup/popup.html',
         'icons/icon16.png',
       ]),

@@ -170,7 +170,7 @@ Behaviours: B10–B13 · Branch: phase-7-auto-rate-popup
 | T28 | B12       | integration | tests/integration/background-rate-ask.test.js | doesn't open the popup for $change                                       | ✅     |
 | T29 | B12       | integration | tests/integration/background-rate-ask.test.js | opens the popup once when two tabs store the same milestone              | ➖     |
 | T30 | B13       | integration | tests/integration/manifest.test.js            | runs the rating worker as a module service worker                        | ✅     |
-| T31 | B13       | integration | tests/integration/package.test.js             | builds dist/yt-skip-ad-<version>.zip containing only the extension files | ⬜     |
+| T31 | B13       | integration | tests/integration/package.test.js             | builds dist/yt-skip-ad-<version>.zip containing only the extension files | ✅     |
 
 T25 cases: 49→50 and 149→150 cross; 0→1, 48→49, 50→51, and 100→149 don't;
 0→200 crosses (two milestones at once, one open); 150→149 and 200→0
@@ -179,3 +179,17 @@ reset (120→0), and a settings save. T31 extends the existing test: the
 worker is in the zip, so in the store zip too (same files). T30 also adds
 the worker to "every file the manifest references exists". "Loads with no
 errors" (B13) is checked by group 4's e2e test and manual check 1.
+
+Notes: the worker started as an empty module (`export {};`) so T24's red
+was a missing behaviour, not a broken import. T24 turned green with T26,
+whose green added `watchSkipCountChange` in `src/shared/storage.js`
+(`watchSkipCount` now builds on it) and the worker's top-level listener.
+`crossedMilestone` reuses `promptCount`, so the milestone step lives in one
+place. T28 passed when written: a worker opening on every count change was
+shown to fail its first two cases, and a storage watcher treating any local
+change as a count change its third. T29 is ➖: a second tab's stale write of
+the same count fires no `storage.onChanged` at all (Chrome's rule, which the
+mock copies), so the test could only check the mock; the other order
+(50 → 51) is a T25 case, and manual check 7 covers two real tabs. T31
+passed when written, since the packager zips all of `src/`; a packager
+leaving `src/background/` out was shown to fail it.
