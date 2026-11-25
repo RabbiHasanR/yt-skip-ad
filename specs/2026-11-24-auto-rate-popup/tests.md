@@ -156,3 +156,26 @@ ignoring the stored answer (T20), a reset that also clears it (T21), live
 updates that skip the prompt (T22), and a prompt that never hides once shown
 (T23). The final refactor removed the first run's state, its move, its two
 keys, and T3, T4, T6–T9.
+
+## 3. Auto-open
+
+Behaviours: B10–B13 · Branch: phase-7-auto-rate-popup
+
+| #   | Behaviour | Level       | File                                          | Test name                                                                | Status |
+| --- | --------- | ----------- | --------------------------------------------- | ------------------------------------------------------------------------ | ------ |
+| T24 | B10       | acceptance  | tests/integration/background-rate-ask.test.js | opens the popup when the 50th ad is skipped                              | ⬜     |
+| T25 | B11, B12  | unit        | tests/unit/rate-ask.test.js                   | from $from to $to skips, crosses a milestone: $expected                  | ⬜     |
+| T26 | B11       | integration | tests/integration/background-rate-ask.test.js | opens the popup again at 150 and 250 while the prompt is unanswered      | ⬜     |
+| T27 | B11       | integration | tests/integration/background-rate-ask.test.js | never opens the popup once the prompt is answered                        | ⬜     |
+| T28 | B12       | integration | tests/integration/background-rate-ask.test.js | doesn't open the popup for $change                                       | ⬜     |
+| T29 | B12       | integration | tests/integration/background-rate-ask.test.js | opens the popup once when two tabs store the same milestone              | ⬜     |
+| T30 | B13       | integration | tests/integration/manifest.test.js            | runs the rating worker as a module service worker                        | ⬜     |
+| T31 | B13       | integration | tests/integration/package.test.js             | builds dist/yt-skip-ad-<version>.zip containing only the extension files | ⬜     |
+
+T25 cases: 49→50 and 149→150 cross; 0→1, 48→49, 50→51, and 100→149 don't;
+0→200 crosses (two milestones at once, one open); 150→149 and 200→0
+(resets) don't. T28 cases: a skip between milestones (50→51), a counter
+reset (120→0), and a settings save. T31 extends the existing test: the
+worker is in the zip, so in the store zip too (same files). T30 also adds
+the worker to "every file the manifest references exists". "Loads with no
+errors" (B13) is checked by group 4's e2e test and manual check 1.
