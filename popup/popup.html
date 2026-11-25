@@ -41,7 +41,7 @@
         hidden
       >
         <p>
-          <span id="rate-threshold"></span>+ ads skipped! A quick rating helps
+          <span id="rate-count"></span>+ ads skipped! A quick rating helps
           others find this.
         </p>
         <div class="rate-actions">
@@ -53,7 +53,15 @@
             rel="noopener"
             >Rate it ★</a
           >
-          <button id="rate-dismiss" type="button" aria-label="Dismiss">
+          <button id="rate-never" class="rate-never" type="button">
+            Don't ask again
+          </button>
+          <button
+            id="rate-dismiss"
+            class="rate-dismiss"
+            type="button"
+            aria-label="Dismiss"
+          >
             ×
           </button>
         </div>

@@ -1,11 +1,8 @@
 // Popup wiring: shows the stored settings in the controls and saves changes.
 // The rules live in src/core/; storage access in src/shared/storage.js.
-import { isAskDue } from '../src/core/rate-ask.js';
+import { isAskDue, promptCount } from '../src/core/rate-ask.js';
 import { parseDelayField } from '../src/core/settings.js';
-import {
-  RATE_FIRST_ASK_AT,
-  STORE_REVIEWS_URL,
-} from '../src/shared/constants.js';
+import { STORE_REVIEWS_URL } from '../src/shared/constants.js';
 import {
   getRateAsk,
   getSettings,
@@ -38,13 +35,14 @@ const rateDismiss = /** @type {HTMLButtonElement} */ (
   document.getElementById('rate-dismiss')
 );
 
-// Store links and the threshold live in constants.js, filled in here.
+const rateCount = /** @type {HTMLElement} */ (
+  document.getElementById('rate-count')
+);
+
+// Store links live in constants.js, filled in here.
 document.querySelectorAll('[data-store-reviews]').forEach((link) => {
   /** @type {HTMLAnchorElement} */ (link).href = STORE_REVIEWS_URL;
 });
-/** @type {HTMLElement} */ (
-  document.getElementById('rate-threshold')
-).textContent = String(RATE_FIRST_ASK_AT);
 
 const rateAsk = await getRateAsk();
 let ratePromptDone = false;
@@ -57,6 +55,7 @@ let ratePromptDone = false;
 const showCount = (count) => {
   countOutput.value = count.toLocaleString();
   ratePrompt.hidden = ratePromptDone || !isAskDue(count, rateAsk);
+  rateCount.textContent = String(promptCount(count));
 };
 
 /** Hides the rating prompt for good: this popup and every later one. */

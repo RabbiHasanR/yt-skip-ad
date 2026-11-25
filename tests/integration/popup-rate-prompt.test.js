@@ -138,19 +138,21 @@ describe('popup rating prompt', () => {
     expect(await storedNextAsk()).toBe(220);
   });
 
-  it('asks for a rating at the threshold, naming it', async () => {
-    // GIVEN the threshold of ads skipped
-    await seedStorage({ skipCount: RATE_FIRST_ASK_AT }, 'local');
+  it('asks for a rating once due, naming the count and offering three choices', async () => {
+    // GIVEN 173 ads skipped, past a next ask at 150
+    await seedStorage({ skipCount: 173, rateNextAskAt: 150 }, 'local');
     // WHEN the user opens the popup
     await openPopup();
-    // THEN it asks for a rating, links to the store reviews in a new tab,
-    // and says how many ads were skipped
+    // THEN it asks for a rating, names the last milestone, links to the store
+    // reviews in a new tab, and offers to close it or never ask again
     expect(ratePrompt()?.hidden).toBe(false);
-    expect(ratePrompt()?.textContent).toContain(`${RATE_FIRST_ASK_AT}+`);
+    expect(ratePrompt()?.textContent).toContain('150+ ads skipped');
     const link = /** @type {HTMLAnchorElement} */ (promptControl('Rate it ★'));
     expect(link.href).toBe(STORE_REVIEWS_URL);
     expect(link.target).toBe('_blank');
     expect(link.relList.contains('noopener')).toBe(true);
+    expect(promptControl('Dismiss')?.tagName).toBe('BUTTON');
+    expect(promptControl("Don't ask again")?.tagName).toBe('BUTTON');
   });
 
   it.fails(
