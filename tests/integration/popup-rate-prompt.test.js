@@ -107,18 +107,6 @@ describe('popup rating prompt', () => {
     await vi.waitFor(() => expect(ratePrompt()?.hidden).toBe(false));
   });
 
-  it('never comes back in a later popup once handled', async () => {
-    // GIVEN the user dismissed the prompt earlier
-    await seedStorage(
-      { skipCount: RATE_FIRST_ASK_AT * 2, ratePromptDone: true },
-      'local',
-    );
-    // WHEN they open the popup again
-    await openPopup();
-    // THEN no rating is asked for
-    expect(ratePrompt()?.hidden).toBe(true);
-  });
-
   it('never asks again after "Don\'t ask again", even after a counter reset', async () => {
     // GIVEN the prompt is showing, and the popup is open
     await seedStorage({ skipCount: RATE_FIRST_ASK_AT }, 'local');

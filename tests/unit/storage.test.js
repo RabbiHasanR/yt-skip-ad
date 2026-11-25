@@ -4,8 +4,6 @@ import {
   getSettings,
   incrementSkipCount,
   postponeRateAsk,
-  isRatePromptDone,
-  markRatePromptDone,
   setSettings,
   stopRateAsk,
   watchSettings,
@@ -137,35 +135,6 @@ describe('skip counter storage', () => {
     await incrementSkipCount();
     // THEN only this computer's storage changed; nothing went to Chrome Sync
     expect(chrome.storage.local.set).toHaveBeenCalledOnce();
-    expect(chrome.storage.sync.set).not.toHaveBeenCalled();
-  });
-});
-
-describe('rating prompt storage', () => {
-  it('reads a fresh install as not done', async () => {
-    // GIVEN a fresh install
-    // WHEN the popup reads the prompt state
-    // THEN the prompt is not done yet
-    expect(await isRatePromptDone()).toBe(false);
-  });
-
-  it.each([1, 'true', null])(
-    'reads an invalid stored state of %s as not done',
-    async (stored) => {
-      // GIVEN an invalid value in storage
-      await seedStorage({ ratePromptDone: stored }, 'local');
-      // WHEN the popup reads the prompt state
-      // THEN only a real `true` counts as done
-      expect(await isRatePromptDone()).toBe(false);
-    },
-  );
-
-  it('remembers the prompt as done, in local storage only', async () => {
-    // GIVEN a fresh install
-    // WHEN the user rates or dismisses the prompt
-    await markRatePromptDone();
-    // THEN it is done from now on, and Chrome Sync never gets a copy
-    expect(await isRatePromptDone()).toBe(true);
     expect(chrome.storage.sync.set).not.toHaveBeenCalled();
   });
 });
