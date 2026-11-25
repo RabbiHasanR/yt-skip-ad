@@ -1,6 +1,10 @@
 # CI: every pull request to main, and every push to main, must pass the same
 # checks as the local gate. `checks` and `e2e` are the required status checks
 # in the `protect main` ruleset, so keep these job names.
+#
+# Docs-only changes skip the tests, but the workflow itself always starts:
+# GitHub leaves a required check "Pending" forever when a path filter skips
+# the whole workflow, while a skipped job counts as passed.
 name: CI
 
 on:
@@ -19,10 +23,50 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Decides whether anything but docs changed. Any doubt means "code".
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: diff
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          code=true
+          if files=$(git diff --name-only "$BASE...$HEAD" 2>/dev/null); then
+            code=false
+            while IFS= read -r file; do
+              case "$file" in
+                '') ;;
+                *.md | LICENSE | docs/* | specs/* | .claude/* | .github/ISSUE_TEMPLATE/*) ;;
+                *) code=true ;;
+              esac
+            done <<< "$files"
+            printf 'Changed files:\n%s\n' "$files"
+          else
+            echo "Could not diff $BASE...$HEAD; running everything."
+          fi
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "Code changed: $code"
+
   checks:
     name: checks
+    needs: changes
+    # Runs even if `changes` failed; then its output is empty and every
+    # step below runs.
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      CODE: ${{ needs.changes.outputs.code != 'false' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -32,15 +76,24 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npm run lint
-      - run: npm run typecheck
+      # Prettier also formats the Markdown, so docs-only changes run it too.
       - run: npm run format:check
-      - run: npm test
+      - if: env.CODE == 'true'
+        run: npm run lint
+      - if: env.CODE == 'true'
+        run: npm run typecheck
+      - if: env.CODE == 'true'
+        run: npm test
       # Proves the dist zip still builds with only extension files.
-      - run: npm run package
+      - if: env.CODE == 'true'
+        run: npm run package
 
   e2e:
     name: e2e
+    needs: changes
+    # Skipped for docs-only changes (a skipped job counts as passed); runs if
+    # `changes` failed.
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

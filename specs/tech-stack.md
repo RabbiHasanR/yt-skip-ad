@@ -464,6 +464,12 @@ pass.
   Ubuntu with Node 24: `checks` (`npm ci`, lint, typecheck, format check,
   `npm test`, `npm run package`) and `e2e` (Chromium installed, then
   `npm run test:e2e`; the Playwright results are uploaded on failure).
+  A `changes` job first runs `git diff`: when every changed file is docs
+  (`*.md`, `LICENSE`, `docs/`, `specs/`, `.claude/`,
+  `.github/ISSUE_TEMPLATE/`), `checks` runs only the format check and `e2e`
+  is skipped; anything else, or a diff that fails, runs everything. No
+  `paths-ignore` or `[skip ci]`: GitHub leaves a required check "Pending"
+  when the whole workflow is skipped, while a skipped job counts as passed.
   CI only reads the repo (`permissions: contents: read`); fork PRs get no
   secrets, and a first-time contributor's run needs approval. Coverage is
   not a gate. The `protect main` ruleset requires `checks` and `e2e` to

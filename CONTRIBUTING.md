@@ -46,8 +46,9 @@ fork and opens a pull request.
 7. **Open a pull request** to `main` and fill in its checklist.
 8. **CI must pass.** GitHub Actions runs the same checks (`checks`) and the
    end-to-end tests (`e2e`) on your pull request; it can be merged only
-   when both are green. A first-time contributor's run starts once the
-   maintainer approves it.
+   when both are green. A change to docs only (Markdown, `docs/`, `specs/`)
+   runs just the format check. A first-time contributor's run starts once
+   the maintainer approves it.
 
 ## Where things live
 
