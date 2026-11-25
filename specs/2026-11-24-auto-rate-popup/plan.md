@@ -76,7 +76,7 @@ Tasks:
 
 ## 4. Guards (slice 3)
 
-- **Behaviours:** B14–B16.
+- **Behaviours:** B14–B18 (B18 added at group 4's Gate 2).
 - **Acceptance:** `tests/integration/background-rate-ask.test.js` → "shows
   a badge instead of opening the popup in a fullscreen window".
 

@@ -193,3 +193,25 @@ mock copies), so the test could only check the mock; the other order
 (50 → 51) is a T25 case, and manual check 7 covers two real tabs. T31
 passed when written, since the packager zips all of `src/`; a packager
 leaving `src/background/` out was shown to fail it.
+
+## 4. Guards
+
+Behaviours: B14–B18 · Branch: phase-7-auto-rate-popup
+
+| #   | Behaviour | Level       | File                                          | Test name                                                                     | Status |
+| --- | --------- | ----------- | --------------------------------------------- | ----------------------------------------------------------------------------- | ------ |
+| T32 | B14       | acceptance  | tests/integration/background-rate-ask.test.js | shows a badge instead of opening the popup in a fullscreen window             | ⬜     |
+| T33 | B14, B15  | unit        | tests/unit/rate-ask.test.js                   | in a $state window, focused $focused, can open the popup: $expected           | ⬜     |
+| T34 | B15       | integration | tests/integration/background-rate-ask.test.js | shows a badge when Chrome isn't the focused app                               | ⬜     |
+| T35 | B15       | integration | tests/integration/background-rate-ask.test.js | shows a badge when Chrome refuses to open the popup                           | ⬜     |
+| T36 | B16       | integration | tests/integration/background-rate-ask.test.js | never shows the badge once the prompt is answered                             | ⬜     |
+| T37 | B18       | integration | tests/integration/background-rate-ask.test.js | logs a failed check with [yt-skip-ad] and still opens at the next milestone   | ⬜     |
+| T38 | B16       | integration | tests/integration/popup-rate-prompt.test.js   | clears the ★ badge when the popup opens                                       | ⬜     |
+| T39 | B13, B14  | e2e         | tests/e2e/rate-ask.spec.js                    | the real worker shows a ★ badge when a skip crosses 50 in a fullscreen window | ⬜     |
+| T40 | B17       | e2e         | tests/e2e/network-lock.spec.js                | Chrome blocks a network request from the extension's service worker           | ⬜     |
+
+T33 cases: normal and maximized focused → yes; fullscreen, minimized, and
+normal unfocused → no. B17's lint half (the network ban covers
+`src/background/`) is already in `eslint.config.js`; T40 is its runtime
+half. B18 was added to `validation.md` at this Gate 2: `requirements.md`
+asked for logged worker errors, but no behaviour covered it.

@@ -53,6 +53,9 @@ counter, and their answer to the rating prompt.
   (× or "Rate it ★"), no badge and no auto-open ever appear. [background]
   [popup]
 
+- B18 — A failure inside the background worker is logged with
+  `[yt-skip-ad]`, and later milestones still open the popup. [background]
+
 ### Privacy
 
 - B17 — Nothing is sent off the device: the worker makes no network
