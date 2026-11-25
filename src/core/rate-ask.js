@@ -45,3 +45,22 @@ export function crossedMilestone(oldCount, newCount) {
       : promptCount(oldCount) + RATE_ASK_EVERY;
   return newCount >= nextMilestone;
 }
+
+/**
+ * Window states the popup may open over by itself. Fullscreen (a video) and
+ * minimized are left out.
+ */
+const OPENABLE_WINDOW_STATES = Object.freeze(['normal', 'maximized']);
+
+/**
+ * Decides whether the popup may open by itself over a window: only when it
+ * is Chrome's focused window and neither fullscreen nor minimized, so it
+ * never covers a fullscreen video or pulls Chrome in front of another app.
+ *
+ * @param {{ state?: string, focused: boolean }} window The window Chrome
+ *   reports as last focused.
+ * @returns {boolean} `true` when the popup may open.
+ */
+export function canOpenPopupIn(window) {
+  return window.focused && OPENABLE_WINDOW_STATES.includes(window.state ?? '');
+}

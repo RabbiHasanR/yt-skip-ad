@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  canOpenPopupIn,
   crossedMilestone,
   isAskDue,
   promptCount,
@@ -55,6 +56,22 @@ describe('rating ask rules', () => {
       // WHEN the worker checks for an auto-open milestone (50, 150, 250, …)
       // THEN it crosses one only when a milestone lies in (from, to]
       expect(crossedMilestone(from, to)).toBe(expected);
+    },
+  );
+
+  it.each([
+    { state: 'normal', focused: true, expected: true },
+    { state: 'maximized', focused: true, expected: true },
+    { state: 'fullscreen', focused: true, expected: false },
+    { state: 'minimized', focused: true, expected: false },
+    { state: 'normal', focused: false, expected: false },
+  ])(
+    'in a $state window, focused $focused, can open the popup: $expected',
+    ({ state, focused, expected }) => {
+      // GIVEN the window Chrome reports as last focused
+      // WHEN the worker decides whether the popup may open by itself
+      // THEN only a focused, normal or maximized window allows it
+      expect(canOpenPopupIn({ state, focused })).toBe(expected);
     },
   );
 });
