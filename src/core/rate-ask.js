@@ -15,11 +15,11 @@ import { RATE_ASK_EVERY, RATE_FIRST_ASK_AT } from '../shared/constants.js';
  * Decides whether the popup shows the rating prompt.
  *
  * @param {number} skipCount Ads skipped so far.
- * @param {RateAsk} state The stored ask state.
+ * @param {boolean} done Whether the user answered it ("Rate it ★" or ×).
  * @returns {boolean} `true` when the prompt should be shown.
  */
-export function isAskDue(skipCount, state) {
-  return !state.neverAsk && skipCount >= state.nextAskAt;
+export function isAskDue(skipCount, done) {
+  return !done && skipCount >= RATE_FIRST_ASK_AT;
 }
 
 /**

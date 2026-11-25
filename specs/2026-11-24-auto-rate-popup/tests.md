@@ -68,7 +68,7 @@ Behaviours: B1–B9 · Branch: phase-7-auto-rate-popup
 | #   | Behaviour | Level       | File                                        | Test name                                                                  | Status |
 | --- | --------- | ----------- | ------------------------------------------- | -------------------------------------------------------------------------- | ------ |
 | T1  | B3        | acceptance  | tests/integration/popup-rate-prompt.test.js | asks again 100 skips after the user closes the prompt                      | ✅     |
-| T2  | B1, B5    | unit        | tests/unit/rate-ask.test.js                 | with $count skipped, next ask $nextAskAt, never $neverAsk: due $expected   | ✅     |
+| T2  | B1, B5    | unit        | tests/unit/rate-ask.test.js                 | with $count skipped and answered=$done, due $expected                      | ✅     |
 | T3  | B8        | unit        | tests/unit/rate-ask.test.js                 | reads a stored next ask of $stored as $expected                            | ✅     |
 | T4  | B8        | unit        | tests/unit/rate-ask.test.js                 | reads a stored "never ask" of $stored as $expected                         | ✅     |
 | T5  | B2        | unit        | tests/unit/rate-ask.test.js                 | names $count skips as "$shown+"                                            | ✅     |
@@ -121,10 +121,10 @@ Behaviours: B1–B9 · Branch: phase-7-auto-rate-popup
 
 | #   | Behaviour | Level       | File                                        | Test name                                                             | Status |
 | --- | --------- | ----------- | ------------------------------------------- | --------------------------------------------------------------------- | ------ |
-| T15 | B3        | acceptance  | tests/integration/popup-rate-prompt.test.js | never asks again after the user closes the prompt                     | 🔴     |
+| T15 | B3        | acceptance  | tests/integration/popup-rate-prompt.test.js | never asks again after the user closes the prompt                     | ✅     |
 | T16 | B8        | unit        | tests/unit/storage.test.js                  | reads a stored prompt state of $stored as answered: $expected         | ✅     |
 | T17 | B3, B4    | unit        | tests/unit/storage.test.js                  | remembers the answer, in local storage only                           | ✅     |
-| T18 | B4        | integration | tests/integration/popup-rate-prompt.test.js | opens the reviews page and never asks again after Rate it ★           | ⬜     |
+| T18 | B4        | integration | tests/integration/popup-rate-prompt.test.js | opens the reviews page and never asks again after Rate it ★           | ✅     |
 | T19 | B2        | integration | tests/integration/popup-rate-prompt.test.js | asks for a rating once due, naming the count, with Rate it ★ and ×    | ⬜     |
 | T20 | B9        | integration | tests/integration/popup-rate-prompt.test.js | keeps a 1.2.0 answer: never asks again                                | ⬜     |
 | T21 | B5        | integration | tests/integration/popup-rate-prompt.test.js | stays gone after the counter is reset, once answered                  | ⬜     |

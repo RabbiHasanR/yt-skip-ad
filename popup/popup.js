@@ -1,16 +1,15 @@
 // Popup wiring: shows the stored settings in the controls and saves changes.
 // The rules live in src/core/; storage access in src/shared/storage.js.
-import { isAskDue, nextAskAfter, promptCount } from '../src/core/rate-ask.js';
+import { isAskDue, promptCount } from '../src/core/rate-ask.js';
 import { parseDelayField } from '../src/core/settings.js';
 import { STORE_REVIEWS_URL } from '../src/shared/constants.js';
 import {
-  getRateAsk,
   getSettings,
   getSkipCount,
-  postponeRateAsk,
+  isRatePromptDone,
+  markRatePromptDone,
   resetSkipCount,
   setSettings,
-  stopRateAsk,
   watchSkipCount,
 } from '../src/shared/storage.js';
 
@@ -48,7 +47,7 @@ document.querySelectorAll('[data-store-reviews]').forEach((link) => {
   /** @type {HTMLAnchorElement} */ (link).href = STORE_REVIEWS_URL;
 });
 
-let rateAsk = await getRateAsk();
+let ratePromptDone = await isRatePromptDone();
 let skipCount = 0;
 
 /**
@@ -64,22 +63,15 @@ const showCount = (count) => {
 
 /** Shows the rating prompt when it is due, naming the last milestone. */
 const showRatePrompt = () => {
-  ratePrompt.hidden = !isAskDue(skipCount, rateAsk);
+  ratePrompt.hidden = !isAskDue(skipCount, ratePromptDone);
   rateCount.textContent = String(promptCount(skipCount));
 };
 
-/** Hides the rating prompt until 100 more ads are skipped. */
-const postponeRatePrompt = () => {
-  rateAsk = { ...rateAsk, nextAskAt: nextAskAfter(skipCount) };
-  showRatePrompt();
-  postponeRateAsk(skipCount);
-};
-
 /** Hides the rating prompt for good: this popup and every later one. */
-const stopRatePrompt = () => {
-  rateAsk = { ...rateAsk, neverAsk: true };
+const answerRatePrompt = () => {
+  ratePromptDone = true;
   showRatePrompt();
-  stopRateAsk();
+  markRatePromptDone();
 };
 
 /**
@@ -118,8 +110,7 @@ resetButton.addEventListener('click', () => {
   resetSkipCount();
 });
 
-// The link still opens the reviews page. The extension can't see whether a
-// review was written, so Rate postpones like ×.
-rateLink.addEventListener('click', postponeRatePrompt);
-rateDismiss.addEventListener('click', postponeRatePrompt);
-rateNever.addEventListener('click', stopRatePrompt);
+// The link still opens the reviews page; either answer ends the asks.
+rateLink.addEventListener('click', answerRatePrompt);
+rateDismiss.addEventListener('click', answerRatePrompt);
+rateNever.addEventListener('click', answerRatePrompt);
