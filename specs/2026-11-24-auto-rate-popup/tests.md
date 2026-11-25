@@ -63,7 +63,7 @@ Behaviours: B1–B9 · Branch: phase-7-auto-rate-popup
 
 | #   | Behaviour | Level       | File                                        | Test name                                                                  | Status |
 | --- | --------- | ----------- | ------------------------------------------- | -------------------------------------------------------------------------- | ------ |
-| T1  | B3        | acceptance  | tests/integration/popup-rate-prompt.test.js | asks again 100 skips after the user closes the prompt                      | 🔴     |
+| T1  | B3        | acceptance  | tests/integration/popup-rate-prompt.test.js | asks again 100 skips after the user closes the prompt                      | ✅     |
 | T2  | B1, B5    | unit        | tests/unit/rate-ask.test.js                 | with $count skipped, next ask $nextAskAt, never $neverAsk: due $expected   | ✅     |
 | T3  | B8        | unit        | tests/unit/rate-ask.test.js                 | reads a stored next ask of $stored as $expected                            | ✅     |
 | T4  | B8        | unit        | tests/unit/rate-ask.test.js                 | reads a stored "never ask" of $stored as $expected                         | ✅     |
@@ -73,7 +73,7 @@ Behaviours: B1–B9 · Branch: phase-7-auto-rate-popup
 | T8  | B9        | unit        | tests/unit/storage.test.js                  | moves a handled 1.2.0 prompt to ask again 100 skips later                  | ✅     |
 | T9  | B9        | unit        | tests/unit/storage.test.js                  | removes a 1.2.0 prompt state that wasn't true, keeping the first ask at 50 | ✅     |
 | T10 | B2        | integration | tests/integration/popup-rate-prompt.test.js | asks for a rating once due, naming the count and offering three choices    | ✅     |
-| T11 | B4        | integration | tests/integration/popup-rate-prompt.test.js | opens the reviews page and asks again 100 skips later after Rate it ★      | ⬜     |
+| T11 | B4        | integration | tests/integration/popup-rate-prompt.test.js | opens the reviews page and asks again 100 skips later after Rate it ★      | ✅     |
 | T12 | B5        | integration | tests/integration/popup-rate-prompt.test.js | never asks again after "Don't ask again", even after a counter reset       | ⬜     |
 | T13 | B6        | integration | tests/integration/popup-rate-prompt.test.js | appears while the popup is open, once the next ask is reached              | ⬜     |
 | T14 | B7        | integration | tests/integration/popup-rate-prompt.test.js | doesn't come back early after the counter is reset                         | ✅     |

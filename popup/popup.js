@@ -1,13 +1,13 @@
 // Popup wiring: shows the stored settings in the controls and saves changes.
 // The rules live in src/core/; storage access in src/shared/storage.js.
-import { isAskDue, promptCount } from '../src/core/rate-ask.js';
+import { isAskDue, nextAskAfter, promptCount } from '../src/core/rate-ask.js';
 import { parseDelayField } from '../src/core/settings.js';
 import { STORE_REVIEWS_URL } from '../src/shared/constants.js';
 import {
   getRateAsk,
   getSettings,
   getSkipCount,
-  markRatePromptDone,
+  postponeRateAsk,
   resetSkipCount,
   setSettings,
   watchSkipCount,
@@ -44,8 +44,8 @@ document.querySelectorAll('[data-store-reviews]').forEach((link) => {
   /** @type {HTMLAnchorElement} */ (link).href = STORE_REVIEWS_URL;
 });
 
-const rateAsk = await getRateAsk();
-let ratePromptDone = false;
+let rateAsk = await getRateAsk();
+let skipCount = 0;
 
 /**
  * Shows a skip count in the counter.
@@ -53,16 +53,22 @@ let ratePromptDone = false;
  * @param {number} count Ads skipped so far.
  */
 const showCount = (count) => {
+  skipCount = count;
   countOutput.value = count.toLocaleString();
-  ratePrompt.hidden = ratePromptDone || !isAskDue(count, rateAsk);
-  rateCount.textContent = String(promptCount(count));
+  showRatePrompt();
 };
 
-/** Hides the rating prompt for good: this popup and every later one. */
-const finishRatePrompt = () => {
-  ratePromptDone = true;
-  ratePrompt.hidden = true;
-  markRatePromptDone();
+/** Shows the rating prompt when it is due, naming the last milestone. */
+const showRatePrompt = () => {
+  ratePrompt.hidden = !isAskDue(skipCount, rateAsk);
+  rateCount.textContent = String(promptCount(skipCount));
+};
+
+/** Hides the rating prompt until 100 more ads are skipped. */
+const postponeRatePrompt = () => {
+  rateAsk = { ...rateAsk, nextAskAt: nextAskAfter(skipCount) };
+  showRatePrompt();
+  postponeRateAsk(skipCount);
 };
 
 /**
@@ -101,6 +107,7 @@ resetButton.addEventListener('click', () => {
   resetSkipCount();
 });
 
-// The link still opens the reviews page; the prompt just never comes back.
-rateLink.addEventListener('click', finishRatePrompt);
-rateDismiss.addEventListener('click', finishRatePrompt);
+// The link still opens the reviews page. The extension can't see whether a
+// review was written, so Rate postpones like ×.
+rateLink.addEventListener('click', postponeRatePrompt);
+rateDismiss.addEventListener('click', postponeRatePrompt);

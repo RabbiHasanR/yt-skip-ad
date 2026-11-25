@@ -57,12 +57,6 @@ async function reopenPopupAt(skipCount) {
   await openPopup();
 }
 
-/** @returns {Promise<unknown>} The stored prompt state. */
-async function storedDone() {
-  return (await chrome.storage.local.get({ ratePromptDone: null }))
-    .ratePromptDone;
-}
-
 describe('popup rating prompt', () => {
   beforeEach(() => {
     vi.resetModules();
@@ -87,28 +81,29 @@ describe('popup rating prompt', () => {
     await vi.waitFor(() => expect(ratePrompt()?.hidden).toBe(false));
   });
 
-  it.each(['Rate it ★', 'Dismiss'])(
-    'hides for good after the user clicks %s',
-    async (name) => {
-      // GIVEN the prompt is showing
-      await seedStorage({ skipCount: RATE_FIRST_ASK_AT }, 'local');
-      await openPopup();
-      // WHEN the user clicks the control
-      promptControl(name)?.dispatchEvent(
-        new MouseEvent('click', { bubbles: true, cancelable: true }),
-      );
-      // THEN it hides now, is remembered, and stays hidden as the count grows
-      expect(ratePrompt()?.hidden).toBe(true);
-      await vi.waitFor(async () => expect(await storedDone()).toBe(true));
-      await chrome.storage.local.set({ skipCount: RATE_FIRST_ASK_AT + 1 });
-      await vi.waitFor(async () =>
-        expect(document.querySelector('output')?.value).toBe(
-          String(RATE_FIRST_ASK_AT + 1),
-        ),
-      );
-      expect(ratePrompt()?.hidden).toBe(true);
-    },
-  );
+  it('opens the reviews page and asks again 100 skips later after Rate it ★', async () => {
+    // GIVEN the prompt is showing at 150 skips, and the popup is open
+    await seedStorage({ skipCount: 150, rateNextAskAt: 150 }, 'local');
+    const { count } = await openPopup();
+    // WHEN the user clicks Rate it ★
+    const opened = promptControl('Rate it ★')?.dispatchEvent(
+      new MouseEvent('click', { bubbles: true, cancelable: true }),
+    );
+    // THEN the link still opens, the prompt hides, and it asks again only
+    // once 100 more ads are skipped
+    expect(opened).toBe(true);
+    expect(ratePrompt()?.hidden).toBe(true);
+    await vi.waitFor(async () =>
+      expect(await storedNextAsk()).toBe(150 + RATE_ASK_EVERY),
+    );
+    await chrome.storage.local.set({ skipCount: 150 + RATE_ASK_EVERY - 1 });
+    await vi.waitFor(() =>
+      expect(count?.value).toBe(String(150 + RATE_ASK_EVERY - 1)),
+    );
+    expect(ratePrompt()?.hidden).toBe(true);
+    await chrome.storage.local.set({ skipCount: 150 + RATE_ASK_EVERY });
+    await vi.waitFor(() => expect(ratePrompt()?.hidden).toBe(false));
+  });
 
   it('never comes back in a later popup once handled', async () => {
     // GIVEN the user dismissed the prompt earlier
@@ -155,23 +150,20 @@ describe('popup rating prompt', () => {
     expect(promptControl("Don't ask again")?.tagName).toBe('BUTTON');
   });
 
-  it.fails(
-    'asks again 100 skips after the user closes the prompt',
-    async () => {
-      // GIVEN the prompt is showing at the first ask
-      await seedStorage({ skipCount: RATE_FIRST_ASK_AT }, 'local');
-      await openPopup();
-      // WHEN the user closes it
-      clickPromptControl('Dismiss');
-      // THEN it hides now, stays hidden in later popups until 100 more ads are
-      // skipped, and then asks again
-      expect(ratePrompt()?.hidden).toBe(true);
-      const nextAsk = RATE_FIRST_ASK_AT + RATE_ASK_EVERY;
-      await vi.waitFor(async () => expect(await storedNextAsk()).toBe(nextAsk));
-      await reopenPopupAt(nextAsk - 1);
-      expect(ratePrompt()?.hidden).toBe(true);
-      await reopenPopupAt(nextAsk);
-      expect(ratePrompt()?.hidden).toBe(false);
-    },
-  );
+  it('asks again 100 skips after the user closes the prompt', async () => {
+    // GIVEN the prompt is showing at the first ask
+    await seedStorage({ skipCount: RATE_FIRST_ASK_AT }, 'local');
+    await openPopup();
+    // WHEN the user closes it
+    clickPromptControl('Dismiss');
+    // THEN it hides now, stays hidden in later popups until 100 more ads are
+    // skipped, and then asks again
+    expect(ratePrompt()?.hidden).toBe(true);
+    const nextAsk = RATE_FIRST_ASK_AT + RATE_ASK_EVERY;
+    await vi.waitFor(async () => expect(await storedNextAsk()).toBe(nextAsk));
+    await reopenPopupAt(nextAsk - 1);
+    expect(ratePrompt()?.hidden).toBe(true);
+    await reopenPopupAt(nextAsk);
+    expect(ratePrompt()?.hidden).toBe(false);
+  });
 });
