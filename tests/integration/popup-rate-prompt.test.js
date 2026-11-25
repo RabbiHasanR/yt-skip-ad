@@ -149,4 +149,20 @@ describe('popup rating prompt', () => {
     expect(ratePrompt()?.hidden).toBe(true);
     expect(await storedDone()).toBe(true);
   });
+
+  it('appears while the popup is open at 50, its number following the count', async () => {
+    // GIVEN one ad short of 50, and the popup open
+    await seedStorage({ skipCount: RATE_FIRST_ASK_AT - 1 }, 'local');
+    await openPopup();
+    expect(ratePrompt()?.hidden).toBe(true);
+    // WHEN a YouTube tab skips one more ad
+    await chrome.storage.local.set({ skipCount: RATE_FIRST_ASK_AT });
+    // THEN the prompt appears, and its number moves on with the count
+    await vi.waitFor(() => expect(ratePrompt()?.hidden).toBe(false));
+    expect(ratePrompt()?.textContent).toContain('50+ ads skipped');
+    await chrome.storage.local.set({ skipCount: 150 });
+    await vi.waitFor(() =>
+      expect(ratePrompt()?.textContent).toContain('150+ ads skipped'),
+    );
+  });
 });

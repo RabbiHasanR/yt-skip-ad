@@ -128,7 +128,7 @@ Behaviours: B1–B9 · Branch: phase-7-auto-rate-popup
 | T19 | B2        | integration | tests/integration/popup-rate-prompt.test.js | asks for a rating once due, naming the count, with Rate it ★ and ×    | ✅     |
 | T20 | B9        | integration | tests/integration/popup-rate-prompt.test.js | keeps a 1.2.0 answer: never asks again                                | ✅     |
 | T21 | B5        | integration | tests/integration/popup-rate-prompt.test.js | stays gone after the counter is reset, once answered                  | ✅     |
-| T22 | B6        | integration | tests/integration/popup-rate-prompt.test.js | appears while the popup is open at 50, its number following the count | ⬜     |
+| T22 | B6        | integration | tests/integration/popup-rate-prompt.test.js | appears while the popup is open at 50, its number following the count | ✅     |
 | T23 | B7        | integration | tests/integration/popup-rate-prompt.test.js | hides after a reset before answering, until the counter is back at 50 | ⬜     |
 
 Kept from the first run: T5 (`promptCount`, B2) and Phase 6's "stays hidden
