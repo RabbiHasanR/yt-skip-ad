@@ -10,6 +10,10 @@
     "extension_pages": "default-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
   },
   "host_permissions": ["*://*.youtube.com/*"],
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
   "content_scripts": [
     {
       "matches": ["*://*.youtube.com/*"],

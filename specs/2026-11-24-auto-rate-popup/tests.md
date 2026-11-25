@@ -168,8 +168,8 @@ Behaviours: B10–B13 · Branch: phase-7-auto-rate-popup
 | T26 | B11       | integration | tests/integration/background-rate-ask.test.js | opens the popup again at 150 and 250 while the prompt is unanswered      | ✅     |
 | T27 | B11       | integration | tests/integration/background-rate-ask.test.js | never opens the popup once the prompt is answered                        | ✅     |
 | T28 | B12       | integration | tests/integration/background-rate-ask.test.js | doesn't open the popup for $change                                       | ✅     |
-| T29 | B12       | integration | tests/integration/background-rate-ask.test.js | opens the popup once when two tabs store the same milestone              | ⬜     |
-| T30 | B13       | integration | tests/integration/manifest.test.js            | runs the rating worker as a module service worker                        | ⬜     |
+| T29 | B12       | integration | tests/integration/background-rate-ask.test.js | opens the popup once when two tabs store the same milestone              | ➖     |
+| T30 | B13       | integration | tests/integration/manifest.test.js            | runs the rating worker as a module service worker                        | ✅     |
 | T31 | B13       | integration | tests/integration/package.test.js             | builds dist/yt-skip-ad-<version>.zip containing only the extension files | ⬜     |
 
 T25 cases: 49→50 and 149→150 cross; 0→1, 48→49, 50→51, and 100→149 don't;

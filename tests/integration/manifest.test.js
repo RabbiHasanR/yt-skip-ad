@@ -11,6 +11,7 @@ const ICON_SIZES = ['16', '48', '128'];
 const YOUTUBE = '*://*.youtube.com/*';
 const TRUSTED_CLICK = 'src/content/trusted-click.js';
 const SOURCE_URL = 'https://github.com/RabbiHasanR/yt-skip-ad';
+const SERVICE_WORKER = 'src/background/service-worker.js';
 
 /** @returns {any} The parsed manifest.json from the repo root. */
 function readManifest() {
@@ -27,6 +28,7 @@ function referencedFiles(manifest) {
   return [
     ...manifest.content_scripts.flatMap((/** @type {any} */ cs) => cs.js),
     manifest.action.default_popup,
+    manifest.background?.service_worker,
     ...Object.values(manifest.icons),
     ...Object.values(manifest.action.default_icon),
   ];
@@ -58,6 +60,17 @@ describe('manifest.json', () => {
       'object-src': ["'none'"],
       'base-uri': ["'none'"],
       'form-action': ["'none'"],
+    });
+  });
+
+  it('runs the rating worker as a module service worker', () => {
+    // GIVEN the manifest
+    // WHEN Chrome reads its background entry
+    const { background } = readManifest();
+    // THEN it starts the rating worker as an ES module, and nothing else
+    expect(background).toEqual({
+      service_worker: SERVICE_WORKER,
+      type: 'module',
     });
   });
 
