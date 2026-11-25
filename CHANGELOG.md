@@ -3,6 +3,29 @@
 All notable changes to this project. Versions match `version` in
 `manifest.json`.
 
+## 1.3.0 — 2026-11-25
+
+The rating request reaches people who never open the popup
+([Phase 7 spec](specs/2026-11-24-auto-rate-popup/requirements.md)).
+
+### Added
+
+- At 50 ads skipped, the popup opens by itself to ask for a rating, then
+  again every 100 more (150, 250, …) until it is answered. The video keeps
+  playing. **Rate it ★** or **×** ends it for good, as in 1.2.0; anyone who
+  answered in 1.2.0 is never asked.
+- It never opens over a fullscreen video or in front of another app: a ★
+  badge on the toolbar icon shows instead, and opening the popup clears it.
+- A background service worker, the extension's first. It reads only the
+  skip counter and the rating answer, makes no network requests (Chrome
+  blocks them), and needs no new permission.
+
+### Changed
+
+- The request names the last milestone reached: "50+ ads skipped", then
+  "150+", "250+", and so on.
+- The privacy policy and README now list the stored rating answer.
+
 ## 1.2.0 — 2026-11-24
 
 Ratings help others find the extension
